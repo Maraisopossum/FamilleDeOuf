@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Grand Quiz de la Tribu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;600;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg: #1b1030; --panel: #2a1b4d; --panel-light: #35225e;
+    --coral: #ff5d73; --gold: #ffc857; --teal: #3ddc97; --blue: #5b8dee;
+    --text: #f6f2ff; --muted: #b8a9d9; --wrong: #ff5d73;
+  }
+  *{box-sizing:border-box;}
+  html,body{ margin:0; padding:0; min-height:100vh;
+    background: radial-gradient(circle at 20% -10%, #3a2263 0%, var(--bg) 55%);
+    color: var(--text); font-family:'Inter', sans-serif; overflow-x:hidden; }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; }
+  .scribble{ font-family:'Kalam', cursive; }
+  #app{ max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; min-height:100vh; display:flex; flex-direction:column; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 18px; flex-wrap:wrap; gap:10px; }
+  .brand{ font-size: clamp(20px, 4vw, 28px); font-weight:800; letter-spacing: 0.5px; }
+  .brand span{ color: var(--gold); }
+  .round-badge{ background: var(--panel-light); border: 2px solid var(--gold); color: var(--gold); font-weight:700;
+    padding: 6px 16px; border-radius: 999px; font-size: 14px; white-space:nowrap; }
+
+  .card{ background: var(--panel); border-radius: 24px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); margin-top: 20px; }
+  .setup-title{ font-size: clamp(24px,5vw,36px); font-weight:800; margin:0 0 6px; }
+  .setup-sub{ color: var(--muted); margin: 0 0 26px; font-size: 16px; line-height:1.5; }
+
+  input[type=text]{ background: var(--bg); border: 2px solid var(--panel-light); color: var(--text);
+    font-family:'Kalam', cursive; font-size: 18px; padding: 14px 16px; border-radius: 14px; outline:none; width:100%; }
+  input[type=text]:focus{ border-color: var(--gold); }
+  input.code-input{ text-transform:uppercase; letter-spacing: 6px; text-align:center; font-size:26px; }
+  label.field-label{ display:block; font-size:13px; color:var(--muted); margin: 14px 0 6px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; }
+
+  .btn{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size: 18px; padding: 14px 28px; border-radius: 16px;
+    border:none; cursor:pointer; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn:active{ transform: scale(0.96); }
+  .btn-primary{ background: var(--coral); color:#1b1030; box-shadow: 0 8px 0 #b83348; }
+  .btn-gold{ background: var(--gold); color:#1b1030; box-shadow: 0 8px 0 #b5872c; }
+  .btn-ghost{ background: var(--panel-light); color: var(--text); box-shadow: 0 6px 0 #1c1338; }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .btn-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-block{ width:100%; text-align:center; }
+
+  .role-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
+  @media (max-width:600px){ .role-grid{ grid-template-columns:1fr; } }
+  .role-card{ background: var(--panel); border: 2px solid var(--panel-light); border-radius: 22px; padding: 28px 22px;
+    text-align:center; cursor:pointer; transition: all .15s ease; }
+  .role-card:hover{ border-color: var(--gold); transform: translateY(-2px); }
+  .role-card .emoji{ font-size: 46px; margin-bottom:10px; }
+  .role-card h3{ margin: 0 0 6px; font-size:22px; }
+  .role-card p{ color: var(--muted); font-size:14px; margin:0; }
+
+  .code-display{ font-family:'Baloo 2'; font-weight:800; font-size: clamp(38px,10vw,64px); letter-spacing: 10px;
+    color: var(--gold); text-align:center; background: var(--bg); border-radius:20px; padding: 18px; margin: 18px 0; }
+  .player-chip{ display:inline-block; background: var(--panel-light); border-radius: 999px; padding: 8px 16px;
+    margin: 4px; font-family:'Kalam', cursive; font-size:16px; }
+  .waiting-players{ margin: 18px 0; text-align:center; }
+  .pulse-dot{ display:inline-block; width:10px; height:10px; border-radius:50%; background: var(--teal);
+    animation: pulse 1.2s ease-in-out infinite; margin-right:8px; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .stage{ position:relative; background: var(--panel); border-radius: 28px; padding: 32px 26px; margin-top: 18px;
+    box-shadow: 0 0 0 2px var(--panel-light), 0 25px 70px rgba(0,0,0,0.45); animation: glow 3.5s ease-in-out infinite; }
+  @keyframes glow{ 0%,100%{ box-shadow: 0 0 0 2px var(--panel-light), 0 25px 70px rgba(0,0,0,0.45); }
+    50%{ box-shadow: 0 0 0 2px var(--gold), 0 25px 90px rgba(255,200,87,0.25); } }
+  .category-tag{ display:inline-block; background: var(--teal); color:#0e2c22; font-weight:700; font-size:13px;
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 14px; }
+  .question-text{ font-size: clamp(20px, 4vw, 30px); font-weight: 700; line-height:1.35; margin: 0 0 22px; }
+
+  .answer-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+  @media (max-width:600px){ .answer-grid{ grid-template-columns: 1fr; } }
+  .answer-btn{ border: none; border-radius: 16px; padding: 20px 18px; font-size: 17px; font-weight:700;
+    color: #10082a; display:flex; align-items:center; gap:12px; cursor:pointer; transition: all .12s ease;
+    font-family:'Baloo 2'; text-align:left; }
+  .answer-btn:active{ transform: scale(0.97); }
+  .answer-btn.a{ background: var(--coral); } .answer-btn.b{ background: var(--blue); color:#fff; }
+  .answer-btn.c{ background: var(--gold); } .answer-btn.d{ background: var(--teal); }
+  .answer-btn:disabled{ opacity:0.55; cursor:default; }
+  .answer-btn.chosen{ outline: 4px solid #fff; }
+  .answer-btn.correctReveal{ outline: 4px solid #0e2c22; box-shadow: 0 0 0 4px var(--text); }
+  .answer-btn .letter{ background: rgba(0,0,0,0.15); width:30px; height:30px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+
+  .funfact{ background: var(--bg); border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 10px;
+    color: var(--muted); font-size: 14px; margin-top: 14px; }
+  .stage-actions{ display:flex; justify-content:space-between; align-items:center; margin-top: 22px; flex-wrap:wrap; gap:12px; }
+
+  .scoreboard{ margin-top: 20px; background: var(--panel); border-radius: 22px; padding: 22px; }
+  .scoreboard h3{ margin:0 0 14px; font-size:15px; color: var(--muted); font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
+  .player-cards{ display:flex; flex-wrap:wrap; gap: 12px; }
+  .player-card{ background: var(--panel-light); border-radius: 14px; padding: 10px 16px; min-width: 120px; text-align:center; }
+  .player-card .name{ font-family:'Kalam', cursive; font-size:16px; }
+  .player-card .score{ font-family:'Baloo 2'; font-size: 22px; font-weight:800; color: var(--gold); }
+
+  .end-card{ background: var(--panel); border-radius: 28px; padding: 40px 30px; text-align:center; margin-top:20px; }
+  .end-title{ font-size: clamp(26px,5vw,38px); margin:0 0 8px; }
+  .podium{ display:flex; justify-content:center; align-items:flex-end; gap:16px; margin: 30px 0; flex-wrap:wrap; }
+  .podium-item{ background: var(--panel-light); border-radius: 18px 18px 0 0; padding: 18px 16px; min-width: 150px; }
+  .podium-item .rank{ font-size:34px; }
+  .podium-item .pname{ font-family:'Kalam', cursive; font-size:20px; margin: 6px 0 2px; }
+  .podium-item .pscore{ font-family:'Baloo 2'; font-weight:800; color:var(--gold); font-size:22px; }
+  .podium-item .ptitle{ font-size:13px; color: var(--muted); margin-top:6px; line-height:1.4; }
+  .podium-item.first{ order:2; padding-bottom:34px; border: 2px solid var(--gold); }
+  .podium-item.second{ order:1; } .podium-item.third{ order:3; }
+
+  .status-banner{ font-size:13px; color: var(--muted); text-align:center; margin-top:10px; }
+  .config-warning{ background: rgba(255,93,115,0.15); border: 2px solid var(--coral); border-radius:16px;
+    padding:16px 18px; font-size:14px; color: var(--text); margin-top:18px; line-height:1.5; }
+  .config-warning code{ background: rgba(0,0,0,0.3); padding:2px 6px; border-radius:6px; }
+
+  canvas#confetti{ position:fixed; inset:0; pointer-events:none; z-index:50; }
+  footer{ margin-top:auto; padding-top: 30px; text-align:center; color: var(--muted); font-size:13px; }
+  .back-link{ background:none; border:none; color: var(--muted); font-size:14px; cursor:pointer; text-decoration:underline; padding:0; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION SUPABASE — à remplir avant de déployer !
+   1) Crée un projet gratuit sur https://supabase.com
+   2) Va dans Project Settings > API
+   3) Copie "Project URL" et la clé "anon public"
+   4) Colle-les ci-dessous
+   Aucune table de base de données n'est nécessaire : on utilise
+   uniquement les canaux "Realtime Broadcast" de Supabase.
+   ===================================================================== */
+const SUPABASE_URL = "https://ffiowczdhwudkmailhtp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmaW93Y3pkaHd1ZGttYWlsaHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTM4ODcsImV4cCI6MjA5NzAyOTg4N30.Y0KYSPDTqZis2wmzOp2dyfYbYQAwIECxKdVNTNdDq4E";
+
+const CONFIG_OK = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
+const supabaseClient = CONFIG_OK ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+/* ============ DONNÉES DU QUIZ (chargées depuis questions.json) ============ */
+let QUESTIONS = [];
+let CATEGORIES = [];
+
+async function loadQuestions(){
+  const res = await fetch('./questions.json');
+  if(!res.ok) throw new Error('questions.json introuvable');
+  QUESTIONS = await res.json();
+  CATEGORIES = [...new Set(QUESTIONS.map(q => q.cat))];
+}
+
+const FORMATS = [
+  { label:"Rapide", total:12, sub:"~10 min" },
+  { label:"Classique", total:20, sub:"~20 min" },
+  { label:"Marathon", total:36, sub:"~35 min" }
+];
+const ANSWER_CLASSES = ["a","b","c","d"];
+const QUESTION_TIME_MS = 20000;
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function buildDeck(total, selectedCats){
+  const cats = selectedCats && selectedCats.length ? selectedCats : CATEGORIES;
+  const perCat = Math.floor(total / cats.length);
+  let remainder = total - perCat * cats.length;
+  let deck = [];
+  cats.forEach(c => {
+    const pool = shuffle(QUESTIONS.filter(q => q.cat === c));
+    let n = perCat + (remainder > 0 ? 1 : 0);
+    if(remainder > 0) remainder--;
+    deck.push(...pool.slice(0, Math.min(n, pool.length)));
+  });
+  return shuffle(deck);
+}
+function makeRoomCode(){
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let code = "";
+  for(let i=0;i<4;i++) code += letters[Math.floor(Math.random()*letters.length)];
+  return code;
+}
+
+/* ============ SONS ============ */
+let audioCtx;
+function beep(freq, dur, type="sine", vol=0.15){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination); o.start();
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+function soundReveal(){ beep(880,0.15); setTimeout(()=>beep(1320,0.2),120); }
+function soundJoin(){ beep(700,0.12,"triangle"); }
+function soundAnswer(){ beep(500,0.08,"square",0.08); }
+function soundFanfare(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.25,"triangle"),i*130)); }
+
+/* ============ CONFETTI ============ */
+const confettiCanvas = document.getElementById("confetti");
+const ctx = confettiCanvas.getContext("2d");
+let confettiParticles = [];
+function resizeCanvas(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+window.addEventListener("resize", resizeCanvas); resizeCanvas();
+function burstConfetti(count=110){
+  const colors = ["#ff5d73","#ffc857","#3ddc97","#5b8dee","#f6f2ff"];
+  for(let i=0;i<count;i++){
+    confettiParticles.push({ x: innerWidth/2 + (Math.random()-0.5)*200, y: innerHeight*0.3,
+      vx: (Math.random()-0.5)*10, vy: Math.random()*-9 - 2, size: Math.random()*8+4,
+      color: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*360,
+      vrot: (Math.random()-0.5)*10, life: 0 });
+  }
+  if(!confettiRunning){ confettiRunning = true; animateConfetti(); }
+}
+let confettiRunning = false;
+function animateConfetti(){
+  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParticles.forEach(p=>{
+    p.vy += 0.28; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+    ctx.fillStyle = p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6); ctx.restore();
+  });
+  confettiParticles = confettiParticles.filter(p=>p.y < innerHeight+50 && p.life < 400);
+  if(confettiParticles.length>0){ requestAnimationFrame(animateConfetti); }
+  else { confettiRunning = false; ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+}
+
+const TITLES = ["🏆 Le Cerveau de la Soirée","🥈 Le Bon Public Averti","🥉 Le Sacré Débrouillard","🎉 Le Roi (ou la Reine) du Second Degré"];
+
+/* ============ ÉTAT GLOBAL ============ */
+let role = null; // 'host' | 'player'
+let channel = null;
+let roomCode = "";
+
+let host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0 };
+let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null };
+
+const app = document.getElementById("app");
+function render(){
+  if(!CONFIG_OK){ renderConfigWarning(); return; }
+  if(role === null) renderRoleSelect();
+  else if(role === "host") renderHostScreen();
+  else if(role === "player") renderPlayerScreen();
+}
+
+function renderConfigWarning(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Configuration manquante</h1>
+      <p class="setup-sub">Pour que chacun puisse jouer depuis son téléphone, ce jeu a besoin d'un projet Supabase gratuit (aucune carte bancaire requise).</p>
+      <div class="config-warning">
+        1. Crée un compte sur <code>supabase.com</code> et un nouveau projet<br>
+        2. Va dans <code>Project Settings → API</code><br>
+        3. Copie la <code>Project URL</code> et la clé <code>anon public</code><br>
+        4. Ouvre le fichier <code>index.html</code> et remplace <code>SUPABASE_URL</code> et <code>SUPABASE_ANON_KEY</code> tout en haut du script<br>
+        5. Redéploie sur Netlify
+      </div>
+    </div>
+  `;
+}
+
+/* ============ SÉLECTION DU RÔLE ============ */
+function renderRoleSelect(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Chacun son écran !</h1>
+      <p class="setup-sub">Une personne crée la partie sur un grand écran (TV, laptop), les autres rejoignent depuis leur téléphone.</p>
+      <div class="role-grid">
+        <div class="role-card" onclick="chooseRole('host')">
+          <div class="emoji">📺</div><h3>Créer la partie</h3><p>Je tiens l'écran principal (l'hôte du quiz)</p>
+        </div>
+        <div class="role-card" onclick="chooseRole('player')">
+          <div class="emoji">📱</div><h3>Rejoindre une partie</h3><p>Je joue depuis mon téléphone</p>
+        </div>
+      </div>
+    </div>
+    <footer>${QUESTIONS.length} questions dans la base · nécessite que tout le monde soit connecté à Internet</footer>
+  `;
+}
+window.chooseRole = function(r){ role = r; render(); };
+
+/* ============ CANAL REALTIME ============ */
+function subscribeChannel(code, handlers){
+  if(channel) supabaseClient.removeChannel(channel);
+  channel = supabaseClient.channel("quiz-room-" + code, { config:{ broadcast:{ self:false } } });
+  Object.entries(handlers).forEach(([event, fn]) => {
+    channel.on("broadcast", { event }, ({payload}) => fn(payload));
+  });
+  channel.subscribe();
+  return channel;
+}
+function send(event, payload){
+  if(channel) channel.send({ type:"broadcast", event, payload });
+}
+
+/* ================= HOST ================= */
+function renderHostScreen(){
+  if(host.phase === "lobby") renderHostLobby();
+  else if(host.phase === "question" || host.phase === "reveal") renderHostGame();
+  else if(host.phase === "end") renderHostEnd();
+}
+
+function renderHostLobby(){
+  if(!roomCode){
+    roomCode = makeRoomCode();
+    subscribeChannel(roomCode, {
+      join: (payload) => {
+        if(!host.players[payload.name]){ host.players[payload.name] = 0; soundJoin(); render(); }
+      },
+      answer: (payload) => onHostReceiveAnswer(payload)
+    });
+  }
+  const playerNames = Object.keys(host.players);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Salle d'attente</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Rejoignez la partie !</h1>
+      <p class="setup-sub">Chaque joueur va sur ce site depuis son téléphone, choisit « Rejoindre une partie », et entre ce code :</p>
+      <div class="code-display">${roomCode}</div>
+      <div class="waiting-players">
+        <span class="pulse-dot"></span>${playerNames.length} joueur${playerNames.length>1?'s':''} connecté${playerNames.length>1?'s':''}
+        <div style="margin-top:10px;">
+          ${playerNames.map(n=>`<span class="player-chip">${n}</span>`).join("") || '<span style="color:var(--muted);">En attente du premier joueur…</span>'}
+        </div>
+      </div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format de partie</h3>
+      <div class="btn-row" id="formatRow" style="margin-bottom:26px;"></div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
+      <div class="btn-row" id="themeRow" style="margin-bottom:26px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="startBtn" onclick="hostStartGame()" ${playerNames.length<1?'disabled':''}>Lancer la partie 🚀</button>
+      </div>
+    </div>
+    <footer>Astuce : idéalement au moins 2 joueurs pour que ce soit marrant.</footer>
+  `;
+  renderHostFormatRow();
+  renderHostThemeRow();
+}
+function renderHostThemeRow(){
+  if(host.selectedCats.length === 0) host.selectedCats = [...CATEGORIES];
+  const row = document.getElementById("themeRow");
+  row.innerHTML = CATEGORIES.map(c => `
+    <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick="toggleTheme(${JSON.stringify(c)})" style="flex:1;min-width:140px;font-size:14px;">
+      ${c}
+    </button>
+  `).join("");
+}
+window.toggleTheme = function(cat){
+  if(host.selectedCats.includes(cat)){
+    if(host.selectedCats.length > 1) host.selectedCats = host.selectedCats.filter(c => c !== cat);
+  } else {
+    host.selectedCats.push(cat);
+  }
+  renderHostThemeRow();
+};
+function renderHostFormatRow(){
+  const row = document.getElementById("formatRow");
+  row.innerHTML = FORMATS.map((f,i) => `
+    <button class="btn ${host.formatIndex===i ? 'btn-gold' : 'btn-ghost'}" onclick="selectHostFormat(${i})" style="flex:1;min-width:110px;">
+      ${f.label}<br><span style="font-size:12px;font-weight:400;opacity:0.8;">${f.total} questions · ${f.sub}</span>
+    </button>
+  `).join("");
+}
+window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow(); };
+
+window.hostStartGame = function(){
+  host.deck = buildDeck(FORMATS[host.formatIndex].total, host.selectedCats);
+  host.currentIndex = 0;
+  Object.keys(host.players).forEach(n => host.players[n] = 0);
+  hostSendQuestion();
+};
+
+function hostSendQuestion(){
+  host.answers = {};
+  host.phase = "question";
+  const q = host.deck[host.currentIndex];
+  host.questionStartTime = Date.now();
+  send("question", {
+    index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
+    q: q.q, opts: q.opts, duration: QUESTION_TIME_MS
+  });
+  render();
+}
+
+function onHostReceiveAnswer(payload){
+  if(host.phase !== "question") return;
+  if(host.answers[payload.name] !== undefined) return; // une seule réponse comptée
+  host.answers[payload.name] = payload;
+  render();
+}
+
+function renderHostGame(){
+  const q = host.deck[host.currentIndex];
+  const answeredCount = Object.keys(host.answers).length;
+  const totalPlayers = Object.keys(host.players).length;
+  const revealed = host.phase === "reveal";
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">🐼 <span>${q.cat}</span></div>
+      <div class="round-badge">Question ${host.currentIndex+1} / ${host.deck.length}</div>
+    </div>
+    <div class="stage">
+      <span class="category-tag">${q.cat}</span>
+      <p class="question-text">${q.q}</p>
+      <div class="answer-grid">
+        ${q.opts.map((opt,i)=>`
+          <div class="answer-btn ${ANSWER_CLASSES[i]} ${revealed && i===q.correct ? 'correctReveal':''}" style="cursor:default;">
+            <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+          </div>
+        `).join("")}
+      </div>
+      ${revealed ? `<div class="funfact">💡 ${q.fact}</div>` : `
+        <div class="status-banner"><span class="pulse-dot"></span>${answeredCount} / ${totalPlayers} joueur${totalPlayers>1?'s':''} ont répondu</div>
+      `}
+      <div class="stage-actions">
+        ${!revealed
+          ? `<button class="btn btn-gold" onclick="hostReveal()">Révéler la réponse 🔍</button>`
+          : `<button class="btn btn-primary" onclick="hostNext()">${host.currentIndex+1 >= host.deck.length ? "Voir le classement final 🏆" : "Question suivante ➜"}</button>`
+        }
+      </div>
+    </div>
+    <div class="scoreboard">
+      <h3>Scores</h3>
+      <div class="player-cards">
+        ${Object.entries(host.players).sort((a,b)=>b[1]-a[1]).map(([name,score]) => `
+          <div class="player-card"><div class="name">${name}</div><div class="score">${score}</div></div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+window.hostReveal = function(){
+  const q = host.deck[host.currentIndex];
+  host.phase = "reveal";
+  soundReveal();
+  Object.entries(host.answers).forEach(([name, a]) => {
+    const isCorrect = a.optionIndex === q.correct;
+    const pts = isCorrect ? Math.round(1000 - Math.min(a.elapsed, 9000)/9000*500) : 0;
+    host.players[name] = (host.players[name]||0) + pts;
+  });
+  send("reveal", { correct: q.cat === undefined ? null : q.correct, fact: q.fact, scores: host.players, results: host.answers });
+  render();
+};
+
+window.hostNext = function(){
+  if(host.currentIndex+1 >= host.deck.length){
+    host.phase = "end";
+    send("end", { scores: host.players });
+    render();
+    setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
+    return;
+  }
+  host.currentIndex++;
+  hostSendQuestion();
+};
+
+function renderHostEnd(){
+  renderPodiumScreen(host.players, "hostRestart()", "leaveToRoleSelect()");
+}
+window.hostRestart = function(){
+  host.phase = "lobby"; host.deck = []; host.currentIndex = 0;
+  Object.keys(host.players).forEach(n => host.players[n] = 0);
+  render();
+};
+
+/* ================= PLAYER ================= */
+function renderPlayerScreen(){
+  if(player.phase === "join") renderPlayerJoin();
+  else if(player.phase === "waiting") renderPlayerWaiting();
+  else if(player.phase === "question") renderPlayerQuestion();
+  else if(player.phase === "reveal") renderPlayerReveal();
+  else if(player.phase === "end") renderPlayerEnd();
+}
+
+function renderPlayerJoin(){
+  const savedName = localStorage.getItem("quiz_player_name") || "";
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Rejoindre</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Ton prénom, ton code</h1>
+      <p class="setup-sub">Demande le code à 4 lettres affiché sur l'écran principal.</p>
+      <label class="field-label">Ton prénom</label>
+      <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
+      <label class="field-label">Code de la partie</label>
+      <input type="text" class="code-input" id="codeInput" maxlength="4" placeholder="ABCD">
+      <div class="btn-row" style="margin-top:22px;">
+        <button class="btn btn-primary btn-block" onclick="playerJoin()">Rejoindre 🚀</button>
+      </div>
+    </div>
+  `;
+}
+window.playerJoin = function(){
+  const name = document.getElementById("nameInput").value.trim();
+  const code = document.getElementById("codeInput").value.trim().toUpperCase();
+  if(!name || code.length !== 4) return;
+  localStorage.setItem("quiz_player_name", name);
+  player.name = name; player.roomCode = code; player.score = 0;
+  subscribeChannel(code, {
+    question: (payload) => onPlayerReceiveQuestion(payload),
+    reveal: (payload) => onPlayerReceiveReveal(payload),
+    end: (payload) => onPlayerReceiveEnd(payload)
+  });
+  setTimeout(() => send("join", { name }), 400); // laisse le temps à la souscription de se stabiliser
+  player.phase = "waiting";
+  render();
+};
+
+function renderPlayerWaiting(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${player.name}</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:50px;margin-bottom:10px;">⏳</div>
+      <h1 class="setup-title">En attente du lancement…</h1>
+      <p class="setup-sub">L'hôte va bientôt démarrer la partie. Garde ton téléphone sous les yeux !</p>
+    </div>
+  `;
+}
+
+function onPlayerReceiveQuestion(payload){
+  player.currentQuestion = payload;
+  player.chosenIndex = null;
+  player.phase = "question";
+  player.questionReceivedAt = Date.now();
+  render();
+}
+window.playerAnswer = function(i){
+  if(player.chosenIndex !== null) return;
+  player.chosenIndex = i;
+  soundAnswer();
+  const elapsed = Date.now() - player.questionReceivedAt;
+  send("answer", { name: player.name, optionIndex: i, elapsed });
+  render();
+};
+function renderPlayerQuestion(){
+  const q = player.currentQuestion;
+  const locked = player.chosenIndex !== null;
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${q.catName}</span></div>
+      <div class="round-badge">Q ${q.index+1}/${q.total}</div></div>
+    <div class="stage">
+      <p class="question-text">${q.q}</p>
+      <div class="answer-grid">
+        ${q.opts.map((opt,i)=>`
+          <button class="answer-btn ${ANSWER_CLASSES[i]} ${player.chosenIndex===i?'chosen':''}" ${locked?'disabled':''} onclick="playerAnswer(${i})">
+            <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+          </button>
+        `).join("")}
+      </div>
+      ${locked ? `<div class="status-banner">✅ Réponse envoyée, en attente des autres joueurs…</div>` : ""}
+    </div>
+  `;
+}
+
+function onPlayerReceiveReveal(payload){
+  const mine = payload.results ? payload.results[player.name] : null;
+  const wasCorrect = mine ? mine.optionIndex === payload.correct : false;
+  const pointsThisRound = payload.scores[player.name] !== undefined
+    ? payload.scores[player.name] - player.score : 0;
+  player.score = payload.scores[player.name] || player.score;
+  player.lastResult = { wasCorrect, pointsThisRound, correctIndex: payload.correct, fact: payload.fact, answered: !!mine };
+  player.phase = "reveal";
+  render();
+}
+function renderPlayerReveal(){
+  const r = player.lastResult;
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${player.name}</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:56px;margin-bottom:6px;">${!r.answered ? "😴" : r.wasCorrect ? "🎉" : "😬"}</div>
+      <h1 class="setup-title">${!r.answered ? "Pas de réponse envoyée" : r.wasCorrect ? "Bonne réponse !" : "Raté cette fois"}</h1>
+      <p class="setup-sub">${r.answered ? `+${r.pointsThisRound} points ce tour` : "0 point ce tour"} · Score total : <strong style="color:var(--gold);">${player.score}</strong></p>
+      <div class="funfact" style="text-align:left;">💡 ${r.fact}</div>
+      <p class="status-banner" style="margin-top:18px;">En attente de la question suivante…</p>
+    </div>
+  `;
+}
+
+function onPlayerReceiveEnd(payload){
+  player.finalScores = payload.scores;
+  player.phase = "end";
+  render();
+  setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
+}
+function renderPlayerEnd(){
+  renderPodiumScreen(player.finalScores, null, "leaveToRoleSelect()", player.name);
+}
+
+/* ============ ÉCRAN PODIUM PARTAGÉ ============ */
+function podiumItem(name, rankIndex, cls, score){
+  const medals = ["🥇","🥈","🥉"];
+  return `
+    <div class="podium-item ${cls}">
+      <div class="rank">${medals[rankIndex]}</div>
+      <div class="pname">${name}</div>
+      <div class="pscore">${score} pts</div>
+      <div class="ptitle">${TITLES[rankIndex]}</div>
+    </div>
+  `;
+}
+function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
+  const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const podium = ranked.slice(0,3);
+  const [first, second, third] = podium;
+  const podiumHtml = `
+    ${second ? podiumItem(second[0], 1, "second", second[1]) : ""}
+    ${first ? podiumItem(first[0], 0, "first", first[1]) : ""}
+    ${third ? podiumItem(third[0], 2, "third", third[1]) : ""}
+  `;
+  const restHtml = ranked.slice(3).map(([name,score]) => `
+    <div class="player-card" style="min-width:auto;">
+      <div class="name">${name}${name===highlightName?' (toi)':''}</div>
+      <div class="score" style="font-size:18px;">${score} pts</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">${TITLES[3]}</div>
+    </div>
+  `).join("");
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Résultats</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">C'est plié !</h1>
+      <p class="setup-sub">Merci d'avoir joué — la revanche est déjà réclamée par les perdants.</p>
+      <div class="podium">${podiumHtml}</div>
+      ${restHtml ? `<div class="player-cards" style="justify-content:center;">${restHtml}</div>` : ""}
+      <div class="btn-row" style="justify-content:center;margin-top:26px;">
+        ${restartFn ? `<button class="btn btn-primary" onclick="${restartFn}">Nouvelle partie (même salon) 🔁</button>` : ""}
+        <button class="btn btn-ghost" onclick="${leaveFn}">Retour à l'accueil 🏠</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ NAVIGATION ============ */
+window.leaveToRoleSelect = function(){
+  if(channel){ supabaseClient.removeChannel(channel); channel = null; }
+  role = null; roomCode = "";
+  host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0 };
+  player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null };
+  render();
+};
+
+function renderLoading(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card" style="text-align:center;"><p class="setup-sub">Chargement des questions…</p></div>
+  `;
+}
+function renderLoadError(err){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Impossible de charger les questions</h1>
+      <p class="setup-sub">Le fichier <code>questions.json</code> doit se trouver dans le même dossier que <code>index.html</code>, à la racine du site déployé.</p>
+      <div class="config-warning">Détail technique : ${err.message}</div>
+    </div>
+  `;
+}
+(async function bootstrap(){
+  renderLoading();
+  try{
+    await loadQuestions();
+    render();
+  }catch(err){
+    renderLoadError(err);
+  }
+})();
+</script>
+</body>
+</html>

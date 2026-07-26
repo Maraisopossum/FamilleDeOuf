@@ -1,0 +1,2234 @@
+[
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale de l'Australie ?",
+    "opts": [
+      "Sydney",
+      "Melbourne",
+      "Canberra",
+      "Perth"
+    ],
+    "correct": 2,
+    "fact": "Piège classique : Canberra a été choisie en 1908 pour calmer la rivalité entre Sydney et Melbourne !"
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le plus petit pays du monde ?",
+    "opts": [
+      "Monaco",
+      "Le Vatican",
+      "Saint-Marin",
+      "Nauru"
+    ],
+    "correct": 1,
+    "fact": "Le Vatican fait environ 0,44 km², soit à peu près 60 terrains de football."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le fruit le plus cultivé au monde (en tonnage) ?",
+    "opts": [
+      "La banane",
+      "La pomme",
+      "La tomate",
+      "L'orange"
+    ],
+    "correct": 2,
+    "fact": "Botaniquement un fruit, la tomate est produite à plus de 180 millions de tonnes par an."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle boisson tire son nom d'un mot qui signifiait à l'origine « secousse » ?",
+    "opts": [
+      "Le café",
+      "Le milkshake",
+      "Le cocktail",
+      "Le thé glacé"
+    ],
+    "correct": 1,
+    "fact": "« Shake » = secouer en anglais : on secouait vigoureusement la boisson."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la ville la plus peuplée du monde (aire urbaine) ?",
+    "opts": [
+      "Tokyo",
+      "Shanghai",
+      "Delhi",
+      "Mexico"
+    ],
+    "correct": 0,
+    "fact": "L'agglomération de Tokyo dépasse les 37 millions d'habitants."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le plus long fleuve du monde ?",
+    "opts": [
+      "L'Amazone",
+      "Le Nil",
+      "Le Yangtsé",
+      "Le Mississippi"
+    ],
+    "correct": 1,
+    "fact": "Le Nil et l'Amazone se disputent le titre selon les mesures, mais le Nil est traditionnellement cité en premier."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle monnaie utilise-t-on au Japon ?",
+    "opts": [
+      "Le yuan",
+      "Le won",
+      "Le yen",
+      "Le ringgit"
+    ],
+    "correct": 2,
+    "fact": "Le yen japonais existe depuis 1871."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays a la forme d'une botte sur la carte ?",
+    "opts": [
+      "L'Italie",
+      "La Grèce",
+      "Le Portugal",
+      "La Croatie"
+    ],
+    "correct": 0,
+    "fact": "La péninsule italienne s'étire dans la Méditerranée comme une botte bien reconnaissable."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle langue compte le plus de locuteurs natifs dans le monde ?",
+    "opts": [
+      "L'anglais",
+      "Le mandarin",
+      "L'espagnol",
+      "L'hindi"
+    ],
+    "correct": 1,
+    "fact": "Le mandarin dépasse le milliard de locuteurs natifs, loin devant les autres."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le plus grand désert du monde ?",
+    "opts": [
+      "Le Sahara",
+      "L'Antarctique",
+      "Le Gobi",
+      "Le Kalahari"
+    ],
+    "correct": 1,
+    "fact": "Un désert se définit par le manque de précipitations : l'Antarctique en est un, glacé et immense !"
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle merveille du monde antique est encore debout aujourd'hui ?",
+    "opts": [
+      "Le Colosse de Rhodes",
+      "La Grande Pyramide de Gizeh",
+      "Le Phare d'Alexandrie",
+      "Les Jardins de Babylone"
+    ],
+    "correct": 1,
+    "fact": "Seule la Grande Pyramide de Gizeh a traversé les millénaires jusqu'à nous."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "En quelle année a eu lieu la Révolution française ?",
+    "opts": [
+      "1789",
+      "1799",
+      "1804",
+      "1815"
+    ],
+    "correct": 0,
+    "fact": "La prise de la Bastille a lieu le 14 juillet 1789."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays a offert la Statue de la Liberté aux États-Unis ?",
+    "opts": [
+      "L'Angleterre",
+      "La France",
+      "L'Espagne",
+      "Les Pays-Bas"
+    ],
+    "correct": 1,
+    "fact": "Offerte en 1886 pour célébrer l'amitié franco-américaine, elle a été conçue par Bartholdi."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale du Canada ?",
+    "opts": [
+      "Toronto",
+      "Vancouver",
+      "Ottawa",
+      "Montréal"
+    ],
+    "correct": 2,
+    "fact": "Piège fréquent : Toronto est plus connue, mais Ottawa est la capitale depuis 1857."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le plus haut sommet d'Europe ?",
+    "opts": [
+      "Le Mont Blanc",
+      "Le Mont Elbrouz",
+      "Le Cervin",
+      "L'Etna"
+    ],
+    "correct": 1,
+    "fact": "Si l'on inclut le Caucase dans l'Europe, l'Elbrouz (5 642m) dépasse le Mont Blanc (4 809m)."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle ville est surnommée « la Ville Lumière » ?",
+    "opts": [
+      "Londres",
+      "Paris",
+      "New York",
+      "Rome"
+    ],
+    "correct": 1,
+    "fact": "Paris doit ce surnom à son rôle dans les Lumières et son avance dans l'éclairage public."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est l'océan le plus grand du monde ?",
+    "opts": [
+      "L'Atlantique",
+      "L'Indien",
+      "Le Pacifique",
+      "L'Arctique"
+    ],
+    "correct": 2,
+    "fact": "Le Pacifique couvre à lui seul environ un tiers de la surface de la Terre."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays compte le plus de fuseaux horaires officiels sur son territoire ?",
+    "opts": [
+      "La Russie",
+      "Les États-Unis",
+      "La France",
+      "La Chine"
+    ],
+    "correct": 2,
+    "fact": "Grâce à ses territoires d'outre-mer, la France s'étend sur 12 fuseaux horaires."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Combien de continents compte-t-on généralement ?",
+    "opts": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "correct": 2,
+    "fact": "La convention la plus répandue compte 7 continents."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la plus grande île du monde ?",
+    "opts": [
+      "Madagascar",
+      "Le Groenland",
+      "Bornéo",
+      "La Nouvelle-Guinée"
+    ],
+    "correct": 1,
+    "fact": "L'Australie n'est pas comptée comme une île mais comme un continent."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Dans quel pays se trouve le Machu Picchu ?",
+    "opts": [
+      "Le Mexique",
+      "Le Pérou",
+      "Le Chili",
+      "La Bolivie"
+    ],
+    "correct": 1,
+    "fact": "Cette cité inca perchée à 2 430m d'altitude date du XVe siècle."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le pays le plus peuplé du monde aujourd'hui ?",
+    "opts": [
+      "La Chine",
+      "L'Inde",
+      "Les États-Unis",
+      "L'Indonésie"
+    ],
+    "correct": 1,
+    "fact": "L'Inde a dépassé la Chine en population en 2023."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays a inventé le papier ?",
+    "opts": [
+      "L'Égypte",
+      "La Chine",
+      "La Grèce",
+      "L'Italie"
+    ],
+    "correct": 1,
+    "fact": "Le papier tel qu'on le connaît est inventé en Chine il y a environ 2000 ans."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Dans quelle ville se trouve la Tour de Pise ?",
+    "opts": [
+      "Rome",
+      "Florence",
+      "Pise",
+      "Venise"
+    ],
+    "correct": 2,
+    "fact": "Sa fameuse inclinaison vient d'un sol instable découvert pendant la construction."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel détroit sépare l'Europe de l'Afrique ?",
+    "opts": [
+      "Le détroit de Gibraltar",
+      "Le détroit de Bering",
+      "Le détroit de Malacca",
+      "Le canal de Suez"
+    ],
+    "correct": 0,
+    "fact": "À son point le plus étroit, seuls 14 km séparent l'Espagne du Maroc."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le pays d'origine de la pizza margherita ?",
+    "opts": [
+      "La France",
+      "L'Italie",
+      "L'Espagne",
+      "La Grèce"
+    ],
+    "correct": 1,
+    "fact": "Créée à Naples en 1889, elle rendrait hommage aux couleurs du drapeau italien."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale de l'Égypte ?",
+    "opts": [
+      "Alexandrie",
+      "Le Caire",
+      "Louxor",
+      "Gizeh"
+    ],
+    "correct": 1,
+    "fact": "Le Caire est l'une des plus grandes villes d'Afrique."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel monument parisien mesure environ 330 mètres de haut ?",
+    "opts": [
+      "L'Arc de Triomphe",
+      "La Tour Eiffel",
+      "Notre-Dame",
+      "Le Sacré-Cœur"
+    ],
+    "correct": 1,
+    "fact": "Construite pour l'Exposition universelle de 1889, elle devait être démontée après 20 ans."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Combien d'États composent les États-Unis ?",
+    "opts": [
+      "48",
+      "50",
+      "52",
+      "45"
+    ],
+    "correct": 1,
+    "fact": "Hawaï et l'Alaska sont les deux derniers États rejoints, en 1959."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la plus longue muraille construite par l'homme ?",
+    "opts": [
+      "Le mur d'Hadrien",
+      "La Grande Muraille de Chine",
+      "Le mur de Berlin",
+      "La ligne Maginot"
+    ],
+    "correct": 1,
+    "fact": "Elle s'étendrait sur plus de 21 000 km en comptant toutes ses branches."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Dans quel pays se trouve la ville de Tombouctou ?",
+    "opts": [
+      "Le Mali",
+      "Le Niger",
+      "Le Tchad",
+      "Le Sénégal"
+    ],
+    "correct": 0,
+    "fact": "Tombouctou fut un grand centre intellectuel et commercial du désert saharien."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Comment appelle-t-on la zone mystérieuse de l'Atlantique associée à des disparitions ?",
+    "opts": [
+      "Le Triangle des Bermudes",
+      "Le Triangle d'Or",
+      "Le Triangle de la Mort",
+      "Le Triangle Rouge"
+    ],
+    "correct": 0,
+    "fact": "Aucune explication scientifique ne confirme un phénomène anormal dans cette zone."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale de la Suisse ?",
+    "opts": [
+      "Genève",
+      "Zurich",
+      "Berne",
+      "Lausanne"
+    ],
+    "correct": 2,
+    "fact": "Piège classique : Genève et Zurich sont plus connues, mais Berne est la capitale fédérale."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "En quelle année le mur de Berlin est-il tombé ?",
+    "opts": [
+      "1985",
+      "1989",
+      "1991",
+      "1993"
+    ],
+    "correct": 1,
+    "fact": "Sa chute le 9 novembre 1989 a précédé la réunification allemande en 1990."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Comment s'appelle le plus grand récif corallien du monde ?",
+    "opts": [
+      "La Grande Barrière de Corail",
+      "Le récif de Belize",
+      "Le Triangle de corail",
+      "L'atoll de Bikini"
+    ],
+    "correct": 0,
+    "fact": "Elle s'étend sur plus de 2 300 km au large de l'Australie."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays possède le plus de pyramides au monde ?",
+    "opts": [
+      "L'Égypte",
+      "Le Mexique",
+      "Le Soudan",
+      "Le Pérou"
+    ],
+    "correct": 2,
+    "fact": "Le Soudan compte plus de 200 pyramides, davantage que l'Égypte, bien que plus petites."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale la plus septentrionale (la plus au nord) du monde ?",
+    "opts": [
+      "Reykjavik",
+      "Oslo",
+      "Helsinki",
+      "Ottawa"
+    ],
+    "correct": 0,
+    "fact": "La capitale islandaise est aussi connue pour ses sources géothermales."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays a été le premier à accorder le droit de vote aux femmes ?",
+    "opts": [
+      "La France",
+      "La Nouvelle-Zélande",
+      "Les États-Unis",
+      "Le Royaume-Uni"
+    ],
+    "correct": 1,
+    "fact": "La Nouvelle-Zélande l'a fait dès 1893 ; la France attendra 1944."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Entre quels pays se trouvent les chutes Victoria ?",
+    "opts": [
+      "Le Zimbabwe et la Zambie",
+      "Le Kenya et la Tanzanie",
+      "Le Congo et l'Angola",
+      "L'Égypte et le Soudan"
+    ],
+    "correct": 0,
+    "fact": "Elles font plus de 100m de haut et sont surnommées « la fumée qui gronde »."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "D'où viendrait le sandwich, selon la légende ?",
+    "opts": [
+      "De France",
+      "D'Angleterre",
+      "D'Italie",
+      "D'Allemagne"
+    ],
+    "correct": 1,
+    "fact": "Le Comte de Sandwich aurait voulu manger sans quitter sa table de jeu."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la plus ancienne université encore en activité au monde ?",
+    "opts": [
+      "Oxford",
+      "Bologne",
+      "La Sorbonne",
+      "Cambridge"
+    ],
+    "correct": 1,
+    "fact": "L'université de Bologne, en Italie, a été fondée en 1088."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle ligne imaginaire sépare l'hémisphère nord de l'hémisphère sud ?",
+    "opts": [
+      "Le tropique du Cancer",
+      "L'équateur",
+      "Le méridien de Greenwich",
+      "Le tropique du Capricorne"
+    ],
+    "correct": 1,
+    "fact": "L'équateur mesure environ 40 075 km de circonférence."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale de la Turquie ?",
+    "opts": [
+      "Istanbul",
+      "Ankara",
+      "Izmir",
+      "Antalya"
+    ],
+    "correct": 1,
+    "fact": "Piège fréquent : Istanbul est plus grande et connue, mais Ankara est la capitale depuis 1923."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le plus petit continent du monde ?",
+    "opts": [
+      "L'Europe",
+      "L'Océanie",
+      "L'Antarctique",
+      "L'Amérique du Sud"
+    ],
+    "correct": 1,
+    "fact": "L'Océanie est le plus petit continent en superficie terrestre."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?",
+    "opts": [
+      "1965",
+      "1969",
+      "1972",
+      "1959"
+    ],
+    "correct": 1,
+    "fact": "Neil Armstrong pose le pied sur la Lune le 21 juillet 1969."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel était le nom du plus grand des trois bateaux de Christophe Colomb en 1492 ?",
+    "opts": [
+      "La Pinta",
+      "La Niña",
+      "La Santa María",
+      "L'Endeavour"
+    ],
+    "correct": 2,
+    "fact": "La Santa María servait de navire amiral lors de la traversée de l'Atlantique."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle est la capitale administrative de l'Afrique du Sud ?",
+    "opts": [
+      "Le Cap",
+      "Pretoria",
+      "Johannesburg",
+      "Durban"
+    ],
+    "correct": 1,
+    "fact": "L'Afrique du Sud a en réalité trois capitales : Pretoria (administrative), Le Cap (législative) et Bloemfontein (judiciaire)."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel pays européen produit le plus de vin au monde en moyenne ?",
+    "opts": [
+      "La France",
+      "L'Italie",
+      "L'Espagne",
+      "Le Portugal"
+    ],
+    "correct": 1,
+    "fact": "L'Italie et la France se disputent chaque année la première place mondiale de production."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quel est le nom du premier homme à avoir fait le tour du monde en solitaire à la voile sans escale ?",
+    "opts": [
+      "Éric Tabarly",
+      "Robin Knox-Johnston",
+      "Alain Colas",
+      "Olivier de Kersauson"
+    ],
+    "correct": 1,
+    "fact": "Le Britannique a bouclé son tour du monde en 1969 après plus de 300 jours en mer."
+  },
+  {
+    "cat": "Culture générale piégeuse",
+    "q": "Quelle ville portuaire du Nord de la France est connue pour son beffroi classé à l'UNESCO ?",
+    "opts": [
+      "Lille",
+      "Calais",
+      "Dunkerque",
+      "Boulogne-sur-Mer"
+    ],
+    "correct": 0,
+    "fact": "Le beffroi de Lille culmine à plus de 100 mètres de haut."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Un escargot avance à environ 1 cm par seconde. Combien de temps pour parcourir 10 mètres ?",
+    "opts": [
+      "16 minutes",
+      "1h40",
+      "3h20",
+      "Toute la nuit"
+    ],
+    "correct": 0,
+    "fact": "1000 cm ÷ 1 cm/s = 1000 secondes, soit un peu moins de 17 minutes."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de cœurs possède une pieuvre ?",
+    "opts": [
+      "1",
+      "2",
+      "3",
+      "8"
+    ],
+    "correct": 2,
+    "fact": "Deux cœurs pompent le sang vers les branchies, un troisième vers le reste du corps."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Environ combien d'années dort-on sur toute une vie ?",
+    "opts": [
+      "5 ans",
+      "15 ans",
+      "25 ans",
+      "40 ans"
+    ],
+    "correct": 2,
+    "fact": "À raison de 8h par nuit, ça représente environ un tiers de la vie, soit ~26 ans en moyenne."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel pourcentage du corps humain est constitué d'eau environ ?",
+    "opts": [
+      "30%",
+      "60%",
+      "90%",
+      "10%"
+    ],
+    "correct": 1,
+    "fact": "Ça varie selon l'âge et le sexe, mais 60% est la moyenne souvent citée pour un adulte."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de dents a un adulte humain, sagesse comprise ?",
+    "opts": [
+      "28",
+      "32",
+      "36",
+      "24"
+    ],
+    "correct": 1,
+    "fact": "32 dents... si les 4 dents de sagesse ont toutes poussé et n'ont pas été arrachées !"
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "À quelle vitesse peut aller un éternuement ?",
+    "opts": [
+      "15 km/h",
+      "50 km/h",
+      "150 km/h",
+      "300 km/h"
+    ],
+    "correct": 2,
+    "fact": "Un bon éternuement peut projeter des gouttelettes à environ 150 km/h."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est l'animal considéré comme le plus rapide sur Terre (toutes catégories) ?",
+    "opts": [
+      "Le guépard",
+      "Le faucon pèlerin",
+      "L'antilope",
+      "Usain Bolt"
+    ],
+    "correct": 1,
+    "fact": "Le guépard est le plus rapide sur terre (~110 km/h), mais le faucon pèlerin dépasse 300 km/h en piqué !"
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de temps met la lumière du Soleil pour atteindre la Terre ?",
+    "opts": [
+      "8 secondes",
+      "8 minutes",
+      "8 heures",
+      "8 jours"
+    ],
+    "correct": 1,
+    "fact": "Environ 8 minutes et 20 secondes pour parcourir 150 millions de km."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Environ combien de temps faut-il pour qu'un ongle repousse entièrement ?",
+    "opts": [
+      "1 mois",
+      "6 mois",
+      "1 an",
+      "3 ans"
+    ],
+    "correct": 1,
+    "fact": "Les ongles des mains poussent d'environ 3mm par mois."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de litres de salive produit-on en moyenne par jour ?",
+    "opts": [
+      "0,5 L",
+      "1,5 L",
+      "3 L",
+      "5 L"
+    ],
+    "correct": 1,
+    "fact": "De quoi remplir presque deux petites bouteilles d'eau, chaque jour !"
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Génétiquement, quel est le point commun entre une banane et un humain ?",
+    "opts": [
+      "Aucun",
+      "Ils partagent environ 60% d'ADN",
+      "Ils partagent 99% d'ADN",
+      "Les bananes ont plus de gènes que nous"
+    ],
+    "correct": 1,
+    "fact": "On partage environ 60% de notre ADN avec la banane !"
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de litres de sang contient en moyenne le corps humain ?",
+    "opts": [
+      "1 L",
+      "5 L",
+      "8 L",
+      "12 L"
+    ],
+    "correct": 1,
+    "fact": "Un adulte moyen contient environ 5 litres de sang."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est l'organe le plus grand du corps humain ?",
+    "opts": [
+      "Le foie",
+      "La peau",
+      "Le cerveau",
+      "Les poumons"
+    ],
+    "correct": 1,
+    "fact": "La peau représente environ 16% du poids corporel total."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien d'os compte le squelette d'un adulte ?",
+    "opts": [
+      "106",
+      "206",
+      "306",
+      "406"
+    ],
+    "correct": 1,
+    "fact": "Un nourrisson en a plus (environ 300), certains fusionnant en grandissant."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle est la vitesse de la lumière, arrondie ?",
+    "opts": [
+      "300 000 km/s",
+      "30 000 km/s",
+      "3 000 000 km/s",
+      "300 km/s"
+    ],
+    "correct": 0,
+    "fact": "Rien ne va plus vite que la lumière dans le vide."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "En combien de temps la Terre fait-elle un tour complet sur elle-même ?",
+    "opts": [
+      "12h",
+      "24h",
+      "48h",
+      "365 jours"
+    ],
+    "correct": 1,
+    "fact": "Cette rotation définit la durée d'une journée."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est le plus grand organe interne du corps humain ?",
+    "opts": [
+      "Le cœur",
+      "Le foie",
+      "Les reins",
+      "L'estomac"
+    ],
+    "correct": 1,
+    "fact": "Le foie pèse environ 1,5 kg chez l'adulte."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle planète est la plus proche du Soleil ?",
+    "opts": [
+      "Vénus",
+      "Mercure",
+      "Mars",
+      "La Terre"
+    ],
+    "correct": 1,
+    "fact": "Mercure met seulement 88 jours à faire le tour du Soleil."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle planète est surnommée « la planète rouge » ?",
+    "opts": [
+      "Vénus",
+      "Jupiter",
+      "Mars",
+      "Saturne"
+    ],
+    "correct": 2,
+    "fact": "Sa couleur vient de l'oxyde de fer présent à sa surface."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de temps la Terre met-elle pour faire le tour du Soleil ?",
+    "opts": [
+      "30 jours",
+      "365 jours",
+      "100 jours",
+      "12 jours"
+    ],
+    "correct": 1,
+    "fact": "C'est la définition même d'une année."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel gaz les plantes absorbent-elles principalement pour la photosynthèse ?",
+    "opts": [
+      "Oxygène",
+      "Azote",
+      "CO2",
+      "Hydrogène"
+    ],
+    "correct": 2,
+    "fact": "Elles rejettent de l'oxygène en échange, un bon deal pour nous."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de chromosomes possède une cellule humaine normale ?",
+    "opts": [
+      "23",
+      "46",
+      "48",
+      "21"
+    ],
+    "correct": 1,
+    "fact": "23 paires, soit 46 chromosomes au total."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle est la température corporelle normale chez l'humain ?",
+    "opts": [
+      "35°C",
+      "37°C",
+      "39°C",
+      "40°C"
+    ],
+    "correct": 1,
+    "fact": "Elle peut légèrement varier selon l'heure de la journée."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est le muscle le plus puissant du corps humain, en force relative ?",
+    "opts": [
+      "Le biceps",
+      "Le masséter (mâchoire)",
+      "Le mollet",
+      "Le cœur"
+    ],
+    "correct": 1,
+    "fact": "Le masséter permet de mordre avec une force impressionnante."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel organe produit l'insuline ?",
+    "opts": [
+      "Le foie",
+      "Le pancréas",
+      "Les reins",
+      "La rate"
+    ],
+    "correct": 1,
+    "fact": "L'insuline régule le taux de sucre dans le sang."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel pourcentage de son cerveau un être humain utilise-t-il réellement ?",
+    "opts": [
+      "10%",
+      "50%",
+      "Quasiment 100%",
+      "25%"
+    ],
+    "correct": 2,
+    "fact": "Le mythe des « 10% du cerveau » est totalement démenti par l'imagerie médicale."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de bourgeons du goût compte environ la langue humaine ?",
+    "opts": [
+      "200",
+      "2 000",
+      "10 000",
+      "50 000"
+    ],
+    "correct": 2,
+    "fact": "Ils se renouvellent régulièrement tout au long de la vie."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle est la plus petite planète du système solaire ?",
+    "opts": [
+      "Mars",
+      "Mercure",
+      "Vénus",
+      "Pluton"
+    ],
+    "correct": 1,
+    "fact": "Pluton n'est plus classée comme planète depuis 2006, c'est une planète naine."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Comment s'appelle la galaxie qui contient notre système solaire ?",
+    "opts": [
+      "Andromède",
+      "La Voie Lactée",
+      "Le Grand Nuage de Magellan",
+      "La galaxie du Sombrero"
+    ],
+    "correct": 1,
+    "fact": "Elle contiendrait entre 100 et 400 milliards d'étoiles."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "À combien d'années-lumière se trouve l'étoile la plus proche du Soleil ?",
+    "opts": [
+      "Environ 4",
+      "Environ 40",
+      "Environ 400",
+      "Environ 4000"
+    ],
+    "correct": 0,
+    "fact": "Il s'agit de Proxima Centauri, à environ 4,2 années-lumière."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est l'élément chimique le plus abondant dans l'univers ?",
+    "opts": [
+      "Oxygène",
+      "Carbone",
+      "Hydrogène",
+      "Hélium"
+    ],
+    "correct": 2,
+    "fact": "L'hydrogène compose environ 75% de la matière ordinaire de l'univers."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle est la plus grande planète du système solaire ?",
+    "opts": [
+      "Saturne",
+      "Jupiter",
+      "Neptune",
+      "Uranus"
+    ],
+    "correct": 1,
+    "fact": "On pourrait loger plus de 1300 Terres à l'intérieur de Jupiter."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de temps peut-on survivre sans eau environ ?",
+    "opts": [
+      "1 jour",
+      "3 jours",
+      "2 semaines",
+      "1 mois"
+    ],
+    "correct": 1,
+    "fact": "Ça dépend beaucoup des conditions, mais 3 jours est l'ordre de grandeur souvent cité."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est le seul mammifère réellement capable de voler ?",
+    "opts": [
+      "L'écureuil volant",
+      "La chauve-souris",
+      "Le colugo",
+      "Le vampire (le vrai vampire, pas la chauve-souris !)"
+    ],
+    "correct": 1,
+    "fact": "L'écureuil volant et le colugo planent, mais ne volent pas vraiment."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de semaines dure en moyenne une grossesse humaine ?",
+    "opts": [
+      "30",
+      "40",
+      "45",
+      "52"
+    ],
+    "correct": 1,
+    "fact": "On compte généralement 40 semaines depuis les dernières règles."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est le seul organe humain capable de se régénérer presque entièrement ?",
+    "opts": [
+      "Le foie",
+      "Le cœur",
+      "Le cerveau",
+      "Les reins"
+    ],
+    "correct": 0,
+    "fact": "Le foie peut retrouver sa taille même après ablation d'une grande partie."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle vitamine la peau produit-elle principalement grâce au soleil ?",
+    "opts": [
+      "Vitamine A",
+      "Vitamine C",
+      "Vitamine D",
+      "Vitamine K"
+    ],
+    "correct": 2,
+    "fact": "Une exposition modérée au soleil suffit à en produire l'essentiel."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est l'os le plus long du corps humain ?",
+    "opts": [
+      "Le tibia",
+      "Le fémur",
+      "L'humérus",
+      "Le radius"
+    ],
+    "correct": 1,
+    "fact": "Le fémur représente environ un quart de la taille d'une personne."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel est l'os le plus petit du corps humain ?",
+    "opts": [
+      "L'étrier, dans l'oreille",
+      "Le petit doigt",
+      "La rotule",
+      "Une vertèbre"
+    ],
+    "correct": 0,
+    "fact": "Il mesure à peine 3mm et participe à la transmission du son."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de litres d'urine produit-on en moyenne par jour ?",
+    "opts": [
+      "0,5 L",
+      "1,5 L",
+      "4 L",
+      "8 L"
+    ],
+    "correct": 1,
+    "fact": "Ça varie évidemment selon l'hydratation de chacun."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelles parties du corps ne cessent jamais vraiment de s'allonger avec l'âge ?",
+    "opts": [
+      "Le nez et les oreilles",
+      "Les mains",
+      "Les pieds",
+      "Les dents"
+    ],
+    "correct": 0,
+    "fact": "Le cartilage continue de croître très légèrement toute la vie."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de temps dure en moyenne un cycle de sommeil complet ?",
+    "opts": [
+      "20 minutes",
+      "90 minutes",
+      "3 heures",
+      "6 heures"
+    ],
+    "correct": 1,
+    "fact": "Une nuit comporte généralement 4 à 6 cycles de ce type."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de neurones compte environ le cerveau humain ?",
+    "opts": [
+      "1 million",
+      "86 milliards",
+      "1000 milliards",
+      "500 millions"
+    ],
+    "correct": 1,
+    "fact": "Chaque neurone peut être connecté à des milliers d'autres."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle glande régule notamment la température corporelle et la faim ?",
+    "opts": [
+      "L'hypophyse",
+      "L'hypothalamus",
+      "La thyroïde",
+      "Le thymus"
+    ],
+    "correct": 1,
+    "fact": "L'hypothalamus agit comme un véritable chef d'orchestre du corps."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel gaz représente environ 78% de l'air que nous respirons ?",
+    "opts": [
+      "Oxygène",
+      "Azote",
+      "CO2",
+      "Argon"
+    ],
+    "correct": 1,
+    "fact": "L'oxygène n'en représente qu'environ 21%."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de temps la Lune met-elle pour faire le tour de la Terre ?",
+    "opts": [
+      "7 jours",
+      "Environ 27 jours",
+      "100 jours",
+      "365 jours"
+    ],
+    "correct": 1,
+    "fact": "C'est ce qu'on appelle le mois sidéral."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle est la seule planète du système solaire qui tourne « à l'envers » sur elle-même ?",
+    "opts": [
+      "Mars",
+      "Vénus",
+      "Neptune",
+      "Mercure"
+    ],
+    "correct": 1,
+    "fact": "Sur Vénus, le Soleil se lèverait à l'ouest !"
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quelle proportion des océans a été explorée par l'humain, environ ?",
+    "opts": [
+      "5%",
+      "25%",
+      "50%",
+      "80%"
+    ],
+    "correct": 0,
+    "fact": "On connaît mieux la surface de la Lune que le fond de nos océans."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Combien de fois le cœur bat-il en moyenne par minute au repos, chez un adulte ?",
+    "opts": [
+      "20-40",
+      "60-100",
+      "120-150",
+      "150-200"
+    ],
+    "correct": 1,
+    "fact": "Chez un sportif entraîné, ce chiffre peut être plus bas."
+  },
+  {
+    "cat": "Sciences & corps humain",
+    "q": "Quel liquide utilise-t-on pour tester le pH en chimie, avec un papier qui change de couleur ?",
+    "opts": [
+      "Le papier tournesol",
+      "Le papier calque",
+      "Le papier bulle",
+      "Le papier buvard"
+    ],
+    "correct": 0,
+    "fact": "Rouge en milieu acide, bleu en milieu basique."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel groupe a chanté « Bohemian Rhapsody » ?",
+    "opts": [
+      "The Beatles",
+      "Queen",
+      "Pink Floyd",
+      "ABBA"
+    ],
+    "correct": 1,
+    "fact": "Sorti en 1975, ce titre de Queen dure près de 6 minutes sans refrain classique."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel super-héros a pour identité secrète Peter Parker ?",
+    "opts": [
+      "Iron Man",
+      "Batman",
+      "Spider-Man",
+      "Le Facteur du quartier"
+    ],
+    "correct": 2,
+    "fact": "Créé en 1962, Spider-Man reste l'un des super-héros les plus populaires au monde."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans quel dessin animé vit-on à « Bikini Bottom » ?",
+    "opts": [
+      "Bob l'éponge",
+      "Les Simpson",
+      "Rick et Morty",
+      "Avatar"
+    ],
+    "correct": 0,
+    "fact": "Bikini Bottom se trouve sous le lagon de l'atoll de Bikini."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel instrument Lisa Simpson joue-t-elle ?",
+    "opts": [
+      "Le piano",
+      "La guitare",
+      "Le saxophone",
+      "Le triangle"
+    ],
+    "correct": 2,
+    "fact": "Son saxophone alto est un running gag récurrent de la série."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est le film le plus rentable de tous les temps au box-office mondial ?",
+    "opts": [
+      "Avatar",
+      "Avengers: Endgame",
+      "Titanic",
+      "Star Wars"
+    ],
+    "correct": 0,
+    "fact": "Avatar a récupéré sa première place après une ressortie en salles."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans Harry Potter, quelle maison de Poudlard est symbolisée par un serpent ?",
+    "opts": [
+      "Gryffondor",
+      "Serpentard",
+      "Poufsouffle",
+      "Serdaigle"
+    ],
+    "correct": 1,
+    "fact": "Ses couleurs sont le vert et l'argent."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel groupe de musique a sorti l'album « Thriller » ?",
+    "opts": [
+      "Michael Jackson",
+      "Prince",
+      "Queen",
+      "The Jackson 5"
+    ],
+    "correct": 0,
+    "fact": "C'est l'album le plus vendu de tous les temps."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est le vrai prénom de Batman ?",
+    "opts": [
+      "Clark Kent",
+      "Bruce Wayne",
+      "Tony Stark",
+      "Peter Parker"
+    ],
+    "correct": 1,
+    "fact": "Milliardaire de Gotham City, il n'a aucun super-pouvoir, juste beaucoup de gadgets."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment s'appelle le poisson-clown héros de « Le Monde de Nemo » ?",
+    "opts": [
+      "Marin",
+      "Nemo",
+      "Dory",
+      "Bruce"
+    ],
+    "correct": 1,
+    "fact": "Son père, Marin, part à sa recherche dans tout l'océan."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle chanteuse est surnommée « la Reine de la Pop » ?",
+    "opts": [
+      "Rihanna",
+      "Madonna",
+      "Beyoncé",
+      "Lady Gaga"
+    ],
+    "correct": 1,
+    "fact": "Madonna a connu son premier grand succès dans les années 1980."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est le prénom du personnage principal joué par Leonardo DiCaprio dans « Titanic » ?",
+    "opts": [
+      "Jack",
+      "Jim",
+      "John",
+      "Joe"
+    ],
+    "correct": 0,
+    "fact": "Jack Dawson embarque grâce à un billet gagné aux cartes."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est l'animal totem de la maison Serdaigle à Poudlard ?",
+    "opts": [
+      "Le blaireau",
+      "L'aigle",
+      "Le lion",
+      "Le serpent"
+    ],
+    "correct": 1,
+    "fact": "Serdaigle valorise avant tout l'intelligence et la sagesse."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Combien de films compte la trilogie originale « Star Wars » (1977-1983) ?",
+    "opts": [
+      "3",
+      "6",
+      "9",
+      "12"
+    ],
+    "correct": 0,
+    "fact": "Un Nouvel Espoir, L'Empire contre-attaque et Le Retour du Jedi."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment se nomme le sorcier maléfique dans Harry Potter surnommé « Celui-dont-on-ne-doit-pas-prononcer-le-nom » ?",
+    "opts": [
+      "Sirius Black",
+      "Voldemort",
+      "Dumbledore",
+      "Rogue"
+    ],
+    "correct": 1,
+    "fact": "Son vrai nom, Tom Jedusor, est un anagramme dans la version originale anglaise."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle chanson des Beatles évoque un sous-marin d'une couleur particulière ?",
+    "opts": [
+      "Let It Be",
+      "Yellow Submarine",
+      "Hey Jude",
+      "Come Together"
+    ],
+    "correct": 1,
+    "fact": "Sortie en 1966, elle est devenue une chanson emblématique pour enfants."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans quel film Disney le personnage d'Elsa gèle-t-il tout autour d'elle ?",
+    "opts": [
+      "Vaiana",
+      "La Reine des Neiges",
+      "Raiponce",
+      "Encanto"
+    ],
+    "correct": 1,
+    "fact": "Sorti en 2013, il est inspiré de « La Reine des Neiges » d'Andersen."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel super-héros Marvel est connu pour son bouclier ?",
+    "opts": [
+      "Iron Man",
+      "Captain America",
+      "Thor",
+      "Hulk"
+    ],
+    "correct": 1,
+    "fact": "Son bouclier est fait d'un alliage fictif quasi-indestructible, le vibranium."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment appelle-t-on les fans de Taylor Swift ?",
+    "opts": [
+      "Les Swifties",
+      "Les Beliebers",
+      "Les Little Monsters",
+      "Les Navy"
+    ],
+    "correct": 0,
+    "fact": "Ce surnom est utilisé mondialement par la communauté de fans."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Combien d'Oscars le film « Titanic » (1997) a-t-il remportés ?",
+    "opts": [
+      "5",
+      "11",
+      "14",
+      "3"
+    ],
+    "correct": 1,
+    "fact": "Ce record a depuis été égalé, mais jamais dépassé."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Qui a réalisé la trilogie cinématographique « Le Seigneur des Anneaux » ?",
+    "opts": [
+      "Peter Jackson",
+      "James Cameron",
+      "Steven Spielberg",
+      "Christopher Nolan"
+    ],
+    "correct": 0,
+    "fact": "Les films ont été tournés en Nouvelle-Zélande."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans quel jeu vidéo incarne-t-on un plombier moustachu italien ?",
+    "opts": [
+      "Sonic",
+      "Mario",
+      "Zelda",
+      "Pac-Man"
+    ],
+    "correct": 1,
+    "fact": "Mario est apparu pour la première fois en 1981 dans « Donkey Kong »."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment s'appelle le café où se retrouvent les amis dans la série « Friends » ?",
+    "opts": [
+      "Central Perk",
+      "Monica's",
+      "The Coffee Bean",
+      "Perk Place"
+    ],
+    "correct": 0,
+    "fact": "Un clin d'œil au « Central Park » new-yorkais."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle série met en scène des familles qui se disputent un trône de fer ?",
+    "opts": [
+      "Le Trône de Fer",
+      "Vikings",
+      "The Witcher",
+      "Merlin"
+    ],
+    "correct": 0,
+    "fact": "Elle est adaptée des romans de George R. R. Martin."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel groupe de super-héros Marvel inclut Iron Man, Thor et Hulk ?",
+    "opts": [
+      "La Justice League",
+      "Les Avengers",
+      "Les X-Men",
+      "Les Gardiens de la Galaxie"
+    ],
+    "correct": 1,
+    "fact": "La Justice League est en réalité l'équivalent chez le concurrent DC Comics."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle chanteuse française a interprété « La Vie en Rose » ?",
+    "opts": [
+      "Édith Piaf",
+      "Dalida",
+      "Mireille Mathieu",
+      "France Gall"
+    ],
+    "correct": 0,
+    "fact": "Composée en 1945, la chanson est devenue un hymne international."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans quel film d'animation Pixar des jouets prennent-ils vie ?",
+    "opts": [
+      "Toy Story",
+      "Cars",
+      "Ratatouille",
+      "Là-Haut"
+    ],
+    "correct": 0,
+    "fact": "Sorti en 1995, c'est le premier long-métrage entièrement en images de synthèse."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle console a lancé le personnage Sonic ?",
+    "opts": [
+      "Nintendo",
+      "Sega",
+      "Sony",
+      "Atari"
+    ],
+    "correct": 1,
+    "fact": "Sonic devait incarner une image jeune et rapide face à Mario."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle actrice incarne Wonder Woman dans les films récents ?",
+    "opts": [
+      "Gal Gadot",
+      "Scarlett Johansson",
+      "Margot Robbie",
+      "Brie Larson"
+    ],
+    "correct": 0,
+    "fact": "L'actrice israélienne a d'abord été Miss Israël avant de devenir actrice."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment s'appelle le réseau social créé par Mark Zuckerberg ?",
+    "opts": [
+      "Facebook",
+      "Twitter",
+      "Instagram",
+      "LinkedIn"
+    ],
+    "correct": 0,
+    "fact": "Lancé en 2004 depuis un dortoir de Harvard."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel groupe suédois a chanté « Dancing Queen » ?",
+    "opts": [
+      "ABBA",
+      "Roxette",
+      "Ace of Base",
+      "Europe"
+    ],
+    "correct": 0,
+    "fact": "ABBA a remporté l'Eurovision en 1974 avec « Waterloo »."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment s'appelle le chat souriant qui apparaît et disparaît dans « Alice au Pays des Merveilles » ?",
+    "opts": [
+      "Le Chat du Cheshire",
+      "Tom",
+      "Garfield",
+      "Le Chat Botté"
+    ],
+    "correct": 0,
+    "fact": "Il ne laisse parfois derrière lui que son sourire."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel film catastrophe avec Bruce Willis met en scène un astéroïde menaçant la Terre ?",
+    "opts": [
+      "Armageddon",
+      "Deep Impact",
+      "Gravity",
+      "Interstellar"
+    ],
+    "correct": 0,
+    "fact": "Sorti en 1998, il envoie des foreurs pétroliers dans l'espace pour sauver la planète."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Dans quelle ville fictive vit Batman ?",
+    "opts": [
+      "Metropolis",
+      "Gotham City",
+      "Central City",
+      "Star City"
+    ],
+    "correct": 1,
+    "fact": "Metropolis est en réalité la ville de Superman."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle chanteuse est surnommée « Queen Bey » par ses fans ?",
+    "opts": [
+      "Rihanna",
+      "Beyoncé",
+      "Alicia Keys",
+      "Nicki Minaj"
+    ],
+    "correct": 1,
+    "fact": "Elle a débuté sa carrière au sein du groupe Destiny's Child."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Comment s'appelle le héros de la saga « Fast and Furious » joué par Vin Diesel ?",
+    "opts": [
+      "Dominic Toretto",
+      "Brian O'Conner",
+      "Roman Pearce",
+      "Han"
+    ],
+    "correct": 0,
+    "fact": "Sa réplique culte tourne toujours autour de la famille."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel jeu vidéo de construction et de survie utilise des blocs cubiques ?",
+    "opts": [
+      "Fortnite",
+      "Minecraft",
+      "Roblox",
+      "Terraria"
+    ],
+    "correct": 1,
+    "fact": "C'est l'un des jeux vidéo les plus vendus de l'histoire."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle série d'animation japonaise suit un garçon qui veut devenir maître dresseur ?",
+    "opts": [
+      "Naruto",
+      "Pokémon",
+      "Dragon Ball",
+      "One Piece"
+    ],
+    "correct": 1,
+    "fact": "Sacha (ou Ash) et son Pikachu sillonnent le monde depuis 1997."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel groupe de rock britannique a été formé par les frères Gallagher ?",
+    "opts": [
+      "Oasis",
+      "Blur",
+      "Coldplay",
+      "Radiohead"
+    ],
+    "correct": 0,
+    "fact": "Liam et Noel Gallagher sont connus pour leurs disputes légendaires."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quelle actrice incarne Hermione Granger dans les films Harry Potter ?",
+    "opts": [
+      "Emma Watson",
+      "Emma Stone",
+      "Emma Roberts",
+      "Emma Thompson"
+    ],
+    "correct": 0,
+    "fact": "Elle avait seulement 9 ans lors de son casting."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est le titre français du film d'animation « Frozen » ?",
+    "opts": [
+      "La Reine des Neiges",
+      "Le Royaume de Glace",
+      "Les Neiges Éternelles",
+      "Glacée"
+    ],
+    "correct": 0,
+    "fact": "Le film a donné lieu à une suite très attendue en 2019."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel jeu télé français teste la culture générale de ses candidats face à un « Maître de midi » ?",
+    "opts": [
+      "Questions pour un Champion",
+      "Money Drop",
+      "Slam",
+      "Motus"
+    ],
+    "correct": 0,
+    "fact": "L'émission existe sur France 3 depuis 1988."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel personnage de jeu vidéo mange des pastilles en évitant des fantômes colorés ?",
+    "opts": [
+      "Sonic",
+      "Mario",
+      "Pac-Man",
+      "Kirby"
+    ],
+    "correct": 2,
+    "fact": "Sorti en 1980, c'est l'un des jeux d'arcade les plus emblématiques."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel réalisateur est connu pour « Titanic » et « Avatar » ?",
+    "opts": [
+      "James Cameron",
+      "Steven Spielberg",
+      "Ridley Scott",
+      "Peter Jackson"
+    ],
+    "correct": 0,
+    "fact": "Il détient à lui seul deux records de box-office mondial avec ces deux films."
+  },
+  {
+    "cat": "Pop culture & écrans",
+    "q": "Quel est le nom du dragon-crocodile porte-bonheur de la Coupe du Monde de la FIFA 2026 ?",
+    "opts": [
+      "Il n'existe pas de mascotte unique",
+      "Zabivaka",
+      "Footix",
+      "Goleo"
+    ],
+    "correct": 0,
+    "fact": "Les mascottes changent à chaque édition ; celles de 2026 sont spécifiques à cette Coupe du Monde."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Selon la légende, de quelle couleur était le cheval blanc d'Henri IV ?",
+    "opts": [
+      "Blanc",
+      "Noir",
+      "Marron",
+      "Ça dépend de la saison"
+    ],
+    "correct": 0,
+    "fact": "La fameuse « question piège » qui n'en est pas une : c'est écrit dans la question !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un électricien ?",
+    "opts": [
+      "Être payé en nature",
+      "Ne pas être au courant",
+      "Avoir peur du noir",
+      "Perdre le fil"
+    ],
+    "correct": 1,
+    "fact": "Jeu de mots entre « être informé » et « le courant électrique »."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un jardinier ?",
+    "opts": [
+      "Semer la zizanie",
+      "Avoir la main verte",
+      "Perdre ses fleurs",
+      "Manquer d'eau"
+    ],
+    "correct": 0,
+    "fact": "« Semer la zizanie » veut aussi dire créer la discorde !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un tailleur ?",
+    "opts": [
+      "Être cousu de fil blanc",
+      "Perdre une aiguille",
+      "Recoudre un bouton",
+      "Avoir un trou"
+    ],
+    "correct": 0,
+    "fact": "« Être cousu de fil blanc » veut aussi dire être trop prévisible."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un coiffeur ?",
+    "opts": [
+      "Être chauve",
+      "Couper les cheveux en quatre",
+      "Perdre ses ciseaux",
+      "Avoir les cheveux gras"
+    ],
+    "correct": 0,
+    "fact": "Le comble absolu du métier, forcément !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un magicien ?",
+    "opts": [
+      "Rater un tour",
+      "Disparaître",
+      "Perdre sa baguette",
+      "Avoir le trac"
+    ],
+    "correct": 1,
+    "fact": "Personne ne saurait jamais où il est passé !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un menuisier ?",
+    "opts": [
+      "Perdre la boule",
+      "Manquer de bois",
+      "Casser un marteau",
+      "Avoir des échardes"
+    ],
+    "correct": 0,
+    "fact": "« La boule » désigne aussi une poignée de porte en bois."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un marin ?",
+    "opts": [
+      "Avoir le mal de mer",
+      "Ne jamais voir la mer",
+      "Perdre le nord",
+      "Rater le bateau"
+    ],
+    "correct": 2,
+    "fact": "Un marin sans boussole, c'est le comble !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un boulanger ?",
+    "opts": [
+      "Manquer de farine",
+      "Ne pas gagner sa croûte",
+      "Brûler le pain",
+      "Perdre la recette"
+    ],
+    "correct": 1,
+    "fact": "« Gagner sa croûte » veut aussi dire gagner sa vie."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un cordonnier ?",
+    "opts": [
+      "Être mal chaussé",
+      "Perdre une chaussette",
+      "Avoir des ampoules",
+      "Marcher pieds nus"
+    ],
+    "correct": 0,
+    "fact": "Le dicton dit que « les cordonniers sont les plus mal chaussés »."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Un fermier a 17 moutons. Tous sauf 9 meurent. Combien lui en reste-t-il ?",
+    "opts": [
+      "0",
+      "8",
+      "9",
+      "17"
+    ],
+    "correct": 2,
+    "fact": "« Tous sauf 9 meurent » veut dire que 9 moutons survivent, pas qu'il en reste 8 !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qui a un cou mais pas de tête ?",
+    "opts": [
+      "Une bouteille",
+      "Un serpent",
+      "Une girafe",
+      "Un pull"
+    ],
+    "correct": 0,
+    "fact": "Le goulot d'une bouteille est bien souvent appelé son « cou »."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Plus on en enlève, plus il grandit. Qu'est-ce que c'est ?",
+    "opts": [
+      "Un trou",
+      "Une dette",
+      "Une ombre",
+      "Un mur"
+    ],
+    "correct": 0,
+    "fact": "Creuser un trou, c'est bien enlever de la matière pour l'agrandir !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qui va toujours vers le haut mais qui ne redescend jamais ?",
+    "opts": [
+      "Un ballon",
+      "L'âge",
+      "Un ascenseur",
+      "La fumée"
+    ],
+    "correct": 1,
+    "fact": "On ne rajeunit malheureusement pas !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Deux mères et deux filles partent en voyage, et pourtant il n'y a que trois personnes. Comment est-ce possible ?",
+    "opts": [
+      "Une grand-mère, une mère et une fille",
+      "Ce sont des jumelles",
+      "C'est impossible",
+      "Elles ont menti"
+    ],
+    "correct": 0,
+    "fact": "La grand-mère est aussi une mère, et la mère est aussi une fille !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qui a des dents mais qui ne mord jamais ?",
+    "opts": [
+      "Un peigne",
+      "Un chien endormi",
+      "Une scie",
+      "Un vieux monsieur"
+    ],
+    "correct": 0,
+    "fact": "Les dents d'un peigne ne servent qu'à démêler !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qu'on casse dès qu'on le prononce ?",
+    "opts": [
+      "Le silence",
+      "Une assiette",
+      "Une promesse",
+      "Un miroir"
+    ],
+    "correct": 0,
+    "fact": "Dire le mot « silence » à voix haute, c'est déjà le briser !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Un escargot tombe au fond d'un puits de 10 mètres. Il monte de 3m le jour et redescend de 2m la nuit. Combien de jours lui faut-il pour sortir ?",
+    "opts": [
+      "8",
+      "10",
+      "5",
+      "3"
+    ],
+    "correct": 0,
+    "fact": "Au 8e jour, il atteint enfin le sommet avant de pouvoir redescendre la nuit !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Combien de mois de l'année comptent au moins 28 jours ?",
+    "opts": [
+      "1",
+      "Les 12",
+      "6",
+      "2"
+    ],
+    "correct": 1,
+    "fact": "Tous les mois, même février, comptent au moins 28 jours !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qui vous appartient, mais que les autres utilisent bien plus souvent que vous ?",
+    "opts": [
+      "Votre prénom",
+      "Votre maison",
+      "Votre téléphone",
+      "Votre voiture"
+    ],
+    "correct": 0,
+    "fact": "On entend son prénom bien plus souvent qu'on ne le prononce soi-même !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Combien de fois peut-on réellement soustraire 5 de 25 ?",
+    "opts": [
+      "5 fois",
+      "1 fois, après ce n'est plus 25",
+      "20 fois",
+      "Une infinité de fois"
+    ],
+    "correct": 1,
+    "fact": "Dès qu'on soustrait 5 une première fois, le nombre de départ n'est plus 25 !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qui est plein de trous mais qui retient quand même l'eau ?",
+    "opts": [
+      "Une éponge",
+      "Un filet",
+      "Une passoire",
+      "Un seau percé"
+    ],
+    "correct": 0,
+    "fact": "Ses milliers de petits trous emprisonnent l'eau au lieu de la laisser passer."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Que dit un escargot en croisant une limace sur son chemin ?",
+    "opts": [
+      "« Regarde, un nudiste ! »",
+      "« Bonjour ! »",
+      "« Dépêche-toi ! »",
+      "« Quelle belle coquille tu as »"
+    ],
+    "correct": 0,
+    "fact": "La limace, c'est un escargot qui a perdu sa maison !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi les plongeurs plongent-ils toujours en arrière et jamais en avant depuis le bateau ?",
+    "opts": [
+      "Sinon, ils tombent dans le bateau",
+      "Par tradition",
+      "Pour épater la galerie",
+      "Parce que c'est plus rapide"
+    ],
+    "correct": 0,
+    "fact": "Une chute en avant les ferait atterrir sur le pont plutôt que dans l'eau !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi personne ne joue aux cartes dans la savane ?",
+    "opts": [
+      "Il y a trop de guépards (tricheurs)",
+      "Il y a trop de lions autour",
+      "Il n'y a pas de table",
+      "Les cartes s'envolent avec le vent"
+    ],
+    "correct": 0,
+    "fact": "Un « guépard » qui triche... vous l'avez ? Un « joueur qui triche vite » !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le point commun entre un pompier et un magicien ?",
+    "opts": [
+      "Les deux sortent le grand jeu en cas d'urgence",
+      "Aucun rapport",
+      "Ils portent tous les deux une cape",
+      "Ils travaillent la nuit uniquement"
+    ],
+    "correct": 0,
+    "fact": "Sauf que l'un fait des tours, et l'autre sauve des vies pour de vrai !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Que répond un mur à un autre mur qui lui demande « ça va » ?",
+    "opts": [
+      "« On se retrouve au coin ! »",
+      "« Pas mal »",
+      "« Je m'effrite un peu »",
+      "« Ne me pousse pas »"
+    ],
+    "correct": 0,
+    "fact": "Un jeu de mots classique entre les murs qui se croisent... au coin de la rue."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi le sport le plus silencieux est-il souvent cité comme étant la pêche ?",
+    "opts": [
+      "Parce qu'il ne faut pas parler aux poissons",
+      "Parce qu'il n'y a pas d'arbitre",
+      "Parce que c'est interdit de crier",
+      "Parce que ça se joue seul"
+    ],
+    "correct": 0,
+    "fact": "Une blague classique de pêcheurs entre eux !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quelle est la différence entre un coureur de fond et un escargot pressé ?",
+    "opts": [
+      "Aucune, tous deux avancent lentement au début puis accélèrent",
+      "Le coureur porte des baskets",
+      "L'escargot ne transpire pas",
+      "Le coureur a une médaille à la fin"
+    ],
+    "correct": 3,
+    "fact": "Après l'effort, le réconfort : la médaille, ça change tout !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Qu'est-ce qu'un chat dit à un autre chat pour lui souhaiter bonne chance avant un examen ?",
+    "opts": [
+      "« Miaou de courage ! »",
+      "« Bonne chance »",
+      "« Griffe-toi les pouces »",
+      "« Tu vas assurer »"
+    ],
+    "correct": 0,
+    "fact": "Un jeu de mots tout simple entre « miaou » et « allez, courage »."
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi les poissons détestent-ils l'ordinateur ?",
+    "opts": [
+      "Ils ont peur du net (filet)",
+      "Ils n'aiment pas les écrans",
+      "Ils préfèrent le papier",
+      "Ils n'ont pas de doigts"
+    ],
+    "correct": 0,
+    "fact": "« Le net » = Internet, mais aussi un filet de pêche !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un joueur de tennis ?",
+    "opts": [
+      "Faire une double faute",
+      "Perdre sa raquette",
+      "Ne jamais gagner",
+      "Rester sans balle"
+    ],
+    "correct": 0,
+    "fact": "Une double faute, c'est doublement embêtant !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un astronome ?",
+    "opts": [
+      "Voir la vie en rose",
+      "Ne pas voir midi à sa porte",
+      "Tomber des nues",
+      "Perdre le fil"
+    ],
+    "correct": 2,
+    "fact": "« Tomber des nues » veut dire être extrêmement surpris — un comble pour quelqu'un qui regarde le ciel !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi le sapeur-pompier n'a-t-il jamais froid en hiver ?",
+    "opts": [
+      "Parce qu'il a toujours le feu près de lui",
+      "Parce qu'il porte plusieurs couches",
+      "Parce qu'il court beaucoup",
+      "Parce qu'il boit du café"
+    ],
+    "correct": 0,
+    "fact": "Une petite blague de caserne, à ne pas prendre au pied de la lettre !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Que répond un four à quelqu'un qui le complimente ?",
+    "opts": [
+      "« Je suis chaud bouillant, merci ! »",
+      "« Merci »",
+      "« Je fais de mon mieux »",
+      "« C'est pas grand-chose »"
+    ],
+    "correct": 0,
+    "fact": "Un four qui a le compliment qui monte à la tête, jusqu'à 250°C !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Deux antennes se marient. La cérémonie n'était pas incroyable, mais... ?",
+    "opts": [
+      "La réception était excellente",
+      "Le buffet était bon",
+      "Il pleuvait un peu",
+      "Tout le monde dansait"
+    ],
+    "correct": 0,
+    "fact": "Un jeu de mots entre la réception d'un mariage et la réception d'un signal radio !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un joueur de pétanque ?",
+    "opts": [
+      "Ne jamais être pointé du doigt",
+      "Perdre ses boules",
+      "Rater le cochonnet",
+      "Jouer seul"
+    ],
+    "correct": 0,
+    "fact": "En pétanque, être « pointé » c'est justement l'objectif du jeu !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi les athlètes ne devraient jamais dormir sur les rails de chemin de fer ?",
+    "opts": [
+      "Parce qu'ils risquent de se faire réveiller par un train de retard",
+      "Parce que c'est interdit",
+      "Parce que c'est inconfortable",
+      "Parce que c'est trop bruyant"
+    ],
+    "correct": 0,
+    "fact": "« Un train de retard », comme dans l'expression avoir du retard sur quelque chose !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Que dit une pile électrique fatiguée à une autre pile ?",
+    "opts": [
+      "« Je suis à plat »",
+      "« Ça va, et toi ? »",
+      "« Je recharge »",
+      "« Éteins-moi »"
+    ],
+    "correct": 0,
+    "fact": "Être « à plat », comme une pile déchargée !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un opticien ?",
+    "opts": [
+      "Perdre de vue un ami",
+      "Casser ses lunettes",
+      "Confondre les couleurs",
+      "Avoir mal aux yeux"
+    ],
+    "correct": 0,
+    "fact": "« Perdre de vue » quelqu'un, c'est ne plus avoir de nouvelles !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Pourquoi les squelettes ne se battent-ils jamais entre eux ?",
+    "opts": [
+      "Ils n'ont pas le cran (les tripes)",
+      "Ils ont peur",
+      "Ils sont fatigués",
+      "Ils préfèrent discuter"
+    ],
+    "correct": 0,
+    "fact": "« Ne pas avoir de tripes », c'est justement leur cas, faute d'organes !"
+  },
+  {
+    "cat": "Blagues & absurde",
+    "q": "Quel est le comble pour un professeur de mathématiques ?",
+    "opts": [
+      "Ne plus compter sur personne",
+      "Perdre ses lunettes",
+      "Confondre les chiffres",
+      "Rater un calcul simple"
+    ],
+    "correct": 0,
+    "fact": "« Ne plus compter sur personne », un comble pour un pro des chiffres !"
+  }
+]
