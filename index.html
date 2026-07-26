@@ -239,7 +239,7 @@ let pendingJoinCode = null;
 let channel = null;
 let roomCode = "";
 
-let host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null };
+let host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null, lastRoundResults:{} };
 let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null };
 
 const app = document.getElementById("app");
@@ -411,6 +411,7 @@ window.hostStartGame = function(){
 function hostSendQuestion(){
   host.answers = {};
   host.ownChoiceIndex = null;
+  host.lastRoundResults = {};
   host.phase = "question";
   const q = host.deck[host.currentIndex];
   host.questionStartTime = Date.now();
@@ -442,6 +443,7 @@ function renderHostGame(){
   const answeredCount = Object.keys(host.answers).length;
   const totalPlayers = Object.keys(host.players).length;
   const revealed = host.phase === "reveal";
+  const hostCanClick = host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex === null && !revealed;
   app.innerHTML = `
     <div class="topbar">
       <div class="brand">🐼 <span>${q.cat}</span></div>
@@ -451,12 +453,26 @@ function renderHostGame(){
       <span class="category-tag">${q.cat}</span>
       <p class="question-text">${q.q}</p>
       <div class="answer-grid">
-        ${q.opts.map((opt,i)=>`
-          <div class="answer-btn ${ANSWER_CLASSES[i]} ${revealed && i===q.correct ? 'correctReveal':''}" style="cursor:default;">
-            <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
-          </div>
-        `).join("")}
+        ${q.opts.map((opt,i)=>{
+          const isCorrectReveal = revealed && i===q.correct;
+          const isOwnChoice = host.ownChoiceIndex === i;
+          if(hostCanClick || (host.hostPlaysToo && host.hostPlayerName.trim())){
+            return `
+              <button class="answer-btn ${ANSWER_CLASSES[i]} ${isOwnChoice?'chosen':''} ${isCorrectReveal?'correctReveal':''}"
+                ${hostCanClick ? '' : 'disabled'} onclick="hostAnswerSelf(${i})">
+                <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+              </button>
+            `;
+          }
+          return `
+            <div class="answer-btn ${ANSWER_CLASSES[i]} ${isCorrectReveal?'correctReveal':''}" style="cursor:default;">
+              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            </div>
+          `;
+        }).join("")}
       </div>
+      ${host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex!==null && !revealed
+        ? `<div class="status-banner">✅ Ta réponse est enregistrée, ${host.hostPlayerName}</div>` : ""}
       ${revealed ? `<div class="funfact">💡 ${q.fact}</div>` : `
         <div class="status-banner"><span class="pulse-dot"></span>${answeredCount} / ${totalPlayers} joueur${totalPlayers>1?'s':''} ont répondu</div>
       `}
@@ -467,18 +483,17 @@ function renderHostGame(){
         }
       </div>
     </div>
-    ${host.hostPlaysToo && host.hostPlayerName.trim() ? `
-      <div class="card" style="margin-top:18px;padding:22px;">
-        <h3 style="margin:0 0 14px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Ta réponse, ${host.hostPlayerName}</h3>
-        <div class="answer-grid">
-          ${q.opts.map((opt,i)=>`
-            <button class="answer-btn ${ANSWER_CLASSES[i]} ${host.ownChoiceIndex===i?'chosen':''} ${revealed && i===q.correct ? 'correctReveal':''}"
-              ${host.ownChoiceIndex!==null || revealed ? 'disabled':''} onclick="hostAnswerSelf(${i})">
-              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
-            </button>
-          `).join("")}
+    ${revealed ? `
+      <div class="scoreboard">
+        <h3>Résultats de la question</h3>
+        <div class="player-cards">
+          ${Object.entries(host.players).sort((a,b)=>b[1]-a[1]).map(([name]) => {
+            const r = host.lastRoundResults[name];
+            const icon = !r ? "😴" : r.correct ? "✅" : "❌";
+            const ptsLabel = r ? `+${r.points}` : "+0";
+            return `<div class="player-card"><div class="name">${icon} ${name}</div><div class="score" style="font-size:18px;">${ptsLabel}</div></div>`;
+          }).join("")}
         </div>
-        ${host.ownChoiceIndex!==null && !revealed ? `<div class="status-banner">✅ Réponse enregistrée</div>` : ""}
       </div>
     ` : ""}
     <div class="scoreboard">
@@ -496,12 +511,14 @@ window.hostReveal = function(){
   const q = host.deck[host.currentIndex];
   host.phase = "reveal";
   soundReveal();
+  host.lastRoundResults = {};
   Object.entries(host.answers).forEach(([name, a]) => {
     const isCorrect = a.optionIndex === q.correct;
     const pts = isCorrect ? Math.round(1000 - Math.min(a.elapsed, 9000)/9000*500) : 0;
     host.players[name] = (host.players[name]||0) + pts;
+    host.lastRoundResults[name] = { correct: isCorrect, points: pts, optionIndex: a.optionIndex };
   });
-  send("reveal", { correct: q.cat === undefined ? null : q.correct, fact: q.fact, scores: host.players, results: host.answers });
+  send("reveal", { correct: q.correct, fact: q.fact, scores: host.players, results: host.answers });
   render();
 };
 
@@ -628,15 +645,27 @@ function onPlayerReceiveReveal(payload){
 }
 function renderPlayerReveal(){
   const r = player.lastResult;
+  const q = player.currentQuestion;
   app.innerHTML = `
     <div class="topbar"><div class="brand">🐼 <span>${player.name}</span></div></div>
     <div class="card" style="text-align:center;">
       <div style="font-size:56px;margin-bottom:6px;">${!r.answered ? "😴" : r.wasCorrect ? "🎉" : "😬"}</div>
       <h1 class="setup-title">${!r.answered ? "Pas de réponse envoyée" : r.wasCorrect ? "Bonne réponse !" : "Raté cette fois"}</h1>
       <p class="setup-sub">${r.answered ? `+${r.pointsThisRound} points ce tour` : "0 point ce tour"} · Score total : <strong style="color:var(--gold);">${player.score}</strong></p>
-      <div class="funfact" style="text-align:left;">💡 ${r.fact}</div>
-      <p class="status-banner" style="margin-top:18px;">En attente de la question suivante…</p>
     </div>
+    <div class="stage" style="margin-top:16px;">
+      <p class="question-text" style="font-size:18px;">${q ? q.q : ""}</p>
+      <div class="answer-grid">
+        ${q ? q.opts.map((opt,i)=>`
+          <div class="answer-btn ${ANSWER_CLASSES[i]} ${i===r.correctIndex ? 'correctReveal':''}" style="cursor:default;position:relative;">
+            <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            ${player.chosenIndex===i ? '<span style="position:absolute;right:12px;">👈 toi</span>' : ''}
+          </div>
+        `).join("") : ""}
+      </div>
+      <div class="funfact">💡 ${r.fact}</div>
+    </div>
+    <p class="status-banner" style="margin-top:14px;">En attente de la question suivante…</p>
   `;
 }
 
@@ -697,7 +726,7 @@ function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
 window.leaveToRoleSelect = function(){
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
   role = null; roomCode = "";
-  host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null };
+  host = { formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby", answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null, lastRoundResults:{} };
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null };
   render();
 };
