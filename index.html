@@ -232,6 +232,25 @@ function startTimer(startTime, duration){
   }, 200);
 }
 
+/* ============ HANDICAP (délai avant de pouvoir répondre) ============ */
+const HANDICAP_LEVELS = [0, 3, 5, 10, 15, 20];
+let handicapInterval = null;
+function stopHandicapCountdown(){ if(handicapInterval){ clearInterval(handicapInterval); handicapInterval = null; } }
+function startHandicapCountdown(receivedAt, seconds, onDone){
+  stopHandicapCountdown();
+  if(!seconds || seconds <= 0) return;
+  handicapInterval = setInterval(()=>{
+    const el = document.getElementById("handicapCountdown");
+    const remaining = Math.max(0, seconds*1000 - (Date.now()-receivedAt));
+    if(el) el.textContent = "🐢 Patiente encore " + Math.ceil(remaining/1000) + "s avant de pouvoir répondre…";
+    if(remaining <= 0){ stopHandicapCountdown(); if(onDone) onDone(); }
+  }, 200);
+}
+function remainingHandicapMs(receivedAt, seconds){
+  if(!seconds || seconds <= 0) return 0;
+  return Math.max(0, seconds*1000 - (Date.now()-receivedAt));
+}
+
 /* ============ SONS ============ */
 let audioCtx;
 function beep(freq, dur, type="sine", vol=0.15){
@@ -292,12 +311,12 @@ function freshHostState(){
     formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby",
     answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null,
     lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
-    eliminationMode:false, eliminated:[]
+    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0
   };
 }
 let host = freshHostState();
 let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
-  eliminated:false, lastKnownScores:{}, finalTeamInfo:null };
+  eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
 
 function freshSoloState(){
   return { phase:"setup", formatIndex:1, selectedCats:[], deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
@@ -382,7 +401,11 @@ function renderHostLobby(){
     subscribeChannel(roomCode, {
       join: (payload) => {
         const isNew = !(payload.name in host.players);
-        if(isNew){ host.players[payload.name] = 0; soundJoin(); }
+        if(isNew){
+          host.players[payload.name] = 0;
+          host.playerHandicaps[payload.name] = payload.handicap || 0;
+          soundJoin();
+        }
         render();
         hostSendSync();
       },
@@ -429,6 +452,10 @@ function renderHostLobby(){
       </div>
       ${host.eliminationMode ? `<p class="status-banner" style="text-align:left;margin-bottom:22px;">À partir de la 2ᵉ question, le joueur le moins bien classé est éliminé à chaque révélation. Il continue de suivre la partie en spectateur.</p>` : ""}
 
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Handicap par joueur</h3>
+      <p class="status-banner" style="text-align:left;margin-bottom:14px;">Chacun choisit son handicap en te rejoignant, mais tu peux l'ajuster ici à tout moment avant de lancer.</p>
+      ${renderHandicapConfigHtml()}
+
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Un seul téléphone pour tout le monde ?</h3>
       <div class="btn-row" style="margin-bottom:14px;">
         <button class="btn ${host.hostPlaysToo ? 'btn-gold' : 'btn-ghost'}" onclick="toggleHostPlays()">
@@ -437,7 +464,13 @@ function renderHostLobby(){
       </div>
       ${host.hostPlaysToo ? `
         <p class="status-banner" style="text-align:left;margin-bottom:10px;">⚠️ Ta réponse s'affichera sur cet écran, donc les autres pourront la voir si tu ne fais pas attention. Idéal en petit comité ou en solo.</p>
-        <input type="text" id="hostPlayerNameInput" placeholder="Ton prénom" value="${host.hostPlayerName.replace(/"/g,'&quot;')}" oninput="host.hostPlayerName=this.value" style="margin-bottom:22px;">
+        <input type="text" id="hostPlayerNameInput" placeholder="Ton prénom" value="${host.hostPlayerName.replace(/"/g,'&quot;')}" oninput="host.hostPlayerName=this.value" style="margin-bottom:14px;">
+        <label class="field-label">Ton handicap à toi</label>
+        <div class="btn-row" style="margin-bottom:22px;">
+          ${HANDICAP_LEVELS.map(s => `
+            <button class="btn btn-sm ${host.hostHandicap===s ? 'btn-gold' : 'btn-ghost'}" onclick="setHostOwnHandicap(${s})">${s===0 ? "Aucun" : s+"s"}</button>
+          `).join("")}
+        </div>
       ` : ""}
       <div class="btn-row">
         <button class="btn btn-primary" id="startBtn" onclick="hostStartGame()" ${(playerNames.length<1 && !(host.hostPlaysToo && host.hostPlayerName.trim())) ? 'disabled':''}>Lancer la partie 🚀</button>
@@ -488,6 +521,27 @@ window.removeTeamAt = function(idx){
   render();
 };
 window.assignTeam = function(name, idx){ host.playerTeams[name] = idx; render(); };
+
+function renderHandicapConfigHtml(){
+  const playerNames = Object.keys(host.players);
+  if(playerNames.length === 0){
+    return `<p class="status-banner" style="text-align:left;margin-bottom:22px;">Les handicaps des joueurs apparaîtront ici une fois qu'ils t'auront rejoint.</p>`;
+  }
+  return `
+    <div style="margin-bottom:22px;">
+      ${playerNames.map(n => `
+        <div class="team-assign-row">
+          <span class="scribble" style="margin-right:6px;">${n} :</span>
+          ${HANDICAP_LEVELS.map(s => `
+            <button class="btn btn-sm ${((host.playerHandicaps[n]||0)===s) ? 'btn-gold' : 'btn-ghost'}" onclick='setHandicap(${JSON.stringify(n)}, ${s})'>${s===0?"Aucun":s+"s"}</button>
+          `).join("")}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+window.setHandicap = function(name, seconds){ host.playerHandicaps[name] = seconds; render(); };
+window.setHostOwnHandicap = function(seconds){ host.hostHandicap = seconds; render(); };
 window.toggleEliminationMode = function(){ host.eliminationMode = !host.eliminationMode; render(); };
 
 window.toggleHostPlays = function(){
@@ -531,6 +585,7 @@ window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow
 window.hostStartGame = function(){
   if(host.hostPlaysToo && host.hostPlayerName.trim()){
     host.players[host.hostPlayerName.trim()] = 0;
+    host.playerHandicaps[host.hostPlayerName.trim()] = host.hostHandicap || 0;
   }
   host.deck = buildDeck(FORMATS[host.formatIndex].total, host.selectedCats);
   host.currentIndex = 0;
@@ -557,17 +612,23 @@ function hostSendQuestion(){
   send("question", {
     index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
     q: q.q, opts: q.opts, duration: QUESTION_TIME_MS, scores: {...host.players},
-    eliminated: [...host.eliminated],
+    eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
     teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
   });
   render();
   startTimer(host.questionStartTime, QUESTION_TIME_MS);
+  if(host.hostPlaysToo && host.hostPlayerName.trim()){
+    const myHandicap = host.playerHandicaps[host.hostPlayerName.trim()] || 0;
+    if(myHandicap > 0) startHandicapCountdown(host.questionStartTime, myHandicap, ()=>render());
+  }
   scrollTop();
 }
 
 window.hostAnswerSelf = function(i){
   if(host.ownChoiceIndex !== null || host.phase !== "question") return;
   if(host.eliminated.includes(host.hostPlayerName.trim())) return;
+  const myHandicap = host.playerHandicaps[host.hostPlayerName.trim()] || 0;
+  if(remainingHandicapMs(host.questionStartTime, myHandicap) > 0) return;
   host.ownChoiceIndex = i;
   const elapsed = Date.now() - host.questionStartTime;
   host.answers[host.hostPlayerName.trim()] = { name: host.hostPlayerName.trim(), optionIndex: i, elapsed };
@@ -591,7 +652,7 @@ function hostSendSync(){
     base.question = {
       index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
       q: q.q, opts: q.opts, duration: QUESTION_TIME_MS, scores: {...host.players},
-      eliminated: [...host.eliminated],
+      eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
       teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
     };
   }
@@ -617,7 +678,9 @@ function renderHostGame(){
   const answeredCount = Object.keys(host.answers).length;
   const totalActive = activeNames.length;
   const revealed = host.phase === "reveal";
-  const hostCanClick = host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex === null && !revealed && !host.eliminated.includes(host.hostPlayerName.trim());
+  const myHandicap = host.hostPlaysToo ? (host.playerHandicaps[host.hostPlayerName.trim()] || 0) : 0;
+  const hostHandicapRemaining = revealed ? 0 : remainingHandicapMs(host.questionStartTime, myHandicap);
+  const hostCanClick = host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex === null && !revealed && !host.eliminated.includes(host.hostPlayerName.trim()) && hostHandicapRemaining <= 0;
   const hostIsEliminated = host.hostPlaysToo && host.eliminated.includes(host.hostPlayerName.trim());
   app.innerHTML = `
     <div class="topbar">
@@ -628,6 +691,7 @@ function renderHostGame(){
       <span class="category-tag">${q.cat}</span>
       ${!revealed ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
       <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>` : ""}
+      ${hostHandicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
       <p class="question-text">${q.q}</p>
       <div class="answer-grid">
         ${q.opts.map((opt,i)=>{
@@ -711,6 +775,7 @@ window.hostReveal = function(){
   const q = host.deck[host.currentIndex];
   host.phase = "reveal";
   stopTimer();
+  stopHandicapCountdown();
   soundReveal();
   host.lastRoundResults = {};
   Object.entries(host.answers).forEach(([name, a]) => {
@@ -796,29 +861,42 @@ function renderPlayerJoin(){
       <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
       <label class="field-label">Code de la partie</label>
       <input type="text" class="code-input" id="codeInput" maxlength="4" placeholder="ABCD" value="${prefilledCode}">
-      <div class="btn-row" style="margin-top:22px;">
+      <label class="field-label">Ton handicap (optionnel)</label>
+      <p class="status-banner" style="text-align:left;margin:0 0 10px;">Un délai avant de pouvoir répondre — pratique pour handicaper les grands et donner un coup de pouce aux plus jeunes !</p>
+      <div class="btn-row" id="handicapSelectRow" style="margin-bottom:22px;"></div>
+      <div class="btn-row">
         <button class="btn btn-primary btn-block" onclick="playerJoin()">Rejoindre 🚀</button>
       </div>
     </div>
   `;
+  renderHandicapSelectRow();
 }
+let joinHandicapSeconds = 0;
+function renderHandicapSelectRow(){
+  const row = document.getElementById("handicapSelectRow");
+  if(!row) return;
+  row.innerHTML = HANDICAP_LEVELS.map(s => `
+    <button class="btn btn-sm ${joinHandicapSeconds===s ? 'btn-gold' : 'btn-ghost'}" onclick="selectJoinHandicap(${s})">${s===0 ? "Aucun" : s+"s"}</button>
+  `).join("");
+}
+window.selectJoinHandicap = function(s){ joinHandicapSeconds = s; renderHandicapSelectRow(); };
 window.playerJoin = function(){
   const name = document.getElementById("nameInput").value.trim();
   const code = document.getElementById("codeInput").value.trim().toUpperCase();
   if(!name || code.length !== 4) return;
-  doPlayerJoin(name, code);
+  doPlayerJoin(name, code, joinHandicapSeconds);
 };
-function doPlayerJoin(name, code){
+function doPlayerJoin(name, code, handicap){
   localStorage.setItem("quiz_player_name", name);
   localStorage.setItem("quiz_active_session", JSON.stringify({ name, code, ts: Date.now() }));
-  player.name = name; player.roomCode = code; player.score = 0;
+  player.name = name; player.roomCode = code; player.score = 0; player.myJoinHandicap = handicap || 0;
   subscribeChannel(code, {
     question: (payload) => onPlayerReceiveQuestion(payload),
     reveal: (payload) => onPlayerReceiveReveal(payload),
     end: (payload) => onPlayerReceiveEnd(payload),
     sync: (payload) => onPlayerReceiveSync(payload)
   });
-  setTimeout(() => send("join", { name }), 400); // laisse le temps à la souscription de se stabiliser
+  setTimeout(() => send("join", { name, handicap: handicap || 0 }), 400); // laisse le temps à la souscription de se stabiliser
   player.phase = "waiting";
   render();
 }
@@ -839,14 +917,19 @@ function onPlayerReceiveQuestion(payload){
   player.chosenIndex = null;
   player.lastKnownScores = payload.scores || {};
   player.eliminated = (payload.eliminated || []).includes(player.name);
+  player.currentHandicap = payload.handicaps ? (payload.handicaps[player.name] || 0) : 0;
   player.phase = "question";
   player.questionReceivedAt = Date.now();
   render();
-  if(!player.eliminated) startTimer(player.questionReceivedAt, payload.duration || QUESTION_TIME_MS);
+  if(!player.eliminated){
+    startTimer(player.questionReceivedAt, payload.duration || QUESTION_TIME_MS);
+    if(player.currentHandicap > 0) startHandicapCountdown(player.questionReceivedAt, player.currentHandicap, ()=>render());
+  }
   scrollTop();
 }
 window.playerAnswer = function(i){
   if(player.chosenIndex !== null || player.eliminated) return;
+  if(remainingHandicapMs(player.questionReceivedAt, player.currentHandicap) > 0) return;
   player.chosenIndex = i;
   soundAnswer();
   const elapsed = Date.now() - player.questionReceivedAt;
@@ -858,6 +941,7 @@ function renderPlayerQuestion(){
   const locked = player.chosenIndex !== null;
   const rank = computeRank(player.lastKnownScores, player.name);
   const myTeamIdx = q.teamMode && q.playerTeams ? q.playerTeams[player.name] : undefined;
+  const handicapRemaining = remainingHandicapMs(player.questionReceivedAt, player.currentHandicap);
   app.innerHTML = `
     <div class="topbar"><div class="brand">🐼 <span>${q.catName}</span></div>
       <div class="round-badge">Q ${q.index+1}/${q.total}</div></div>
@@ -873,10 +957,11 @@ function renderPlayerQuestion(){
       <div class="stage">
         <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
         <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>
+        ${handicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
         <p class="question-text">${q.q}</p>
         <div class="answer-grid">
           ${q.opts.map((opt,i)=>`
-            <button class="answer-btn ${ANSWER_CLASSES[i]} ${player.chosenIndex===i?'chosen':''}" ${locked?'disabled':''} onclick="playerAnswer(${i})">
+            <button class="answer-btn ${ANSWER_CLASSES[i]} ${player.chosenIndex===i?'chosen':''}" ${(locked||handicapRemaining>0)?'disabled':''} onclick="playerAnswer(${i})">
               <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
             </button>
           `).join("")}
@@ -889,6 +974,7 @@ function renderPlayerQuestion(){
 
 function onPlayerReceiveReveal(payload){
   stopTimer();
+  stopHandicapCountdown();
   const mine = payload.results ? payload.results[player.name] : null;
   const wasCorrect = mine ? mine.optionIndex === payload.correct : false;
   const pointsThisRound = payload.scores[player.name] !== undefined
@@ -1170,12 +1256,13 @@ function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
 /* ============ NAVIGATION ============ */
 window.leaveToRoleSelect = function(){
   stopTimer();
+  stopHandicapCountdown();
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
   localStorage.removeItem("quiz_active_session");
   role = null; roomCode = "";
   host = freshHostState();
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
-    eliminated:false, lastKnownScores:{}, finalTeamInfo:null };
+    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
   solo = freshSoloState();
   render();
   scrollTop();
