@@ -48,6 +48,7 @@
   .btn-block{ width:100%; text-align:center; }
 
   .role-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
+  .role-grid-3{ grid-template-columns:1fr 1fr 1fr; }
   @media (max-width:600px){ .role-grid{ grid-template-columns:1fr; } }
   .role-card{ background: var(--panel); border: 2px solid var(--panel-light); border-radius: 22px; padding: 28px 22px;
     text-align:center; cursor:pointer; transition: all .15s ease; }
@@ -298,11 +299,17 @@ let host = freshHostState();
 let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
   eliminated:false, lastKnownScores:{}, finalTeamInfo:null };
 
+function freshSoloState(){
+  return { phase:"setup", formatIndex:1, selectedCats:[], deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
+}
+let solo = freshSoloState();
+
 const app = document.getElementById("app");
 function render(){
+  if(role === "solo"){ renderSoloScreen(); return; }
+  if(role === null){ renderRoleSelect(); return; }
   if(!CONFIG_OK){ renderConfigWarning(); return; }
-  if(role === null) renderRoleSelect();
-  else if(role === "host") renderHostScreen();
+  if(role === "host") renderHostScreen();
   else if(role === "player") renderPlayerScreen();
 }
 
@@ -329,17 +336,21 @@ function renderRoleSelect(){
     <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
     <div class="card">
       <h1 class="setup-title">Chacun son écran !</h1>
-      <p class="setup-sub">Une personne crée la partie sur un grand écran (TV, laptop), les autres rejoignent depuis leur téléphone.</p>
-      <div class="role-grid">
+      <p class="setup-sub">Une personne crée la partie sur un grand écran (TV, laptop), les autres rejoignent depuis leur téléphone. Ou entraîne-toi tout seul.</p>
+      <div class="role-grid role-grid-3">
         <div class="role-card" onclick="chooseRole('host')">
           <div class="emoji">📺</div><h3>Créer la partie</h3><p>Je tiens l'écran principal (l'hôte du quiz)</p>
         </div>
         <div class="role-card" onclick="chooseRole('player')">
           <div class="emoji">📱</div><h3>Rejoindre une partie</h3><p>Je joue depuis mon téléphone</p>
         </div>
+        <div class="role-card" onclick="chooseRole('solo')">
+          <div class="emoji">🎯</div><h3>Mode Solo</h3><p>Je m'entraîne tout seul, à mon rythme</p>
+        </div>
       </div>
+      ${!CONFIG_OK ? `<div class="config-warning">⚠️ Les modes "Créer la partie" et "Rejoindre" nécessitent la configuration Supabase (voir en haut du fichier). Le Mode Solo fonctionne sans configuration.</div>` : ""}
     </div>
-    <footer>${QUESTIONS.length} questions dans la base · nécessite que tout le monde soit connecté à Internet</footer>
+    <footer>${QUESTIONS.length} questions dans la base · le mode solo fonctionne même seul, sans les autres joueurs</footer>
   `;
 }
 window.chooseRole = function(r){ role = r; render(); };
@@ -956,6 +967,163 @@ function onPlayerReceiveSync(payload){
   if(payload.phase === "end"){ onPlayerReceiveEnd(payload.end); return; }
 }
 
+/* ================= SOLO ================= */
+function renderSoloScreen(){
+  if(solo.phase === "setup") renderSoloSetup();
+  else if(solo.phase === "question") renderSoloQuestion();
+  else if(solo.phase === "end") renderSoloEnd();
+}
+
+function renderSoloSetup(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Mode Solo</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Entraîne-toi !</h1>
+      <p class="setup-sub">Réponds à ton rythme : la bonne réponse s'affiche tout de suite après chaque question.</p>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format</h3>
+      <div class="btn-row" id="soloFormatRow" style="margin-bottom:26px;"></div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
+      <div class="btn-row" id="soloThemeRow" style="margin-bottom:26px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="soloStart()">Démarrer 🎯</button>
+      </div>
+    </div>
+  `;
+  renderSoloFormatRow();
+  renderSoloThemeRow();
+}
+function renderSoloFormatRow(){
+  const row = document.getElementById("soloFormatRow");
+  row.innerHTML = FORMATS.map((f,i) => `
+    <button class="btn ${solo.formatIndex===i ? 'btn-gold' : 'btn-ghost'}" onclick="selectSoloFormat(${i})" style="flex:1;min-width:110px;">
+      ${f.label}<br><span style="font-size:12px;font-weight:400;opacity:0.8;">${f.total} questions · ${f.sub}</span>
+    </button>
+  `).join("");
+}
+window.selectSoloFormat = function(i){ solo.formatIndex = i; renderSoloFormatRow(); };
+function renderSoloThemeRow(){
+  if(solo.selectedCats.length === 0) solo.selectedCats = [...CATEGORIES];
+  const row = document.getElementById("soloThemeRow");
+  row.innerHTML = CATEGORIES.map(c => `
+    <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleSoloTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+      ${c}
+    </button>
+  `).join("");
+}
+window.toggleSoloTheme = function(cat){
+  if(solo.selectedCats.includes(cat)){
+    if(solo.selectedCats.length > 1) solo.selectedCats = solo.selectedCats.filter(c => c !== cat);
+  } else {
+    solo.selectedCats.push(cat);
+  }
+  renderSoloThemeRow();
+};
+window.soloStart = function(){
+  solo.deck = buildDeck(FORMATS[solo.formatIndex].total, solo.selectedCats);
+  solo.currentIndex = 0; solo.correctCount = 0; solo.history = [];
+  solo.chosenIndex = null; solo.revealed = false;
+  solo.phase = "question";
+  render();
+  scrollTop();
+};
+
+function renderSoloQuestion(){
+  const q = solo.deck[solo.currentIndex];
+  const answeredSoFar = solo.currentIndex + (solo.revealed ? 1 : 0);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${q.cat}</span></div>
+      <div class="round-badge">Question ${solo.currentIndex+1} / ${solo.deck.length}</div></div>
+    <div class="stage">
+      <span class="category-tag">${q.cat}</span>
+      <p class="question-text">${q.q}</p>
+      <div class="answer-grid">
+        ${q.opts.map((opt,i)=>{
+          const isCorrectReveal = solo.revealed && i===q.correct;
+          const isWrongReveal = solo.revealed && i!==q.correct;
+          const isChosenWrong = solo.revealed && solo.chosenIndex===i && i!==q.correct;
+          const cls = `${isCorrectReveal?'correctReveal':''} ${isWrongReveal?'wrongReveal':''} ${isChosenWrong?'chosenWrong':''}`;
+          if(!solo.revealed){
+            return `
+              <button class="answer-btn ${ANSWER_CLASSES[i]} ${cls}" onclick="soloAnswer(${i})">
+                <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+              </button>
+            `;
+          }
+          return `
+            <div class="answer-btn ${ANSWER_CLASSES[i]} ${solo.chosenIndex===i?'chosen':''} ${cls}" style="cursor:default;">
+              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      ${solo.revealed ? `<div class="funfact">💡 ${q.fact}</div>` : ""}
+      <div class="stage-actions">
+        <div class="status-banner">Score : ${solo.correctCount} / ${answeredSoFar} bonne${solo.correctCount>1?'s':''} réponse${solo.correctCount>1?'s':''}</div>
+        ${solo.revealed ? `<button class="btn btn-primary" onclick="soloNext()">${solo.currentIndex+1 >= solo.deck.length ? "Voir mon bilan 🏁" : "Question suivante ➜"}</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+window.soloAnswer = function(i){
+  if(solo.revealed) return;
+  const q = solo.deck[solo.currentIndex];
+  solo.chosenIndex = i;
+  solo.revealed = true;
+  const isCorrect = i === q.correct;
+  if(isCorrect) solo.correctCount++;
+  solo.history.push({ q: q.q, opts: q.opts, correct: q.correct, chosen: i, wasCorrect: isCorrect, fact: q.fact });
+  soundReveal();
+  render();
+  scrollTop();
+};
+window.soloNext = function(){
+  if(solo.currentIndex+1 >= solo.deck.length){
+    solo.phase = "end";
+    render();
+    scrollTop();
+    if(solo.deck.length > 0 && solo.correctCount / solo.deck.length >= 0.5){
+      setTimeout(()=>{ soundFanfare(); burstConfetti(120); }, 200);
+    }
+    return;
+  }
+  solo.currentIndex++;
+  solo.chosenIndex = null;
+  solo.revealed = false;
+  render();
+  scrollTop();
+};
+
+function renderSoloEnd(){
+  const total = solo.deck.length;
+  const pct = total > 0 ? Math.round(100 * solo.correctCount / total) : 0;
+  const missed = solo.history.filter(h => !h.wasCorrect);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Bilan</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">${pct>=80 ? "Excellent ! 🌟" : pct>=50 ? "Pas mal du tout !" : "Encore un effort !"}</h1>
+      <p class="setup-sub">${solo.correctCount} / ${total} bonnes réponses (${pct}%)</p>
+    </div>
+    ${missed.length>0 ? `
+      <div class="scoreboard">
+        <h3>À revoir (${missed.length})</h3>
+        ${missed.map(h => `
+          <div class="card" style="padding:18px;margin-top:12px;">
+            <p style="margin:0 0 8px;font-weight:700;">${h.q}</p>
+            <p style="margin:0;color:var(--teal);">✅ ${h.opts[h.correct]}</p>
+            <p style="margin:6px 0 0;color:var(--muted);font-size:13px;">💡 ${h.fact}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : `<div class="card" style="text-align:center;"><p class="setup-sub" style="margin:0;">Sans fautes ! 🎉</p></div>`}
+    <div class="btn-row" style="justify-content:center;margin-top:26px;">
+      <button class="btn btn-primary" onclick="soloRestart()">Rejouer 🔁</button>
+      <button class="btn btn-ghost" onclick="leaveToRoleSelect()">Retour à l'accueil 🏠</button>
+    </div>
+  `;
+}
+window.soloRestart = function(){ solo.phase = "setup"; render(); scrollTop(); };
+
 /* ============ ÉCRAN PODIUM PARTAGÉ ============ */
 function podiumItem(name, rankIndex, cls, score){
   const medals = ["🥇","🥈","🥉"];
@@ -1008,6 +1176,7 @@ window.leaveToRoleSelect = function(){
   host = freshHostState();
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
     eliminated:false, lastKnownScores:{}, finalTeamInfo:null };
+  solo = freshSoloState();
   render();
   scrollTop();
 };
