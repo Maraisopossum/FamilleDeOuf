@@ -161,7 +161,7 @@ let QUESTIONS = [];
 let CATEGORIES = [];
 
 async function loadQuestions(){
-  const res = await fetch('./questions.json');
+  const res = await fetch('./questions.json?v=' + Date.now(), { cache: "no-store" });
   if(!res.ok) throw new Error('questions.json introuvable');
   QUESTIONS = await res.json();
   CATEGORIES = [...new Set(QUESTIONS.map(q => q.cat))];
