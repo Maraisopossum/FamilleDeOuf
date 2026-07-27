@@ -184,6 +184,12 @@ function shuffle(arr){
   }
   return a;
 }
+function shuffleQuestionOptions(q){
+  const order = shuffle([0,1,2,3]);
+  const opts = order.map(i => q.opts[i]);
+  const correct = order.indexOf(q.correct);
+  return { ...q, opts, correct };
+}
 function buildDeck(total, selectedCats){
   const cats = selectedCats && selectedCats.length ? selectedCats : CATEGORIES;
   const perCat = Math.floor(total / cats.length);
@@ -195,7 +201,7 @@ function buildDeck(total, selectedCats){
     if(remainder > 0) remainder--;
     deck.push(...pool.slice(0, Math.min(n, pool.length)));
   });
-  return shuffle(deck);
+  return shuffle(deck).map(shuffleQuestionOptions);
 }
 function makeRoomCode(){
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -641,7 +647,15 @@ function onHostReceiveAnswer(payload){
   if(host.eliminated.includes(payload.name)) return;
   if(host.answers[payload.name] !== undefined) return; // une seule réponse comptée
   host.answers[payload.name] = payload;
-  render();
+  updateAnsweredCounterDOM();
+}
+function updateAnsweredCounterDOM(){
+  const el = document.getElementById("answeredCounter");
+  if(!el){ render(); return; }
+  const activeNames = Object.keys(host.players).filter(n => !host.eliminated.includes(n));
+  const answeredCount = Object.keys(host.answers).length;
+  const totalActive = activeNames.length;
+  el.innerHTML = `<span class="pulse-dot"></span>${answeredCount} / ${totalActive} joueur${totalActive>1?'s':''} actif${totalActive>1?'s':''} ont répondu`;
 }
 
 function hostSendSync(){
@@ -719,7 +733,7 @@ function renderHostGame(){
       ${host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex!==null && !revealed && !hostIsEliminated
         ? `<div class="status-banner">✅ Ta réponse est enregistrée, ${host.hostPlayerName}</div>` : ""}
       ${revealed ? `<div class="funfact">💡 ${q.fact}</div>` : `
-        <div class="status-banner"><span class="pulse-dot"></span>${answeredCount} / ${totalActive} joueur${totalActive>1?'s':''} actif${totalActive>1?'s':''} ont répondu</div>
+        <div class="status-banner" id="answeredCounter"><span class="pulse-dot"></span>${answeredCount} / ${totalActive} joueur${totalActive>1?'s':''} actif${totalActive>1?'s':''} ont répondu</div>
       `}
       <div class="stage-actions">
         ${!revealed
