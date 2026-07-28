@@ -565,14 +565,51 @@ window.toggleHostPlays = function(){
   host.hostPlaysToo = !host.hostPlaysToo;
   render();
 };
+const THEME_GROUPS = {
+  "Culture & savoirs": ["Culture générale piégeuse","Sciences & corps humain","Espace & astronomie","Histoire de France"],
+  "Pop culture & fandoms": ["Pop culture & écrans","Cinéma","Séries Netflix","Disney","Marvel & super-héros","Harry Potter","Dragon Ball Z","Jeux vidéo","L'Attaque des Titans"],
+  "Ambiance & détente": ["Blagues & absurde","Sport","Stars Instagram & réseaux sociaux"],
+  "Spécial": ["Pompiers & secours"]
+};
+function groupForCategory(cat){
+  for(const [group, list] of Object.entries(THEME_GROUPS)){
+    if(list.includes(cat)) return group;
+  }
+  return "Autres";
+}
 function renderHostThemeRow(){
   if(host.selectedCats.length === 0) host.selectedCats = [...CATEGORIES];
   const row = document.getElementById("themeRow");
-  row.innerHTML = CATEGORIES.map(c => `
-    <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
-      ${c}
-    </button>
-  `).join("");
+  const groupOrder = [...Object.keys(THEME_GROUPS), "Autres"];
+  const byGroup = {};
+  CATEGORIES.forEach(c => {
+    const g = groupForCategory(c);
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(c);
+  });
+  let html = `<div class="btn-row" style="margin-bottom:14px;">
+    <button class="btn btn-gold btn-sm" onclick="selectAllThemes()">✅ Tout cocher</button>
+  </div>`;
+  groupOrder.forEach(g => {
+    if(!byGroup[g] || byGroup[g].length === 0) return;
+    const allChecked = byGroup[g].every(c => host.selectedCats.includes(c));
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
+          <button class="btn btn-ghost btn-sm" onclick='toggleGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+        </div>
+        <div class="btn-row">
+          ${byGroup[g].map(c => `
+            <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+              ${c}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  });
+  row.innerHTML = html;
 }
 window.toggleTheme = function(cat){
   if(host.selectedCats.includes(cat)){
@@ -580,6 +617,21 @@ window.toggleTheme = function(cat){
   } else {
     host.selectedCats.push(cat);
   }
+  renderHostThemeRow();
+};
+window.toggleGroup = function(group){
+  const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
+  const allChecked = inGroup.every(c => host.selectedCats.includes(c));
+  if(allChecked){
+    const remaining = host.selectedCats.filter(c => !inGroup.includes(c));
+    host.selectedCats = remaining.length > 0 ? remaining : host.selectedCats;
+  } else {
+    host.selectedCats = [...new Set([...host.selectedCats, ...inGroup])];
+  }
+  renderHostThemeRow();
+};
+window.selectAllThemes = function(){
+  host.selectedCats = [...CATEGORIES];
   renderHostThemeRow();
 };
 window.copyJoinLink = function(){
@@ -1128,11 +1180,36 @@ window.selectSoloFormat = function(i){ solo.formatIndex = i; renderSoloFormatRow
 function renderSoloThemeRow(){
   if(solo.selectedCats.length === 0) solo.selectedCats = [...CATEGORIES];
   const row = document.getElementById("soloThemeRow");
-  row.innerHTML = CATEGORIES.map(c => `
-    <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleSoloTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
-      ${c}
-    </button>
-  `).join("");
+  const groupOrder = [...Object.keys(THEME_GROUPS), "Autres"];
+  const byGroup = {};
+  CATEGORIES.forEach(c => {
+    const g = groupForCategory(c);
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(c);
+  });
+  let html = `<div class="btn-row" style="margin-bottom:14px;">
+    <button class="btn btn-gold btn-sm" onclick="selectAllSoloThemes()">✅ Tout cocher</button>
+  </div>`;
+  groupOrder.forEach(g => {
+    if(!byGroup[g] || byGroup[g].length === 0) return;
+    const allChecked = byGroup[g].every(c => solo.selectedCats.includes(c));
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
+          <button class="btn btn-ghost btn-sm" onclick='toggleSoloGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+        </div>
+        <div class="btn-row">
+          ${byGroup[g].map(c => `
+            <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleSoloTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+              ${c}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  });
+  row.innerHTML = html;
 }
 window.toggleSoloTheme = function(cat){
   if(solo.selectedCats.includes(cat)){
@@ -1140,6 +1217,21 @@ window.toggleSoloTheme = function(cat){
   } else {
     solo.selectedCats.push(cat);
   }
+  renderSoloThemeRow();
+};
+window.toggleSoloGroup = function(group){
+  const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
+  const allChecked = inGroup.every(c => solo.selectedCats.includes(c));
+  if(allChecked){
+    const remaining = solo.selectedCats.filter(c => !inGroup.includes(c));
+    solo.selectedCats = remaining.length > 0 ? remaining : solo.selectedCats;
+  } else {
+    solo.selectedCats = [...new Set([...solo.selectedCats, ...inGroup])];
+  }
+  renderSoloThemeRow();
+};
+window.selectAllSoloThemes = function(){
+  solo.selectedCats = [...CATEGORIES];
   renderSoloThemeRow();
 };
 window.soloStart = function(){
