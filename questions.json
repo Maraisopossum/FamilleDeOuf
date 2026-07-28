@@ -10990,5 +10990,1265 @@
     ],
     "correct": 0,
     "fact": "Ce signe doit alerter sur un danger imminent pour les intervenants."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Qui est le personnage principal de L'Attaque des Titans ?",
+    "opts": [
+      "Eren Jaeger",
+      "Armin Arlert",
+      "Jean Kirstein",
+      "Connie Springer"
+    ],
+    "correct": 0,
+    "fact": "Il jure d'exterminer tous les titans après la mort de sa mère."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle est la meilleure amie d'enfance d'Eren, adoptée par sa famille ?",
+    "opts": [
+      "Historia Reiss",
+      "Mikasa Ackerman",
+      "Annie Leonhart",
+      "Sasha Blouse"
+    ],
+    "correct": 1,
+    "fact": "Elle est réputée être l'une des combattantes les plus douées de sa génération."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du meilleur ami stratège d'Eren ?",
+    "opts": [
+      "Armin Arlert",
+      "Jean Kirstein",
+      "Marco Bott",
+      "Reiner Braun"
+    ],
+    "correct": 0,
+    "fact": "Il est souvent décrit comme le cerveau du trio principal."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du capitaine le plus fort de l'humanité dans la série ?",
+    "opts": [
+      "Erwin Smith",
+      "Levi Ackerman",
+      "Mike Zacharius",
+      "Nile Dawk"
+    ],
+    "correct": 1,
+    "fact": "Il est surnommé « l'humanité la plus forte »."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du commandant du Bataillon d'Exploration au début de la série ?",
+    "opts": [
+      "Levi Ackerman",
+      "Erwin Smith",
+      "Dot Pixis",
+      "Keith Shadis"
+    ],
+    "correct": 1,
+    "fact": "Il perd un bras lors d'une expédition pour récupérer Eren."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment s'appelle l'organisation militaire qui explore l'extérieur des murs ?",
+    "opts": [
+      "Le Bataillon d'Exploration",
+      "La Garnison",
+      "La Police Militaire",
+      "L'Armée Régulière"
+    ],
+    "correct": 0,
+    "fact": "Aussi appelé « Scout Regiment » en anglais."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment s'appelle l'unité chargée de maintenir l'ordre à l'intérieur des murs ?",
+    "opts": [
+      "La Garnison",
+      "Le Bataillon d'Exploration",
+      "La Police Militaire",
+      "Le Corps des Ingénieurs"
+    ],
+    "correct": 0,
+    "fact": "Elle assure aussi la défense des murs eux-mêmes."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle unité d'élite protège le roi et sert dans la capitale intérieure ?",
+    "opts": [
+      "La Police Militaire",
+      "La Garnison",
+      "Le Bataillon d'Exploration",
+      "Le Corps Spécial"
+    ],
+    "correct": 0,
+    "fact": "On y accède en terminant parmi les meilleurs de sa promotion."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Combien de murs concentriques protègent l'humanité au début de la série ?",
+    "opts": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct": 1,
+    "fact": "Ils se nomment Maria, Rose et Sina."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du mur le plus extérieur, le premier à être percé par les titans ?",
+    "opts": [
+      "Mur Maria",
+      "Mur Rose",
+      "Mur Sina",
+      "Mur Historia"
+    ],
+    "correct": 0,
+    "fact": "Sa chute déclenche les événements de toute la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du mur le plus intérieur, protégeant la capitale ?",
+    "opts": [
+      "Mur Sina",
+      "Mur Rose",
+      "Mur Maria",
+      "Mur Utopia"
+    ],
+    "correct": 0,
+    "fact": "La capitale royale, Mitras, s'y trouve."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle ville natale d'Eren est détruite au tout début de la série ?",
+    "opts": [
+      "Trost",
+      "Shiganshina",
+      "Krolva",
+      "Ragako"
+    ],
+    "correct": 1,
+    "fact": "Sa chute marque le point de départ de l'histoire."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel équipement permet aux soldats de se déplacer rapidement en hauteur pour combattre les titans ?",
+    "opts": [
+      "L'équipement de manœuvre tridimensionnelle",
+      "Le fusil à harpon",
+      "La cape ailée",
+      "Le grappin volant"
+    ],
+    "correct": 0,
+    "fact": "Il utilise des lames et des câbles à gaz comprimé."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle arme, développée plus tard dans la série, est particulièrement efficace contre les titans à carapace dure ?",
+    "opts": [
+      "La lance-tonnerre",
+      "L'épée longue",
+      "Le canon à vapeur",
+      "Le fouet électrique"
+    ],
+    "correct": 0,
+    "fact": "Elle explose au contact, perçant même les carapaces les plus résistantes."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titan gigantesque, dégageant une chaleur intense, a détruit le Mur Maria ?",
+    "opts": [
+      "Le Titan Colossal",
+      "Le Titan Cuirassé",
+      "Le Titan Femelle",
+      "Le Titan Bestial"
+    ],
+    "correct": 0,
+    "fact": "Sa vapeur brûlante tient à distance quiconque l'approche."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titan possède une carapace très résistante, difficile à transpercer ?",
+    "opts": [
+      "Le Titan Cuirassé",
+      "Le Titan Colossal",
+      "Le Titan Femelle",
+      "Le Titan Charrette"
+    ],
+    "correct": 0,
+    "fact": "Ses plaques dures protègent les points vitaux de son porteur."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage se révèle être le Titan Cuirassé ?",
+    "opts": [
+      "Reiner Braun",
+      "Bertholt Hoover",
+      "Annie Leonhart",
+      "Zeke Jaeger"
+    ],
+    "correct": 0,
+    "fact": "Cette révélation bouleverse profondément ses anciens camarades."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage se révèle être le Titan Colossal ?",
+    "opts": [
+      "Bertholt Hoover",
+      "Reiner Braun",
+      "Zeke Jaeger",
+      "Ymir"
+    ],
+    "correct": 0,
+    "fact": "Il est réputé discret et introverti avant cette révélation."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage se révèle être le Titan Femelle, infiltrée parmi les recrues ?",
+    "opts": [
+      "Annie Leonhart",
+      "Historia Reiss",
+      "Ymir",
+      "Mikasa Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Elle est capturée puis se réfugie dans une carapace de cristal."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titan doué d'intelligence et de parole est associé à Zeke Jaeger ?",
+    "opts": [
+      "Le Titan Bestial",
+      "Le Titan Cuirassé",
+      "Le Titan Charrette",
+      "Le Titan Mâchoire"
+    ],
+    "correct": 0,
+    "fact": "Il peut lancer des projectiles et transformer des humains en titans par un cri."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du père d'Eren, médecin d'origine mystérieuse ?",
+    "opts": [
+      "Grisha Jaeger",
+      "Keith Shadis",
+      "Dot Pixis",
+      "Kenny Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Son passé cache des secrets essentiels sur l'histoire des titans."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle est la mère d'Eren, tuée au tout début de la série ?",
+    "opts": [
+      "Carla Jaeger",
+      "Dina Fritz",
+      "Kiyomi Azumabito",
+      "Frieda Reiss"
+    ],
+    "correct": 0,
+    "fact": "Sa mort pousse Eren à vouloir rejoindre le Bataillon d'Exploration."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel demi-frère d'Eren, également porteur d'un titan, appartient à Marley ?",
+    "opts": [
+      "Zeke Jaeger",
+      "Reiner Braun",
+      "Porco Galliard",
+      "Colt Grice"
+    ],
+    "correct": 0,
+    "fact": "Il est né d'un premier mariage de leur père Grisha."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du pays d'où viennent les guerriers comme Reiner, Bertholt et Annie ?",
+    "opts": [
+      "Marley",
+      "Eldia",
+      "Hizuru",
+      "Liberio"
+    ],
+    "correct": 0,
+    "fact": "Ils sont envoyés en mission secrète sur l'île de Paradis."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment appelle-t-on le peuple auquel appartiennent les habitants de l'intérieur des murs ?",
+    "opts": [
+      "Les Eldiens",
+      "Les Marleyens",
+      "Les Ackerman",
+      "Les Reiss"
+    ],
+    "correct": 0,
+    "fact": "Ils sont considérés comme un peuple maudit par une grande partie du monde extérieur."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle famille possède historiquement le pouvoir du Titan Fondateur ?",
+    "opts": [
+      "La famille Reiss",
+      "La famille Jaeger",
+      "La famille Ackerman",
+      "La famille Braun"
+    ],
+    "correct": 0,
+    "fact": "Reiss est le nom adopté par cette lignée après son exil du pouvoir."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom de la toute première porteuse du pouvoir des titans, ayant vécu 2000 ans avant l'histoire ?",
+    "opts": [
+      "Ymir Fritz",
+      "Frieda Reiss",
+      "Historia Reiss",
+      "Dina Fritz"
+    ],
+    "correct": 0,
+    "fact": "Son pouvoir originel est à l'origine de tous les titans qui suivront."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage secondaire se révèle être une descendante directe de la lignée royale, cachée sous une fausse identité ?",
+    "opts": [
+      "Historia Reiss",
+      "Ymir",
+      "Annie Leonhart",
+      "Mikasa Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Elle grandit longtemps sans connaître ses véritables origines."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel clan de guerriers, dont fait partie Mikasa, est réputé pour sa force surhumaine ?",
+    "opts": [
+      "Le clan Ackerman",
+      "Le clan Reiss",
+      "Le clan Fritz",
+      "Le clan Braun"
+    ],
+    "correct": 0,
+    "fact": "Ce clan a longtemps été craint et persécuté par la royauté."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage énigmatique, oncle de Levi, appartient également au clan Ackerman ?",
+    "opts": [
+      "Kenny Ackerman",
+      "Nile Dawk",
+      "Dot Pixis",
+      "Rod Reiss"
+    ],
+    "correct": 0,
+    "fact": "Il a élevé Levi durant son enfance dans les bas-fonds."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du village où grandissent les jeunes guerriers de Marley avant leur entraînement ?",
+    "opts": [
+      "Liberio",
+      "Ragako",
+      "Utgard",
+      "Stohess"
+    ],
+    "correct": 0,
+    "fact": "C'est un quartier réservé où vivent les Eldiens restés fidèles à Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Combien existe-t-il de « Neuf Titans » aux pouvoirs uniques et transmissibles ?",
+    "opts": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "correct": 2,
+    "fact": "Chacun possède une capacité distincte transmise d'un porteur à l'autre."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titan est réputé pour sa rapidité et sa mâchoire puissante, utile en éclaireur ?",
+    "opts": [
+      "Le Titan Mâchoire",
+      "Le Titan Charrette",
+      "Le Titan Bestial",
+      "Le Titan Femelle"
+    ],
+    "correct": 0,
+    "fact": "Sa vitesse en fait un titan précieux pour l'espionnage et la fuite rapide."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titan sert principalement au transport de ravitaillement pour Marley, grâce à un corps allongé ?",
+    "opts": [
+      "Le Titan Charrette",
+      "Le Titan Mâchoire",
+      "Le Titan Cuirassé",
+      "Le Titan Colossal"
+    ],
+    "correct": 0,
+    "fact": "Sa porteuse peut aussi fabriquer des armes grâce à un corps partiellement cristallisé."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment appelle-t-on un titan sans intelligence propre, errant sans but apparent ?",
+    "opts": [
+      "Un titan pur",
+      "Un titan intelligent",
+      "Un titan éveillé",
+      "Un titan royal"
+    ],
+    "correct": 0,
+    "fact": "La grande majorité des titans rencontrés dans la série sont de ce type."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle partie du corps d'un titan faut-il généralement viser pour le neutraliser ?",
+    "opts": [
+      "La nuque",
+      "Le cœur",
+      "La tête entière",
+      "Le dos"
+    ],
+    "correct": 0,
+    "fact": "C'est là que se trouve le corps humain contrôlant le titan."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage féminin, gourmande et douée à l'arc, est surnommée « la fille pomme de terre » ?",
+    "opts": [
+      "Sasha Blouse",
+      "Historia Reiss",
+      "Ymir",
+      "Mikasa Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Son amour de la nourriture est un running gag de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du camarade proche de Sasha, souvent moqueur mais loyal ?",
+    "opts": [
+      "Connie Springer",
+      "Jean Kirstein",
+      "Marco Bott",
+      "Franz Kefka"
+    ],
+    "correct": 0,
+    "fact": "Il vient d'un petit village de montagne nommé Ragako."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage, d'abord rival d'Eren, devient temporairement commandant du Bataillon d'Exploration ?",
+    "opts": [
+      "Jean Kirstein",
+      "Connie Springer",
+      "Armin Arlert",
+      "Floch Forster"
+    ],
+    "correct": 0,
+    "fact": "Son avis sur Eren évolue considérablement au fil de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage discret et affable meurt lors de la bataille de Trost ?",
+    "opts": [
+      "Marco Bott",
+      "Franz Kefka",
+      "Thomas Wagner",
+      "Mylius Zeremski"
+    ],
+    "correct": 0,
+    "fact": "Sa mort marque durablement Jean, son camarade."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage obtient le pouvoir du Titan Colossal après la bataille finale de Shiganshina ?",
+    "opts": [
+      "Armin Arlert",
+      "Jean Kirstein",
+      "Connie Springer",
+      "Falco Grice"
+    ],
+    "correct": 0,
+    "fact": "Il hérite de ce pouvoir dans des circonstances dramatiques."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage se sacrifie pour protéger Historia, créant un lien fort entre elles ?",
+    "opts": [
+      "Ymir",
+      "Sasha Blouse",
+      "Annie Leonhart",
+      "Mikasa Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Son passé de porteuse de titan reste longtemps mystérieux."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom de la scientifique excentrique et passionnée par l'étude des titans ?",
+    "opts": [
+      "Hange Zoë",
+      "Moblit Berner",
+      "Nanaba",
+      "Mike Zacharius"
+    ],
+    "correct": 0,
+    "fact": "Sa curiosité scientifique pour les titans est légendaire au sein du Bataillon."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel commandant de la Garnison, bourru mais efficace, défend la ville de Trost ?",
+    "opts": [
+      "Dot Pixis",
+      "Nile Dawk",
+      "Keith Shadis",
+      "Erwin Smith"
+    ],
+    "correct": 0,
+    "fact": "Il est connu pour son goût prononcé pour l'alcool."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom du commandant de la Police Militaire au début de la série ?",
+    "opts": [
+      "Nile Dawk",
+      "Dot Pixis",
+      "Keith Shadis",
+      "Darius Zackly"
+    ],
+    "correct": 0,
+    "fact": "Il fut autrefois camarade d'entraînement d'Erwin Smith."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel instructeur sévère entraîne la 104e brigade, dont font partie Eren et ses amis ?",
+    "opts": [
+      "Keith Shadis",
+      "Dot Pixis",
+      "Nile Dawk",
+      "Erwin Smith"
+    ],
+    "correct": 0,
+    "fact": "Il fut lui-même autrefois commandant du Bataillon d'Exploration."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "À quelle brigade d'entraînement appartiennent Eren, Mikasa et Armin ?",
+    "opts": [
+      "La 104e brigade",
+      "La 103e brigade",
+      "La 105e brigade",
+      "La 102e brigade"
+    ],
+    "correct": 0,
+    "fact": "Cette promotion compte plusieurs futurs personnages clés de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage termine premier de sa promotion au sein de la 104e brigade ?",
+    "opts": [
+      "Mikasa Ackerman",
+      "Annie Leonhart",
+      "Reiner Braun",
+      "Eren Jaeger"
+    ],
+    "correct": 0,
+    "fact": "Ses talents exceptionnels impressionnent tous ses instructeurs."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel mouvement clandestin œuvre pour révéler au peuple la vérité sur le monde extérieur et le gouvernement ?",
+    "opts": [
+      "Le mouvement anti-mur (Restaurationnistes)",
+      "L'Armée de Libération",
+      "Les Yeagéristes",
+      "Le Front de l'Ombre"
+    ],
+    "correct": 0,
+    "fact": "Ce mouvement s'oppose depuis longtemps à la royauté et à ses secrets."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel groupe de fervents partisans d'Eren se forme après la révélation de ses origines et intentions ?",
+    "opts": [
+      "Les Yeagéristes",
+      "Les Restaurationnistes",
+      "Les Anti-Marleyens",
+      "Les Fils des Murs"
+    ],
+    "correct": 0,
+    "fact": "Ils vénèrent Eren comme un sauveur de leur peuple."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel ancien simple soldat devient un chef influent des Yeagéristes ?",
+    "opts": [
+      "Floch Forster",
+      "Jean Kirstein",
+      "Connie Springer",
+      "Onyankopon"
+    ],
+    "correct": 0,
+    "fact": "Son admiration pour Eren se transforme en fanatisme."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le pouvoir originel du titan que possède Eren, révélé dès les débuts de la série ?",
+    "opts": [
+      "Le Titan Attaque",
+      "Le Titan Cuirassé",
+      "Le Titan Bestial",
+      "Le Titan Fondateur"
+    ],
+    "correct": 0,
+    "fact": "Ce titan est réputé pour son instinct de combat féroce."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment appelle-t-on l'événement dévastateur où d'innombrables titans colossaux ravagent le monde ?",
+    "opts": [
+      "Le Grand Fracas",
+      "La Grande Chute",
+      "L'Apocalypse des Murs",
+      "La Marche des Titans"
+    ],
+    "correct": 0,
+    "fact": "Il est aussi connu sous le nom de « Rumbling » en version originale."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Qui déclenche cet événement dévastateur vers la fin de la série ?",
+    "opts": [
+      "Eren Jaeger",
+      "Zeke Jaeger",
+      "Historia Reiss",
+      "Levi Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Sa décision divise profondément ses propres amis."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le nom de l'île entourée par les murs, où se déroule la majorité de l'histoire ?",
+    "opts": [
+      "L'île de Paradis",
+      "L'île d'Eldia",
+      "L'île de Marley",
+      "L'île de Fritz"
+    ],
+    "correct": 0,
+    "fact": "Elle abrite les derniers vestiges du peuple eldien."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle nation extérieure considère les habitants des murs comme une menace à éliminer ?",
+    "opts": [
+      "Marley",
+      "Hizuru",
+      "L'Union Mid-Est",
+      "L'Empire Kraal"
+    ],
+    "correct": 0,
+    "fact": "Cette nation a longtemps caché la vérité sur les origines des titans à son propre peuple."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel pays asiatique entretient des relations diplomatiques et commerciales avec l'île de Paradis ?",
+    "opts": [
+      "Hizuru",
+      "Marley",
+      "Liberio",
+      "L'Union Mid-Est"
+    ],
+    "correct": 0,
+    "fact": "Sa représentante devient une alliée précieuse des habitants de l'île."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle diplomate de Hizuru devient une alliée d'Eren et de ses amis ?",
+    "opts": [
+      "Kiyomi Azumabito",
+      "Mikasa Ackerman",
+      "Pieck Finger",
+      "Yelena"
+    ],
+    "correct": 0,
+    "fact": "Elle noue des liens commerciaux forts avec l'île de Paradis."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle guerrière de Marley, agile et discrète, se transforme en Titan Charrette ?",
+    "opts": [
+      "Pieck Finger",
+      "Annie Leonhart",
+      "Gabi Braun",
+      "Louise"
+    ],
+    "correct": 0,
+    "fact": "Ce titan lui permet aussi de fabriquer des armes grâce à son corps partiellement cristallisé."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel jeune garçon de Marley admire profondément Reiner comme un modèle ?",
+    "opts": [
+      "Falco Grice",
+      "Colt Grice",
+      "Porco Galliard",
+      "Gabi Braun"
+    ],
+    "correct": 0,
+    "fact": "Son admiration le pousse à vouloir devenir guerrier à son tour."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle jeune fille de Marley, cousine de Reiner, rêve ardemment de devenir guerrière ?",
+    "opts": [
+      "Gabi Braun",
+      "Pieck Finger",
+      "Yelena",
+      "Louise"
+    ],
+    "correct": 0,
+    "fact": "Elle admire profondément son cousin et son sacrifice pour Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage développe une fascination presque dévouée envers Zeke Jaeger ?",
+    "opts": [
+      "Yelena",
+      "Kiyomi Azumabito",
+      "Pieck Finger",
+      "Louise"
+    ],
+    "correct": 0,
+    "fact": "Elle soutient secrètement les plans de Zeke au sein des forces de Paradis."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Qui est l'auteur du manga « L'Attaque des Titans » ?",
+    "opts": [
+      "Hajime Isayama",
+      "Eiichiro Oda",
+      "Kentaro Miura",
+      "Tite Kubo"
+    ],
+    "correct": 0,
+    "fact": "Il commence à dessiner cette œuvre alors qu'il est encore étudiant."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "En quelle année le manga « L'Attaque des Titans » a-t-il commencé sa publication au Japon ?",
+    "opts": [
+      "2005",
+      "2009",
+      "2013",
+      "2016"
+    ],
+    "correct": 1,
+    "fact": "Son adaptation en anime ne débute que quelques années plus tard."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quels studios d'animation ont produit l'adaptation animée de la série ?",
+    "opts": [
+      "Wit Studio puis MAPPA",
+      "Toei Animation",
+      "Madhouse",
+      "Bones"
+    ],
+    "correct": 0,
+    "fact": "Wit Studio anime les premières saisons avant que MAPPA reprenne la production."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le titre original japonais de « L'Attaque des Titans » ?",
+    "opts": [
+      "Shingeki no Kyojin",
+      "Kimetsu no Yaiba",
+      "Boku no Hero Academia",
+      "Jujutsu Kaisen"
+    ],
+    "correct": 0,
+    "fact": "Ce titre signifie littéralement « le Titan qui avance »."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Combien de tomes compte approximativement le manga complet de « L'Attaque des Titans » ?",
+    "opts": [
+      "34",
+      "20",
+      "50",
+      "15"
+    ],
+    "correct": 0,
+    "fact": "La série s'est achevée après plus d'une décennie de publication."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le surnom donné à Levi en raison de son obsession légendaire pour la propreté ?",
+    "opts": [
+      "« Le Caporal-chef Propreté »",
+      "« L'Homme Blanc »",
+      "« Le Nettoyeur »",
+      "« Le Perfectionniste »"
+    ],
+    "correct": 0,
+    "fact": "C'est une blague récurrente et appréciée des fans de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle escouade d'élite, formée spécialement autour de Levi, subit de lourdes pertes lors de la traque du Titan Féminin ?",
+    "opts": [
+      "L'Escouade spéciale de Levi",
+      "L'Escouade Alpha",
+      "L'Escouade des Murs",
+      "L'Escouade Sina"
+    ],
+    "correct": 0,
+    "fact": "Cette tragédie marque profondément Levi et Eren."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle membre de l'escouade de Levi est réputée pour son calme et ses talents de combattante ?",
+    "opts": [
+      "Petra Ral",
+      "Oluo Bozad",
+      "Eld Jinn",
+      "Gunther Schultz"
+    ],
+    "correct": 0,
+    "fact": "Elle admire profondément Levi et son leadership."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment appelle-t-on le dirigeant civil du gouvernement à l'intérieur des murs avant sa chute ?",
+    "opts": [
+      "Le roi mural",
+      "L'empereur",
+      "Le chancelier",
+      "Le gouverneur"
+    ],
+    "correct": 0,
+    "fact": "Ce système de gouvernance repose longtemps sur le secret des origines des titans."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel personnage prend le contrôle de la capitale lors d'un coup d'État mené par ses partisans ?",
+    "opts": [
+      "Floch Forster",
+      "Jean Kirstein",
+      "Onyankopon",
+      "Louise"
+    ],
+    "correct": 0,
+    "fact": "Son fanatisme grandissant pousse à des choix radicaux et violents."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel volontaire originaire du Moyen-Orient rejoint l'équipe d'Hange en tant que pilote ?",
+    "opts": [
+      "Onyankopon",
+      "Yelena",
+      "Niccolo",
+      "Magath"
+    ],
+    "correct": 0,
+    "fact": "Il devient un allié précieux dans la dernière partie de l'histoire."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel général expérimenté de Marley commande les opérations militaires contre l'île de Paradis ?",
+    "opts": [
+      "Theo Magath",
+      "Willy Tybur",
+      "Dhalis Zachary",
+      "Darius Zackly"
+    ],
+    "correct": 0,
+    "fact": "Il supervise l'entraînement des jeunes guerriers eldiens de Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle famille influente de Marley organise un grand discours accusant Eldia de tous les maux du monde ?",
+    "opts": [
+      "La famille Tybur",
+      "La famille Fritz",
+      "La famille Reiss",
+      "La famille Jaeger"
+    ],
+    "correct": 0,
+    "fact": "Cette famille est la seule autorisée par Marley à posséder un pouvoir de titan sans être considérée comme un danger."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel membre de la famille Tybur porte le pouvoir du Titan Marteau de Guerre ?",
+    "opts": [
+      "Willy Tybur",
+      "Zeke Jaeger",
+      "Porco Galliard",
+      "Reiner Braun"
+    ],
+    "correct": 0,
+    "fact": "Ce titan est réputé pour sa capacité à forger des armes à volonté."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel pouvoir unique est associé au Titan Fondateur, transmis par la lignée royale ou par contact direct ?",
+    "opts": [
+      "Le contrôle de tous les titans purs et l'accès aux mémoires des Eldiens",
+      "L'invisibilité",
+      "Le vol",
+      "La téléportation"
+    ],
+    "correct": 0,
+    "fact": "Ce pouvoir immense reste largement inexploité pendant la majeure partie de l'histoire."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Que doit faire un nouveau porteur pour hériter du pouvoir d'un titan ?",
+    "opts": [
+      "Dévorer l'ancien porteur",
+      "Prononcer un serment solennel",
+      "Gagner un combat à mort",
+      "Participer à une cérémonie royale"
+    ],
+    "correct": 0,
+    "fact": "Cette règle macabre façonne le destin de nombreux personnages de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle est la durée de vie généralement réduite des porteurs de titans après avoir hérité d'un pouvoir ?",
+    "opts": [
+      "Environ 13 ans",
+      "Environ 5 ans",
+      "Environ 30 ans",
+      "Illimitée"
+    ],
+    "correct": 0,
+    "fact": "On surnomme parfois ce phénomène « la malédiction des titans »."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle guerrière de Marley aspire à hériter du Titan Cuirassé après Reiner ?",
+    "opts": [
+      "Gabi Braun",
+      "Pieck Finger",
+      "Annie Leonhart",
+      "Yelena"
+    ],
+    "correct": 0,
+    "fact": "Elle s'entraîne dur pour prouver sa valeur aux yeux de Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le père d'Historia Reiss, chef d'une branche dissidente de la famille royale ?",
+    "opts": [
+      "Rod Reiss",
+      "Dot Pixis",
+      "Darius Zackly",
+      "Kenny Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Il complote pour raviver le pouvoir du Titan Fondateur au sein de sa famille."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle sœur aînée d'Historia meurt tragiquement, dévorée involontairement par une amie ?",
+    "opts": [
+      "Frieda Reiss",
+      "Dina Fritz",
+      "Carla Jaeger",
+      "Petra Ral"
+    ],
+    "correct": 0,
+    "fact": "C'est Ymir, encore titan à l'époque, qui est involontairement responsable de ce drame."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel est le véritable patronyme de la famille royale avant qu'elle n'adopte le nom de Reiss ?",
+    "opts": [
+      "Fritz",
+      "Jaeger",
+      "Ackerman",
+      "Braun"
+    ],
+    "correct": 0,
+    "fact": "Ce nom relie directement la lignée royale à la toute première porteuse de titan."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel groupe d'Eldiens, resté fidèle à Marley, vit dans un quartier réservé de la capitale marleyenne ?",
+    "opts": [
+      "Les Eldiens de Liberio",
+      "Les Restaurationnistes",
+      "Les guerriers d'élite",
+      "Le clan Ackerman"
+    ],
+    "correct": 0,
+    "fact": "Ils espèrent gagner leur pleine citoyenneté en servant loyalement Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel symbole les Eldiens doivent-ils porter publiquement à Marley pour être identifiés ?",
+    "opts": [
+      "Un brassard",
+      "Une étoile",
+      "Un tatouage",
+      "Un uniforme spécial"
+    ],
+    "correct": 0,
+    "fact": "Ce marquage renforce leur statut de citoyens de seconde zone."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelles avancées technologiques Marley possède-t-elle, contrairement à l'île de Paradis restée plus rudimentaire ?",
+    "opts": [
+      "Les armes à feu et véhicules motorisés",
+      "L'électricité",
+      "L'aviation avancée",
+      "Toutes ces réponses"
+    ],
+    "correct": 3,
+    "fact": "Ce déséquilibre technologique choque profondément les habitants de l'île en découvrant le monde extérieur."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Lors de quelle expédition emblématique le Bataillon d'Exploration parvient-il à capturer le Titan Féminin ?",
+    "opts": [
+      "La 57e expédition hors des murs",
+      "L'expédition de reconquête du Mur Maria",
+      "L'expédition punitive contre Marley",
+      "L'expédition du couronnement"
+    ],
+    "correct": 0,
+    "fact": "Cette expédition marque un tournant stratégique majeur pour l'humanité."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Dans quelle ville se déroule la traque intense du Titan Féminin en plein cœur urbain ?",
+    "opts": [
+      "Stohess",
+      "Trost",
+      "Shiganshina",
+      "Krolva"
+    ],
+    "correct": 0,
+    "fact": "La bataille détruit une grande partie du quartier commerçant de la ville."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Eren et Mikasa sont-ils liés par le sang au sein de leur famille adoptive ?",
+    "opts": [
+      "Non, elle est recueillie par sa famille suite à un drame",
+      "Oui, ce sont des cousins germains",
+      "Oui, ce sont frère et sœur biologiques",
+      "Oui, ce sont demi-frère et demi-sœur"
+    ],
+    "correct": 0,
+    "fact": "Leur lien reste néanmoins extrêmement fort tout au long de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel événement tragique vit Mikasa avant d'être recueillie par la famille Jaeger ?",
+    "opts": [
+      "Le meurtre de ses parents par des trafiquants",
+      "La perte de son village dans un incendie",
+      "Une attaque de titans",
+      "Une famine"
+    ],
+    "correct": 0,
+    "fact": "Eren intervient courageusement pour la sauver ce jour-là."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel accessoire, symbole récurrent de la série, est offert par Eren à Mikasa ?",
+    "opts": [
+      "Une écharpe rouge",
+      "Une écharpe bleue",
+      "Un foulard blanc",
+      "Un ruban doré"
+    ],
+    "correct": 0,
+    "fact": "Elle la porte presque continuellement tout au long de l'histoire."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel titre porte Historia après avoir été révélée comme héritière légitime de la couronne ?",
+    "opts": [
+      "Reine des murs",
+      "Impératrice",
+      "Chancelière",
+      "Régente"
+    ],
+    "correct": 0,
+    "fact": "Son couronnement marque un tournant politique majeur pour l'humanité."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Que mangent généralement les titans, bien qu'ils n'aient pas besoin de nourriture pour survivre biologiquement ?",
+    "opts": [
+      "Des êtres humains",
+      "Des animaux",
+      "Rien du tout",
+      "Des plantes"
+    ],
+    "correct": 0,
+    "fact": "Leur comportement semble relever de l'instinct plutôt que d'un besoin réel."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle taille peuvent atteindre les plus grands titans observés dans la série ?",
+    "opts": [
+      "Plusieurs dizaines de mètres",
+      "Environ 2 mètres",
+      "Environ 5 mètres",
+      "Une taille toujours identique à un humain"
+    ],
+    "correct": 0,
+    "fact": "Le Titan Colossal en est l'exemple le plus impressionnant."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle relation Zeke entretient-il avec Grisha Jaeger, le père d'Eren ?",
+    "opts": [
+      "Il est son fils aîné, né d'un premier mariage",
+      "Il est son frère",
+      "Il est son neveu",
+      "Aucun lien de parenté"
+    ],
+    "correct": 0,
+    "fact": "Zeke grandit à Marley tandis que Grisha s'exile plus tard sur l'île de Paradis."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "À quel mouvement de résistance eldienne Grisha appartenait-il avant de fuir vers l'île de Paradis ?",
+    "opts": [
+      "Les Restaurationnistes",
+      "Les Yeagéristes",
+      "Le Bataillon d'Exploration",
+      "La Police Militaire"
+    ],
+    "correct": 0,
+    "fact": "Ce passé explique en partie les choix radicaux de Grisha plus tard dans sa vie."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel carnet précieux Grisha transmet-il à Eren, contenant des informations cruciales sur le monde extérieur ?",
+    "opts": [
+      "Son journal personnel",
+      "Une carte au trésor",
+      "Une lettre codée",
+      "Un livre de sorts"
+    ],
+    "correct": 0,
+    "fact": "Il y consigne notamment l'histoire véritable des titans et du monde."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Que renferme la cave mystérieuse de la maison familiale des Jaeger à Shiganshina ?",
+    "opts": [
+      "La vérité sur le monde extérieur et l'histoire des titans",
+      "Un trésor caché",
+      "Une arme secrète",
+      "Le nom du prochain roi"
+    ],
+    "correct": 0,
+    "fact": "Eren en porte la clé autour du cou pendant une grande partie de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Comment un simple humain peut-il devenir un titan pur dans l'univers de la série ?",
+    "opts": [
+      "Par injection d'un fluide spinal de titan",
+      "Par une malédiction héréditaire uniquement",
+      "Par une morsure de titan",
+      "Par un rituel ancien uniquement"
+    ],
+    "correct": 0,
+    "fact": "Ce procédé a été utilisé à plusieurs reprises comme arme redoutable."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quelle nation rivale de Marley, technologiquement très avancée, est évoquée comme puissance mondiale majeure ?",
+    "opts": [
+      "L'Union Mid-Est",
+      "Hizuru",
+      "Eldia",
+      "Paradis"
+    ],
+    "correct": 0,
+    "fact": "Sa rivalité avec Marley influence fortement le contexte géopolitique de la série."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Dans quelle capitale se déroule le discours fatidique de Willy Tybur, interrompu par une attaque surprise ?",
+    "opts": [
+      "Liberio",
+      "Mahr",
+      "Odiha",
+      "Fort Slava"
+    ],
+    "correct": 0,
+    "fact": "Cet événement marque un tournant majeur dans le conflit entre Paradis et Marley."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Sur quelle plateforme de streaming la série a-t-elle notamment été diffusée en simulcast à l'international ?",
+    "opts": [
+      "Crunchyroll",
+      "Netflix exclusivement",
+      "Disney+",
+      "Amazon Prime uniquement"
+    ],
+    "correct": 0,
+    "fact": "Cette diffusion rapide a grandement contribué à sa popularité mondiale."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "En combien de saisons principales l'anime est-il généralement découpé ?",
+    "opts": [
+      "4 saisons",
+      "2 saisons",
+      "6 saisons",
+      "3 saisons"
+    ],
+    "correct": 0,
+    "fact": "La saison finale a elle-même été divisée en plusieurs parties."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "À quel genre appartient principalement « L'Attaque des Titans » ?",
+    "opts": [
+      "Dark fantasy et post-apocalyptique",
+      "Comédie romantique",
+      "Tranche de vie",
+      "Science-fiction spatiale"
+    ],
+    "correct": 0,
+    "fact": "La série est réputée pour son ambiance sombre et ses thèmes matures."
+  },
+  {
+    "cat": "L'Attaque des Titans",
+    "q": "Quel procédé narratif la série utilise-t-elle fréquemment pour révéler des événements passés aux spectateurs ?",
+    "opts": [
+      "Des flashbacks",
+      "Des narrations en voix off uniquement",
+      "Des rêves prophétiques uniquement",
+      "Des lettres"
+    ],
+    "correct": 0,
+    "fact": "Ces retours en arrière éclairent souvent des révélations majeures de l'intrigue."
   }
 ]
