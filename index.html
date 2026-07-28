@@ -317,7 +317,7 @@ function freshHostState(){
     formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby",
     answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null,
     lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
-    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0
+    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000
   };
 }
 let host = freshHostState();
@@ -438,6 +438,9 @@ function renderHostLobby(){
       <p class="status-banner" style="margin-bottom:22px;">Tu veux jouer toi aussi ? Ouvre ce lien sur ton propre téléphone (pas sur cet écran) pour te connecter comme un joueur normal.</p>
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format de partie</h3>
       <div class="btn-row" id="formatRow" style="margin-bottom:26px;"></div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Temps par question</h3>
+      <div class="btn-row" id="durationRow" style="margin-bottom:12px;"></div>
+      <p class="status-banner" style="text-align:left;margin-bottom:26px;">« Sans chrono » masque le décompte : tout le monde répond à son rythme, toi seul décides quand révéler.</p>
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
       <div class="btn-row" id="themeRow" style="margin-bottom:12px;"></div>
       <p class="status-banner" style="text-align:left;margin-bottom:26px;">Astuce : pour une manche 100% sur un seul thème, désélectionne les autres et ne garde que celui que tu veux.</p>
@@ -485,6 +488,7 @@ function renderHostLobby(){
     <footer>Astuce : idéalement au moins 2 joueurs pour que ce soit marrant.</footer>
   `;
   renderHostFormatRow();
+  renderHostDurationRow();
   renderHostThemeRow();
 }
 
@@ -588,6 +592,18 @@ function renderHostFormatRow(){
 }
 window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow(); };
 
+const DURATION_OPTIONS = [10000, 15000, 20000, 30000, 45000, 60000, 0];
+function durationLabel(ms){ return ms === 0 ? "Sans chrono" : (ms/1000) + "s"; }
+function renderHostDurationRow(){
+  const row = document.getElementById("durationRow");
+  row.innerHTML = DURATION_OPTIONS.map(ms => `
+    <button class="btn ${host.questionDuration===ms ? 'btn-gold' : 'btn-ghost'}" onclick="selectHostDuration(${ms})" style="flex:1;min-width:90px;">
+      ${durationLabel(ms)}
+    </button>
+  `).join("");
+}
+window.selectHostDuration = function(ms){ host.questionDuration = ms; renderHostDurationRow(); };
+
 window.hostStartGame = function(){
   if(host.hostPlaysToo && host.hostPlayerName.trim()){
     host.players[host.hostPlayerName.trim()] = 0;
@@ -617,12 +633,12 @@ function hostSendQuestion(){
   host.questionStartTime = Date.now();
   send("question", {
     index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
-    q: q.q, opts: q.opts, duration: QUESTION_TIME_MS, scores: {...host.players},
+    q: q.q, opts: q.opts, duration: host.questionDuration, scores: {...host.players},
     eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
     teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
   });
   render();
-  startTimer(host.questionStartTime, QUESTION_TIME_MS);
+  if(host.questionDuration > 0) startTimer(host.questionStartTime, host.questionDuration);
   if(host.hostPlaysToo && host.hostPlayerName.trim()){
     const myHandicap = host.playerHandicaps[host.hostPlayerName.trim()] || 0;
     if(myHandicap > 0) startHandicapCountdown(host.questionStartTime, myHandicap, ()=>render());
@@ -665,7 +681,7 @@ function hostSendSync(){
     const q = host.deck[host.currentIndex];
     base.question = {
       index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
-      q: q.q, opts: q.opts, duration: QUESTION_TIME_MS, scores: {...host.players},
+      q: q.q, opts: q.opts, duration: host.questionDuration, scores: {...host.players},
       eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
       teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
     };
@@ -703,7 +719,7 @@ function renderHostGame(){
     </div>
     <div class="stage">
       <span class="category-tag">${q.cat}</span>
-      ${!revealed ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      ${!revealed && host.questionDuration > 0 ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
       <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>` : ""}
       ${hostHandicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
       <p class="question-text">${q.q}</p>
@@ -936,7 +952,7 @@ function onPlayerReceiveQuestion(payload){
   player.questionReceivedAt = Date.now();
   render();
   if(!player.eliminated){
-    startTimer(player.questionReceivedAt, payload.duration || QUESTION_TIME_MS);
+    if(payload.duration > 0) startTimer(player.questionReceivedAt, payload.duration);
     if(player.currentHandicap > 0) startHandicapCountdown(player.questionReceivedAt, player.currentHandicap, ()=>render());
   }
   scrollTop();
@@ -969,8 +985,8 @@ function renderPlayerQuestion(){
       </div>
     ` : `
       <div class="stage">
-        <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
-        <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>
+        ${q.duration > 0 ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>` : ""}
         ${handicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
         <p class="question-text">${q.q}</p>
         <div class="answer-grid">
