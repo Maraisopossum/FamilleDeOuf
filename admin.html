@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Questions du Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1b1030; --panel:#2a1b4d; --panel-light:#35225e;
+    --coral:#ff5d73; --gold:#ffc857; --teal:#3ddc97; --blue:#5b8dee;
+    --text:#f6f2ff; --muted:#b8a9d9;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
+  h1,h2,h3{ font-family:'Baloo 2',sans-serif; }
+  #app{ max-width:1000px; margin:0 auto; padding:24px 18px 80px; }
+  .card{ background:var(--panel); border-radius:18px; padding:22px; margin-bottom:18px; }
+  h1{ font-size:26px; margin:0 0 6px; } h2{ font-size:17px; margin:0 0 12px; color:var(--gold); }
+  p.hint{ color:var(--muted); font-size:13px; line-height:1.5; margin:6px 0 14px; }
+  label{ display:block; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:700; margin:10px 0 4px; }
+  input[type=text], input[type=password], textarea, select{
+    width:100%; background:var(--bg); border:2px solid var(--panel-light); color:var(--text);
+    padding:10px 12px; border-radius:10px; font-family:'Inter'; font-size:14px; outline:none;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--gold); }
+  textarea{ resize:vertical; font-family:monospace; font-size:13px; }
+  .row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .row > *{ flex:1; min-width:140px; }
+  button{ font-family:'Baloo 2'; font-weight:700; border:none; border-radius:10px; padding:10px 18px;
+    cursor:pointer; font-size:14px; }
+  .btn-primary{ background:var(--coral); color:#1b1030; }
+  .btn-gold{ background:var(--gold); color:#1b1030; }
+  .btn-teal{ background:var(--teal); color:#0e2c22; }
+  .btn-ghost{ background:var(--panel-light); color:var(--text); }
+  .btn-danger{ background:#c0334a; color:#fff; }
+  .btn-sm{ padding:6px 12px; font-size:12px; }
+  button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .status{ font-size:13px; padding:10px 14px; border-radius:10px; margin-top:10px; display:none; }
+  .status.ok{ background:rgba(61,220,151,0.15); border:1px solid var(--teal); color:var(--teal); display:block; }
+  .status.err{ background:rgba(255,93,115,0.15); border:1px solid var(--coral); color:var(--coral); display:block; }
+  .status.info{ background:rgba(91,141,238,0.15); border:1px solid var(--blue); color:var(--blue); display:block; }
+
+  .cat-header{ display:flex; align-items:center; justify-content:space-between; background:var(--panel-light);
+    padding:12px 16px; border-radius:12px; margin-bottom:6px; cursor:pointer; }
+  .cat-header .title{ font-weight:700; }
+  .cat-header .count{ color:var(--muted); font-size:13px; margin-left:8px; }
+  .cat-body{ padding:6px 6px 14px; }
+  .q-row{ background:var(--bg); border-radius:12px; padding:14px; margin:8px 0; border:1px solid var(--panel-light); }
+  .q-row .opt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
+  @media (max-width:600px){ .q-row .opt-grid{ grid-template-columns:1fr; } }
+  .opt-item{ display:flex; align-items:center; gap:6px; }
+  .opt-item input[type=text]{ flex:1; }
+  .top-actions{ position:sticky; top:0; background:var(--bg); padding:10px 0; z-index:10; margin-bottom:6px; }
+  .counter{ font-size:13px; color:var(--muted); }
+  details.help{ margin-bottom:14px; }
+  details.help summary{ cursor:pointer; color:var(--gold); font-weight:700; font-size:13px; }
+  code{ background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:6px; font-size:12px; }
+  .search-bar{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .search-bar input{ flex:2; min-width:180px; }
+  .search-bar select{ flex:1; min-width:160px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="card">
+    <h1>🛠️ Admin — Questions du Quiz</h1>
+    <p class="hint">Outil pour éditer, ajouter, importer en masse et supprimer des questions/catégories, sans jamais retoucher le JSON à la main. Cette page n'est pas reliée au jeu — garde son URL pour toi.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Connexion au dépôt GitHub</h2>
+    <p class="hint">Renseigné une fois, c'est sauvegardé sur cet appareil. Le token n'est envoyé qu'à GitHub, jamais ailleurs.</p>
+    <div class="row">
+      <div>
+        <label>Propriétaire / Dépôt (ex : tonpseudo/quiz-famille)</label>
+        <input type="text" id="repoInput" placeholder="tonpseudo/quiz-famille">
+      </div>
+      <div>
+        <label>Branche</label>
+        <input type="text" id="branchInput" placeholder="main" value="main">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Chemin du fichier</label>
+        <input type="text" id="pathInput" placeholder="questions.json" value="questions.json">
+      </div>
+      <div>
+        <label>Token GitHub (uniquement pour enregistrer)</label>
+        <input type="password" id="tokenInput" placeholder="ghp_...">
+      </div>
+    </div>
+    <details class="help">
+      <summary>Comment créer un token GitHub ?</summary>
+      <p class="hint">
+        1. Va sur <code>github.com/settings/tokens?type=beta</code><br>
+        2. « Generate new token » (fine-grained)<br>
+        3. Limite-le à ce seul dépôt, permission <code>Contents: Read and write</code><br>
+        4. Copie le token généré et colle-le ci-dessus (il ne sera montré qu'une seule fois par GitHub)
+      </p>
+    </details>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn-gold" onclick="loadFromGitHub()">📥 Charger depuis GitHub</button>
+      <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">📂 Charger un fichier local</button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
+    </div>
+    <div class="status" id="loadStatus"></div>
+  </div>
+
+  <div id="workArea" style="display:none;">
+    <div class="card top-actions">
+      <div class="row">
+        <button class="btn-primary" onclick="saveToGitHub()" id="saveBtn">💾 Enregistrer sur GitHub</button>
+        <button class="btn-teal" onclick="downloadJson()">⬇️ Télécharger le fichier</button>
+      </div>
+      <div class="status" id="saveStatus"></div>
+      <p class="counter" id="totalCounter" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="card">
+      <h2>2. Ajouter des questions</h2>
+      <details class="help" open>
+        <summary>Ajout en masse depuis un texte ou un fichier</summary>
+        <p class="hint">
+          Une question par ligne, 8 champs séparés par <code>|</code> :<br>
+          <code>Catégorie|Question|Réponse A|Réponse B|Réponse C|Réponse D|IndexBonneRéponse(0-3)|Petit fait</code><br>
+          Exemple :<br>
+          <code>Cinéma|Qui réalise Titanic ?|James Cameron|Steven Spielberg|Ridley Scott|Peter Jackson|0|Sorti en 1997.</code>
+        </p>
+      </details>
+      <textarea id="bulkText" rows="6" placeholder="Colle ici tes questions au format Catégorie|Question|A|B|C|D|IndexCorrect|Fait, une par ligne…"></textarea>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn-gold" onclick="importBulkText()">📋 Analyser le texte collé</button>
+        <button class="btn-ghost" onclick="document.getElementById('bulkFileInput').click()">📂 Importer depuis un fichier .txt/.csv</button>
+        <input type="file" id="bulkFileInput" accept=".txt,.csv,text/plain" style="display:none;" onchange="importBulkFile(event)">
+      </div>
+      <div class="status" id="importStatus"></div>
+
+      <h2 style="margin-top:22px;">Ajouter une seule question</h2>
+      <label>Catégorie</label>
+      <input type="text" id="newCat" placeholder="Ex : Cinéma (catégorie existante ou nouvelle)">
+      <label>Question</label>
+      <input type="text" id="newQ" placeholder="Ta question ?">
+      <div class="opt-grid" style="margin-top:6px;">
+        <div class="opt-item"><input type="radio" name="newCorrect" value="0" checked><input type="text" id="newOptA" placeholder="Réponse A"></div>
+        <div class="opt-item"><input type="radio" name="newCorrect" value="1"><input type="text" id="newOptB" placeholder="Réponse B"></div>
+        <div class="opt-item"><input type="radio" name="newCorrect" value="2"><input type="text" id="newOptC" placeholder="Réponse C"></div>
+        <div class="opt-item"><input type="radio" name="newCorrect" value="3"><input type="text" id="newOptD" placeholder="Réponse D"></div>
+      </div>
+      <label>Petit fait (affiché après la révélation)</label>
+      <input type="text" id="newFact" placeholder="Un complément amusant ou explicatif">
+      <div class="row" style="margin-top:10px;">
+        <button class="btn-gold" onclick="addSingleQuestion()">➕ Ajouter cette question</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Parcourir / éditer / supprimer</h2>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher dans les questions…" oninput="renderList()">
+        <select id="catFilter" onchange="renderList()"></select>
+      </div>
+      <div id="listArea"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let questions = [];
+let currentSha = null;
+let expandedCats = new Set();
+
+function getConfig(){
+  return {
+    owner_repo: document.getElementById("repoInput").value.trim(),
+    branch: document.getElementById("branchInput").value.trim() || "main",
+    path: document.getElementById("pathInput").value.trim() || "questions.json",
+    token: document.getElementById("tokenInput").value.trim()
+  };
+}
+function saveConfigToStorage(){
+  const c = getConfig();
+  localStorage.setItem("quiz_admin_config", JSON.stringify({
+    owner_repo: c.owner_repo, branch: c.branch, path: c.path, token: c.token
+  }));
+}
+function loadConfigFromStorage(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("quiz_admin_config") || "null");
+    if(saved){
+      document.getElementById("repoInput").value = saved.owner_repo || "";
+      document.getElementById("branchInput").value = saved.branch || "main";
+      document.getElementById("pathInput").value = saved.path || "questions.json";
+      document.getElementById("tokenInput").value = saved.token || "";
+    }
+  }catch(e){}
+}
+["repoInput","branchInput","pathInput","tokenInput"].forEach(id => {
+  window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById(id).addEventListener("change", saveConfigToStorage);
+  });
+});
+window.addEventListener("DOMContentLoaded", loadConfigFromStorage);
+
+function showStatus(elId, type, msg){
+  const el = document.getElementById(elId);
+  el.className = "status " + type;
+  el.textContent = msg;
+}
+
+async function loadFromGitHub(){
+  const c = getConfig();
+  if(!c.owner_repo.includes("/")){
+    showStatus("loadStatus","err","Format attendu : proprietaire/depot (ex: tonpseudo/quiz-famille)");
+    return;
+  }
+  showStatus("loadStatus","info","Chargement en cours…");
+  try{
+    const url = `https://api.github.com/repos/${c.owner_repo}/contents/${encodeURIComponent(c.path)}?ref=${encodeURIComponent(c.branch)}`;
+    const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if(!res.ok) throw new Error("Réponse GitHub : " + res.status + " — vérifie propriétaire/dépôt/branche/chemin, et que le dépôt est public (ou que ton token a accès).");
+    const data = await res.json();
+    currentSha = data.sha;
+    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g,""))));
+    questions = JSON.parse(decoded);
+    showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis GitHub.`);
+    document.getElementById("workArea").style.display = "block";
+    renderList();
+  }catch(err){
+    showStatus("loadStatus","err","❌ " + err.message);
+  }
+}
+
+function loadFromFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      questions = JSON.parse(e.target.result);
+      currentSha = null;
+      showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis le fichier local. (L'enregistrement direct sur GitHub nécessite d'avoir chargé via GitHub, sinon utilise « Télécharger le fichier ».)`);
+      document.getElementById("workArea").style.display = "block";
+      renderList();
+    }catch(err){
+      showStatus("loadStatus","err","❌ Fichier JSON invalide : " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function saveToGitHub(){
+  const c = getConfig();
+  if(!c.token){ showStatus("saveStatus","err","❌ Renseigne un token GitHub pour pouvoir enregistrer."); return; }
+  if(!currentSha){ showStatus("saveStatus","err","❌ Charge d'abord les questions depuis GitHub (pas depuis un fichier local) pour pouvoir les réenregistrer directement."); return; }
+  const btn = document.getElementById("saveBtn");
+  btn.disabled = true;
+  showStatus("saveStatus","info","Enregistrement en cours…");
+  try{
+    const jsonStr = JSON.stringify(questions, null, 2);
+    const content = btoa(unescape(encodeURIComponent(jsonStr)));
+    const url = `https://api.github.com/repos/${c.owner_repo}/contents/${encodeURIComponent(c.path)}`;
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": "Bearer " + c.token,
+        "Accept": "application/vnd.github+json"
+      },
+      body: JSON.stringify({
+        message: "Mise à jour des questions via l'outil admin",
+        content, sha: currentSha, branch: c.branch
+      })
+    });
+    if(!res.ok){
+      const errBody = await res.json().catch(()=>({}));
+      throw new Error((errBody.message || ("HTTP " + res.status)));
+    }
+    const data = await res.json();
+    currentSha = data.content.sha;
+    showStatus("saveStatus","ok","✅ Enregistré sur GitHub ! Le site se mettra à jour dans 1-2 minutes.");
+  }catch(err){
+    showStatus("saveStatus","err","❌ Échec de l'enregistrement : " + err.message);
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function downloadJson(){
+  const blob = new Blob([JSON.stringify(questions, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "questions.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseBulkText(text){
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+  const parsed = []; const errors = [];
+  lines.forEach((line, i) => {
+    const parts = line.split("|").map(p => p.trim());
+    if(parts.length !== 8){
+      errors.push(`Ligne ${i+1} : ${parts.length} champ(s) trouvé(s) au lieu de 8`);
+      return;
+    }
+    const [cat, q, a, b, c, d, correctStr, fact] = parts;
+    const correct = parseInt(correctStr, 10);
+    if(!cat || !q || !a || !b || !c || !d){
+      errors.push(`Ligne ${i+1} : un champ obligatoire est vide`);
+      return;
+    }
+    if(isNaN(correct) || correct < 0 || correct > 3){
+      errors.push(`Ligne ${i+1} : index de bonne réponse invalide ("${correctStr}"), doit être 0, 1, 2 ou 3`);
+      return;
+    }
+    parsed.push({ cat, q, opts: [a,b,c,d], correct, fact: fact || "" });
+  });
+  return { parsed, errors };
+}
+function importBulkText(){
+  const text = document.getElementById("bulkText").value;
+  runBulkImport(text);
+}
+function importBulkFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => runBulkImport(e.target.result);
+  reader.readAsText(file);
+}
+function runBulkImport(text){
+  const { parsed, errors } = parseBulkText(text);
+  questions.push(...parsed);
+  let msg = `✅ ${parsed.length} question(s) ajoutée(s).`;
+  if(errors.length){
+    msg += ` ⚠️ ${errors.length} ligne(s) ignorée(s) :\n` + errors.slice(0,8).join("\n");
+    if(errors.length > 8) msg += `\n… et ${errors.length-8} de plus.`;
+    showStatus("importStatus","err",msg);
+  } else {
+    showStatus("importStatus","ok",msg);
+  }
+  document.getElementById("bulkText").value = "";
+  renderList();
+}
+
+window.addSingleQuestion = function(){
+  const cat = document.getElementById("newCat").value.trim();
+  const q = document.getElementById("newQ").value.trim();
+  const a = document.getElementById("newOptA").value.trim();
+  const b = document.getElementById("newOptB").value.trim();
+  const c = document.getElementById("newOptC").value.trim();
+  const d = document.getElementById("newOptD").value.trim();
+  const fact = document.getElementById("newFact").value.trim();
+  const correct = parseInt(document.querySelector('input[name="newCorrect"]:checked').value, 10);
+  if(!cat || !q || !a || !b || !c || !d){
+    showStatus("importStatus","err","❌ Remplis au moins la catégorie, la question et les 4 réponses.");
+    return;
+  }
+  questions.push({ cat, q, opts:[a,b,c,d], correct, fact });
+  ["newCat","newQ","newOptA","newOptB","newOptC","newOptD","newFact"].forEach(id => document.getElementById(id).value = "");
+  showStatus("importStatus","ok","✅ Question ajoutée.");
+  renderList();
+};
+
+window.deleteQuestion = function(idx){
+  questions.splice(idx, 1);
+  renderList();
+};
+window.deleteCategory = function(cat){
+  const count = questions.filter(q => q.cat === cat).length;
+  if(!confirm(`Supprimer toute la catégorie « ${cat} » et ses ${count} question(s) ? Cette action est immédiate (pense à enregistrer pour la rendre définitive).`)) return;
+  questions = questions.filter(q => q.cat !== cat);
+  renderList();
+};
+window.toggleCat = function(cat){
+  if(expandedCats.has(cat)) expandedCats.delete(cat); else expandedCats.add(cat);
+  renderList();
+};
+window.updateField = function(idx, field, value){
+  questions[idx][field] = value;
+};
+window.updateOpt = function(idx, optIdx, value){
+  questions[idx].opts[optIdx] = value;
+};
+window.updateCorrect = function(idx, value){
+  questions[idx].correct = parseInt(value, 10);
+};
+
+function renderList(){
+  document.getElementById("totalCounter").textContent = `${questions.length} questions au total`;
+
+  const catCounts = {};
+  questions.forEach(q => { catCounts[q.cat] = (catCounts[q.cat]||0) + 1; });
+  const cats = Object.keys(catCounts).sort();
+
+  const filterSelect = document.getElementById("catFilter");
+  const prevFilter = filterSelect.value;
+  filterSelect.innerHTML = '<option value="">Toutes les catégories</option>' +
+    cats.map(c => `<option value="${c.replace(/"/g,'&quot;')}">${c} (${catCounts[c]})</option>`).join("");
+  if(cats.includes(prevFilter)) filterSelect.value = prevFilter;
+
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const catFilterVal = filterSelect.value;
+
+  const listArea = document.getElementById("listArea");
+  let html = "";
+
+  cats.forEach(cat => {
+    if(catFilterVal && cat !== catFilterVal) return;
+    const itemsInCat = questions
+      .map((q, idx) => ({ q, idx }))
+      .filter(({q}) => q.cat === cat)
+      .filter(({q}) => !search || q.q.toLowerCase().includes(search) || q.opts.some(o=>o.toLowerCase().includes(search)));
+
+    if(search && itemsInCat.length === 0) return;
+
+    const isExpanded = expandedCats.has(cat) || !!search;
+    html += `
+      <div class="cat-header" onclick="toggleCat(${JSON.stringify(cat)})">
+        <div><span class="title">${isExpanded?'▾':'▸'} ${cat}</span><span class="count">${catCounts[cat]} question(s)${search ? `, ${itemsInCat.length} affichée(s)` : ""}</span></div>
+        <button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${JSON.stringify(cat)})">🗑️ Supprimer la catégorie</button>
+      </div>
+    `;
+    if(isExpanded){
+      html += `<div class="cat-body">`;
+      itemsInCat.forEach(({q, idx}) => {
+        html += `
+          <div class="q-row">
+            <div class="row">
+              <div style="flex:3;">
+                <label>Question</label>
+                <input type="text" value="${escAttr(q.q)}" oninput="updateField(${idx},'q',this.value)">
+              </div>
+              <div style="flex:1;">
+                <label>Catégorie</label>
+                <input type="text" value="${escAttr(q.cat)}" oninput="updateField(${idx},'cat',this.value)">
+              </div>
+            </div>
+            <div class="opt-grid">
+              ${[0,1,2,3].map(i => `
+                <div class="opt-item">
+                  <input type="radio" name="correct-${idx}" value="${i}" ${q.correct===i?'checked':''} onchange="updateCorrect(${idx}, this.value)">
+                  <input type="text" value="${escAttr(q.opts[i])}" oninput="updateOpt(${idx},${i},this.value)">
+                </div>
+              `).join("")}
+            </div>
+            <label>Petit fait</label>
+            <input type="text" value="${escAttr(q.fact||'')}" oninput="updateField(${idx},'fact',this.value)">
+            <div class="row" style="margin-top:8px;">
+              <button class="btn-danger btn-sm" onclick="deleteQuestion(${idx})">🗑️ Supprimer cette question</button>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+  });
+
+  listArea.innerHTML = html || '<p class="hint">Aucune question ne correspond à ta recherche.</p>';
+}
+function escAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+</script>
+</body>
+</html>
