@@ -417,9 +417,9 @@ function renderList(){
 
     const isExpanded = expandedCats.has(cat) || !!search;
     html += `
-      <div class="cat-header" onclick="toggleCat(${JSON.stringify(cat)})">
+      <div class="cat-header" onclick='toggleCat(${JSON.stringify(cat)})'>
         <div><span class="title">${isExpanded?'▾':'▸'} ${cat}</span><span class="count">${catCounts[cat]} question(s)${search ? `, ${itemsInCat.length} affichée(s)` : ""}</span></div>
-        <button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${JSON.stringify(cat)})">🗑️ Supprimer la catégorie</button>
+        <button class="btn-danger btn-sm" onclick='event.stopPropagation(); deleteCategory(${JSON.stringify(cat)})'>🗑️ Supprimer la catégorie</button>
       </div>
     `;
     if(isExpanded){
