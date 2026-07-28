@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Grand Quiz de la Tribu</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#1b1030">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quiz Tribu">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;600;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg: #1b1030; --panel: #2a1b4d; --panel-light: #35225e;
+    --coral: #ff5d73; --gold: #ffc857; --teal: #3ddc97; --blue: #5b8dee;
+    --text: #f6f2ff; --muted: #b8a9d9; --wrong: #ff5d73;
+  }
+  *{box-sizing:border-box;}
+  html,body{ margin:0; padding:0; min-height:100vh;
+    background: radial-gradient(circle at 20% -10%, #3a2263 0%, var(--bg) 55%);
+    color: var(--text); font-family:'Inter', sans-serif; overflow-x:hidden; }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; }
+  .scribble{ font-family:'Kalam', cursive; }
+  #app{ max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; min-height:100vh; display:flex; flex-direction:column; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 18px; flex-wrap:wrap; gap:10px; }
+  .brand{ font-size: clamp(20px, 4vw, 28px); font-weight:800; letter-spacing: 0.5px; }
+  .brand span{ color: var(--gold); }
+  .round-badge{ background: var(--panel-light); border: 2px solid var(--gold); color: var(--gold); font-weight:700;
+    padding: 6px 16px; border-radius: 999px; font-size: 14px; white-space:nowrap; }
+
+  .card{ background: var(--panel); border-radius: 24px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); margin-top: 20px; }
+  .setup-title{ font-size: clamp(24px,5vw,36px); font-weight:800; margin:0 0 6px; }
+  .setup-sub{ color: var(--muted); margin: 0 0 26px; font-size: 16px; line-height:1.5; }
+
+  input[type=text]{ background: var(--bg); border: 2px solid var(--panel-light); color: var(--text);
+    font-family:'Kalam', cursive; font-size: 18px; padding: 14px 16px; border-radius: 14px; outline:none; width:100%; }
+  input[type=text]:focus{ border-color: var(--gold); }
+  input.code-input{ text-transform:uppercase; letter-spacing: 6px; text-align:center; font-size:26px; }
+  label.field-label{ display:block; font-size:13px; color:var(--muted); margin: 14px 0 6px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; }
+
+  .btn{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size: 18px; padding: 14px 28px; border-radius: 16px;
+    border:none; cursor:pointer; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn:active{ transform: scale(0.96); }
+  .btn-primary{ background: var(--coral); color:#1b1030; box-shadow: 0 8px 0 #b83348; }
+  .btn-gold{ background: var(--gold); color:#1b1030; box-shadow: 0 8px 0 #b5872c; }
+  .btn-ghost{ background: var(--panel-light); color: var(--text); box-shadow: 0 6px 0 #1c1338; }
+  .btn-sm{ font-size:13px; padding:8px 14px; border-radius:10px; box-shadow:none; }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .btn-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-block{ width:100%; text-align:center; }
+
+  .role-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
+  .role-grid-3{ grid-template-columns:1fr 1fr 1fr; }
+  @media (max-width:600px){ .role-grid{ grid-template-columns:1fr; } }
+  .role-card{ background: var(--panel); border: 2px solid var(--panel-light); border-radius: 22px; padding: 28px 22px;
+    text-align:center; cursor:pointer; transition: all .15s ease; }
+  .role-card:hover{ border-color: var(--gold); transform: translateY(-2px); }
+  .role-card .emoji{ font-size: 46px; margin-bottom:10px; }
+  .role-card h3{ margin: 0 0 6px; font-size:22px; }
+  .role-card p{ color: var(--muted); font-size:14px; margin:0; }
+
+  .code-display{ font-family:'Baloo 2'; font-weight:800; font-size: clamp(38px,10vw,64px); letter-spacing: 10px;
+    color: var(--gold); text-align:center; background: var(--bg); border-radius:20px; padding: 18px; margin: 18px 0; }
+  .player-chip{ display:inline-flex; align-items:center; gap:8px; background: var(--panel-light); border-radius: 999px; padding: 8px 14px;
+    margin: 4px; font-family:'Kalam', cursive; font-size:16px; flex-wrap:wrap; }
+  .waiting-players{ margin: 18px 0; text-align:center; }
+  .pulse-dot{ display:inline-block; width:10px; height:10px; border-radius:50%; background: var(--teal);
+    animation: pulse 1.2s ease-in-out infinite; margin-right:8px; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .team-tag{ font-family:'Inter'; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
+  .team-0{ background:var(--coral); color:#1b1030; } .team-1{ background:var(--blue); color:#fff; }
+  .team-2{ background:var(--gold); color:#1b1030; } .team-3{ background:var(--teal); color:#0e2c22; }
+
+  .stage{ position:relative; background: var(--panel); border-radius: 28px; padding: 32px 26px; margin-top: 18px;
+    box-shadow: 0 0 0 2px var(--panel-light), 0 25px 70px rgba(0,0,0,0.45); animation: glow 3.5s ease-in-out infinite; }
+  @keyframes glow{ 0%,100%{ box-shadow: 0 0 0 2px var(--panel-light), 0 25px 70px rgba(0,0,0,0.45); }
+    50%{ box-shadow: 0 0 0 2px var(--gold), 0 25px 90px rgba(255,200,87,0.25); } }
+  .category-tag{ display:inline-block; background: var(--teal); color:#0e2c22; font-weight:700; font-size:13px;
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 14px; }
+  .question-text{ font-size: clamp(20px, 4vw, 30px); font-weight: 700; line-height:1.35; margin: 0 0 22px; }
+
+  .timer-bar{ height:8px; background: var(--bg); border-radius:999px; overflow:hidden; margin-bottom:16px; }
+  .timer-fill{ height:100%; background: var(--gold); width:100%; transition: width 0.2s linear; }
+  .rank-badge{ display:inline-block; background: var(--panel-light); border:2px solid var(--gold); color:var(--gold);
+    font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px; margin-bottom:14px; }
+
+  .answer-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+  @media (max-width:600px){ .answer-grid{ grid-template-columns: 1fr; } }
+  .answer-btn{ border: none; border-radius: 16px; padding: 20px 18px; font-size: 17px; font-weight:700;
+    color: #10082a; display:flex; align-items:center; gap:12px; cursor:pointer; transition: all .12s ease;
+    font-family:'Baloo 2'; text-align:left; }
+  .answer-btn:active{ transform: scale(0.97); }
+  .answer-btn.a{ background: var(--coral); } .answer-btn.b{ background: var(--blue); color:#fff; }
+  .answer-btn.c{ background: var(--gold); } .answer-btn.d{ background: var(--teal); }
+  .answer-btn:disabled{ opacity:0.55; cursor:default; }
+  .answer-btn.chosen{ outline: 4px solid #fff; }
+  .answer-btn.correctReveal{ background: var(--teal) !important; color:#0e2c22 !important; outline: 4px solid #fff;
+    box-shadow: 0 0 0 4px var(--teal), 0 0 30px rgba(61,220,151,0.7); transform: scale(1.03); z-index:2; position:relative; }
+  .answer-btn.wrongReveal{ opacity: 0.35; filter: grayscale(40%); }
+  .answer-btn.chosenWrong{ outline: 4px solid var(--coral); box-shadow: 0 0 0 4px var(--coral); opacity:0.7 !important; filter:none; }
+  .answer-btn .letter{ background: rgba(0,0,0,0.15); width:30px; height:30px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+
+  .funfact{ background: var(--bg); border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 10px;
+    color: var(--muted); font-size: 14px; margin-top: 14px; }
+  .stage-actions{ display:flex; justify-content:space-between; align-items:center; margin-top: 22px; flex-wrap:wrap; gap:12px; }
+
+  .scoreboard{ margin-top: 20px; background: var(--panel); border-radius: 22px; padding: 22px; }
+  .scoreboard h3{ margin:0 0 14px; font-size:15px; color: var(--muted); font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
+  .player-cards{ display:flex; flex-wrap:wrap; gap: 12px; }
+  .player-card{ background: var(--panel-light); border-radius: 14px; padding: 10px 16px; min-width: 120px; text-align:center; }
+  .player-card.eliminated{ opacity:0.4; }
+  .player-card .name{ font-family:'Kalam', cursive; font-size:16px; }
+  .player-card .score{ font-family:'Baloo 2'; font-size: 22px; font-weight:800; color: var(--gold); }
+
+  .end-card{ background: var(--panel); border-radius: 28px; padding: 40px 30px; text-align:center; margin-top:20px; }
+  .end-title{ font-size: clamp(26px,5vw,38px); margin:0 0 8px; }
+  .podium{ display:flex; justify-content:center; align-items:flex-end; gap:16px; margin: 30px 0; flex-wrap:wrap; }
+  .podium-item{ background: var(--panel-light); border-radius: 18px 18px 0 0; padding: 18px 16px; min-width: 150px; }
+  .podium-item .rank{ font-size:34px; }
+  .podium-item .pname{ font-family:'Kalam', cursive; font-size:20px; margin: 6px 0 2px; }
+  .podium-item .pscore{ font-family:'Baloo 2'; font-weight:800; color:var(--gold); font-size:22px; }
+  .podium-item .ptitle{ font-size:13px; color: var(--muted); margin-top:6px; line-height:1.4; }
+  .podium-item.first{ order:2; padding-bottom:34px; border: 2px solid var(--gold); }
+  .podium-item.second{ order:1; } .podium-item.third{ order:3; }
+
+  .status-banner{ font-size:13px; color: var(--muted); text-align:center; margin-top:10px; }
+  .config-warning{ background: rgba(255,93,115,0.15); border: 2px solid var(--coral); border-radius:16px;
+    padding:16px 18px; font-size:14px; color: var(--text); margin-top:18px; line-height:1.5; }
+  .config-warning code{ background: rgba(0,0,0,0.3); padding:2px 6px; border-radius:6px; }
+
+  canvas#confetti{ position:fixed; inset:0; pointer-events:none; z-index:50; }
+  footer{ margin-top:auto; padding-top: 30px; text-align:center; color: var(--muted); font-size:13px; }
+  .back-link{ background:none; border:none; color: var(--muted); font-size:14px; cursor:pointer; text-decoration:underline; padding:0; }
+  .team-config-row{ display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .team-assign-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:4px 0; background:var(--panel-light);
+    border-radius:12px; padding:8px 12px; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION SUPABASE — à remplir avant de déployer !
+   1) Crée un projet gratuit sur https://supabase.com
+   2) Va dans Project Settings > API
+   3) Copie "Project URL" et la clé "anon public"
+   4) Colle-les ci-dessous
+   Aucune table de base de données n'est nécessaire : on utilise
+   uniquement les canaux "Realtime Broadcast" de Supabase.
+   ===================================================================== */
+const SUPABASE_URL = "https://ffiowczdhwudkmailhtp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmaW93Y3pkaHd1ZGttYWlsaHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTM4ODcsImV4cCI6MjA5NzAyOTg4N30.Y0KYSPDTqZis2wmzOp2dyfYbYQAwIECxKdVNTNdDq4E";
+
+const CONFIG_OK = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
+const supabaseClient = CONFIG_OK ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+/* ============ DONNÉES DU QUIZ (chargées depuis questions.json) ============ */
+let QUESTIONS = [];
+let CATEGORIES = [];
+let categoryGroupOverrides = {};
+
+async function loadQuestions(){
+  const res = await fetch('./questions.json?v=' + Date.now(), { cache: "no-store" });
+  if(!res.ok) throw new Error('questions.json introuvable');
+  QUESTIONS = await res.json();
+  CATEGORIES = [...new Set(QUESTIONS.map(q => q.cat))];
+  categoryGroupOverrides = {};
+  QUESTIONS.forEach(q => {
+    if(q.group && q.group.trim() && !categoryGroupOverrides[q.cat]){
+      categoryGroupOverrides[q.cat] = q.group.trim();
+    }
+  });
+}
+
+const FORMATS = [
+  { label:"Rapide", total:12, sub:"~10 min" },
+  { label:"Classique", total:20, sub:"~20 min" },
+  { label:"Marathon", total:36, sub:"~35 min" }
+];
+const ANSWER_CLASSES = ["a","b","c","d"];
+const QUESTION_TIME_MS = 20000;
+const RECONNECT_WINDOW_MS = 6 * 60 * 60 * 1000; // 6h
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function shuffleQuestionOptions(q){
+  const order = shuffle([0,1,2,3]);
+  const opts = order.map(i => q.opts[i]);
+  const correct = order.indexOf(q.correct);
+  return { ...q, opts, correct };
+}
+function buildDeck(total, selectedCats){
+  const cats = selectedCats && selectedCats.length ? selectedCats : CATEGORIES;
+  const perCat = Math.floor(total / cats.length);
+  let remainder = total - perCat * cats.length;
+  let deck = [];
+  cats.forEach(c => {
+    const pool = shuffle(QUESTIONS.filter(q => q.cat === c));
+    let n = perCat + (remainder > 0 ? 1 : 0);
+    if(remainder > 0) remainder--;
+    deck.push(...pool.slice(0, Math.min(n, pool.length)));
+  });
+  return shuffle(deck).map(shuffleQuestionOptions);
+}
+function makeRoomCode(){
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let code = "";
+  for(let i=0;i<4;i++) code += letters[Math.floor(Math.random()*letters.length)];
+  return code;
+}
+function scrollTop(){
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" in window ? "instant" : "auto" });
+}
+function computeRank(scoresObj, name){
+  if(!scoresObj || !(name in scoresObj)) return null;
+  const sorted = Object.entries(scoresObj).sort((a,b)=>b[1]-a[1]);
+  const idx = sorted.findIndex(([n])=>n===name);
+  return idx === -1 ? null : { rank: idx+1, total: sorted.length };
+}
+
+/* ============ CHRONO VISIBLE ============ */
+let timerInterval = null;
+function stopTimer(){ if(timerInterval){ clearInterval(timerInterval); timerInterval = null; } }
+function startTimer(startTime, duration){
+  stopTimer();
+  timerInterval = setInterval(()=>{
+    const el = document.getElementById("timerFill");
+    const label = document.getElementById("timerLabel");
+    if(!el){ stopTimer(); return; }
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, duration - elapsed);
+    const pct = Math.max(0, Math.min(100, 100 * remaining / duration));
+    el.style.width = pct + "%";
+    el.style.background = pct < 25 ? "var(--coral)" : "var(--gold)";
+    if(label) label.textContent = Math.ceil(remaining/1000) + "s";
+    if(remaining <= 0) stopTimer();
+  }, 200);
+}
+
+/* ============ HANDICAP (délai avant de pouvoir répondre) ============ */
+const HANDICAP_LEVELS = [0, 3, 5, 10, 15, 20];
+let handicapInterval = null;
+function stopHandicapCountdown(){ if(handicapInterval){ clearInterval(handicapInterval); handicapInterval = null; } }
+function startHandicapCountdown(receivedAt, seconds, onDone){
+  stopHandicapCountdown();
+  if(!seconds || seconds <= 0) return;
+  handicapInterval = setInterval(()=>{
+    const el = document.getElementById("handicapCountdown");
+    const remaining = Math.max(0, seconds*1000 - (Date.now()-receivedAt));
+    if(el) el.textContent = "🐢 Patiente encore " + Math.ceil(remaining/1000) + "s avant de pouvoir répondre…";
+    if(remaining <= 0){ stopHandicapCountdown(); if(onDone) onDone(); }
+  }, 200);
+}
+function remainingHandicapMs(receivedAt, seconds){
+  if(!seconds || seconds <= 0) return 0;
+  return Math.max(0, seconds*1000 - (Date.now()-receivedAt));
+}
+
+/* ============ SONS ============ */
+let audioCtx;
+function beep(freq, dur, type="sine", vol=0.15){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination); o.start();
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+function soundReveal(){ beep(880,0.15); setTimeout(()=>beep(1320,0.2),120); }
+function soundJoin(){ beep(700,0.12,"triangle"); }
+function soundAnswer(){ beep(500,0.08,"square",0.08); }
+function soundFanfare(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.25,"triangle"),i*130)); }
+function soundEliminated(){ [400,300,200].forEach((f,i)=>setTimeout(()=>beep(f,0.3,"sawtooth",0.1),i*150)); }
+
+/* ============ CONFETTI ============ */
+const confettiCanvas = document.getElementById("confetti");
+const ctx = confettiCanvas.getContext("2d");
+let confettiParticles = [];
+function resizeCanvas(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+window.addEventListener("resize", resizeCanvas); resizeCanvas();
+function burstConfetti(count=110){
+  const colors = ["#ff5d73","#ffc857","#3ddc97","#5b8dee","#f6f2ff"];
+  for(let i=0;i<count;i++){
+    confettiParticles.push({ x: innerWidth/2 + (Math.random()-0.5)*200, y: innerHeight*0.3,
+      vx: (Math.random()-0.5)*10, vy: Math.random()*-9 - 2, size: Math.random()*8+4,
+      color: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*360,
+      vrot: (Math.random()-0.5)*10, life: 0 });
+  }
+  if(!confettiRunning){ confettiRunning = true; animateConfetti(); }
+}
+let confettiRunning = false;
+function animateConfetti(){
+  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  confettiParticles.forEach(p=>{
+    p.vy += 0.28; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+    ctx.fillStyle = p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6); ctx.restore();
+  });
+  confettiParticles = confettiParticles.filter(p=>p.y < innerHeight+50 && p.life < 400);
+  if(confettiParticles.length>0){ requestAnimationFrame(animateConfetti); }
+  else { confettiRunning = false; ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); }
+}
+
+const TITLES = ["🏆 Le Cerveau de la Soirée","🥈 Le Bon Public Averti","🥉 Le Sacré Débrouillard","🎉 Le Roi (ou la Reine) du Second Degré"];
+
+/* ============ ÉTAT GLOBAL ============ */
+let role = null; // 'host' | 'player'
+let pendingJoinCode = null;
+let channel = null;
+let roomCode = "";
+
+function freshHostState(){
+  return {
+    formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby",
+    answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null,
+    lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
+    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000
+  };
+}
+let host = freshHostState();
+let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
+  eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
+
+function freshSoloState(){
+  return { phase:"setup", formatIndex:1, selectedCats:[], deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
+}
+let solo = freshSoloState();
+
+const app = document.getElementById("app");
+function render(){
+  if(role === "solo"){ renderSoloScreen(); return; }
+  if(role === null){ renderRoleSelect(); return; }
+  if(!CONFIG_OK){ renderConfigWarning(); return; }
+  if(role === "host") renderHostScreen();
+  else if(role === "player") renderPlayerScreen();
+}
+
+function renderConfigWarning(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Configuration manquante</h1>
+      <p class="setup-sub">Pour que chacun puisse jouer depuis son téléphone, ce jeu a besoin d'un projet Supabase gratuit (aucune carte bancaire requise).</p>
+      <div class="config-warning">
+        1. Crée un compte sur <code>supabase.com</code> et un nouveau projet<br>
+        2. Va dans <code>Project Settings → API</code><br>
+        3. Copie la <code>Project URL</code> et la clé <code>anon public</code><br>
+        4. Ouvre le fichier <code>index.html</code> et remplace <code>SUPABASE_URL</code> et <code>SUPABASE_ANON_KEY</code> tout en haut du script<br>
+        5. Redéploie
+      </div>
+    </div>
+  `;
+}
+
+/* ============ SÉLECTION DU RÔLE ============ */
+function renderRoleSelect(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Chacun son écran !</h1>
+      <p class="setup-sub">Une personne crée la partie sur un grand écran (TV, laptop), les autres rejoignent depuis leur téléphone. Ou entraîne-toi tout seul.</p>
+      <div class="role-grid role-grid-3">
+        <div class="role-card" onclick="chooseRole('host')">
+          <div class="emoji">📺</div><h3>Créer la partie</h3><p>Je tiens l'écran principal (l'hôte du quiz)</p>
+        </div>
+        <div class="role-card" onclick="chooseRole('player')">
+          <div class="emoji">📱</div><h3>Rejoindre une partie</h3><p>Je joue depuis mon téléphone</p>
+        </div>
+        <div class="role-card" onclick="chooseRole('solo')">
+          <div class="emoji">🎯</div><h3>Mode Solo</h3><p>Je m'entraîne tout seul, à mon rythme</p>
+        </div>
+      </div>
+      ${!CONFIG_OK ? `<div class="config-warning">⚠️ Les modes "Créer la partie" et "Rejoindre" nécessitent la configuration Supabase (voir en haut du fichier). Le Mode Solo fonctionne sans configuration.</div>` : ""}
+    </div>
+    <footer>${QUESTIONS.length} questions dans la base · le mode solo fonctionne même seul, sans les autres joueurs</footer>
+  `;
+}
+window.chooseRole = function(r){ role = r; render(); };
+
+/* ============ CANAL REALTIME ============ */
+function subscribeChannel(code, handlers){
+  if(channel) supabaseClient.removeChannel(channel);
+  channel = supabaseClient.channel("quiz-room-" + code, { config:{ broadcast:{ self:false } } });
+  Object.entries(handlers).forEach(([event, fn]) => {
+    channel.on("broadcast", { event }, ({payload}) => fn(payload));
+  });
+  channel.subscribe();
+  return channel;
+}
+function send(event, payload){
+  if(channel) channel.send({ type:"broadcast", event, payload });
+}
+
+/* ================= HOST ================= */
+function renderHostScreen(){
+  if(host.phase === "lobby") renderHostLobby();
+  else if(host.phase === "question" || host.phase === "reveal") renderHostGame();
+  else if(host.phase === "end") renderHostEnd();
+}
+
+function renderHostLobby(){
+  if(!roomCode){
+    roomCode = makeRoomCode();
+    subscribeChannel(roomCode, {
+      join: (payload) => {
+        const isNew = !(payload.name in host.players);
+        if(isNew){
+          host.players[payload.name] = 0;
+          host.playerHandicaps[payload.name] = payload.handicap || 0;
+          soundJoin();
+        }
+        render();
+        hostSendSync();
+      },
+      answer: (payload) => onHostReceiveAnswer(payload)
+    });
+  }
+  const playerNames = Object.keys(host.players);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Salle d'attente</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Rejoignez la partie !</h1>
+      <p class="setup-sub">Chaque joueur va sur ce site depuis son téléphone, choisit « Rejoindre une partie », et entre ce code :</p>
+      <div class="code-display">${roomCode}</div>
+      <div class="waiting-players">
+        <span class="pulse-dot"></span>${playerNames.length} joueur${playerNames.length>1?'s':''} connecté${playerNames.length>1?'s':''}
+        <div style="margin-top:10px;">
+          ${playerNames.map(n=>`<span class="player-chip">${n}${host.teamMode && host.playerTeams[n]!==undefined ? ` <span class="team-tag team-${host.playerTeams[n]}">${host.teamNames[host.playerTeams[n]]}</span>` : ''}</span>`).join("") || '<span style="color:var(--muted);">En attente du premier joueur…</span>'}
+        </div>
+      </div>
+      <div class="btn-row" style="margin-bottom:10px;">
+        <button class="btn btn-ghost" onclick="copyJoinLink()" id="copyLinkBtn">🔗 Copier le lien pour rejoindre</button>
+      </div>
+      <p class="status-banner" style="margin-bottom:22px;">Tu veux jouer toi aussi ? Ouvre ce lien sur ton propre téléphone (pas sur cet écran) pour te connecter comme un joueur normal.</p>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format de partie</h3>
+      <div class="btn-row" id="formatRow" style="margin-bottom:26px;"></div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Temps par question</h3>
+      <div class="btn-row" id="durationRow" style="margin-bottom:12px;"></div>
+      <p class="status-banner" style="text-align:left;margin-bottom:26px;">« Sans chrono » masque le décompte : tout le monde répond à son rythme, toi seul décides quand révéler.</p>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
+      <div class="btn-row" id="themeRow" style="margin-bottom:12px;"></div>
+      <p class="status-banner" style="text-align:left;margin-bottom:26px;">Astuce : pour une manche 100% sur un seul thème, désélectionne les autres et ne garde que celui que tu veux.</p>
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Mode Équipes</h3>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn ${host.teamMode ? 'btn-gold' : 'btn-ghost'}" onclick="toggleTeamMode()">
+          ${host.teamMode ? '✅ Mode Équipes activé' : 'Activer le Mode Équipes'}
+        </button>
+      </div>
+      ${host.teamMode ? renderTeamConfigHtml() : ""}
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Mode Élimination</h3>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn ${host.eliminationMode ? 'btn-gold' : 'btn-ghost'}" onclick="toggleEliminationMode()">
+          ${host.eliminationMode ? '✅ Élimination activée' : 'Activer le Mode Élimination'}
+        </button>
+      </div>
+      ${host.eliminationMode ? `<p class="status-banner" style="text-align:left;margin-bottom:22px;">À partir de la 2ᵉ question, le joueur le moins bien classé est éliminé à chaque révélation. Il continue de suivre la partie en spectateur.</p>` : ""}
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Handicap par joueur</h3>
+      <p class="status-banner" style="text-align:left;margin-bottom:14px;">Chacun choisit son handicap en te rejoignant, mais tu peux l'ajuster ici à tout moment avant de lancer.</p>
+      ${renderHandicapConfigHtml()}
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Un seul téléphone pour tout le monde ?</h3>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn ${host.hostPlaysToo ? 'btn-gold' : 'btn-ghost'}" onclick="toggleHostPlays()">
+          ${host.hostPlaysToo ? '✅ Je joue aussi sur cet écran' : 'Activer : je joue aussi sur cet écran'}
+        </button>
+      </div>
+      ${host.hostPlaysToo ? `
+        <p class="status-banner" style="text-align:left;margin-bottom:10px;">⚠️ Ta réponse s'affichera sur cet écran, donc les autres pourront la voir si tu ne fais pas attention. Idéal en petit comité ou en solo.</p>
+        <input type="text" id="hostPlayerNameInput" placeholder="Ton prénom" value="${host.hostPlayerName.replace(/"/g,'&quot;')}" oninput="host.hostPlayerName=this.value" style="margin-bottom:14px;">
+        <label class="field-label">Ton handicap à toi</label>
+        <div class="btn-row" style="margin-bottom:22px;">
+          ${HANDICAP_LEVELS.map(s => `
+            <button class="btn btn-sm ${host.hostHandicap===s ? 'btn-gold' : 'btn-ghost'}" onclick="setHostOwnHandicap(${s})">${s===0 ? "Aucun" : s+"s"}</button>
+          `).join("")}
+        </div>
+      ` : ""}
+      <div class="btn-row">
+        <button class="btn btn-primary" id="startBtn" onclick="hostStartGame()" ${(playerNames.length<1 && !(host.hostPlaysToo && host.hostPlayerName.trim())) ? 'disabled':''}>Lancer la partie 🚀</button>
+      </div>
+    </div>
+    <footer>Astuce : idéalement au moins 2 joueurs pour que ce soit marrant.</footer>
+  `;
+  renderHostFormatRow();
+  renderHostDurationRow();
+  renderHostThemeRow();
+}
+
+function renderTeamConfigHtml(){
+  const playerNames = Object.keys(host.players);
+  return `
+    <div style="margin-bottom:14px;">
+      ${host.teamNames.map((tn,ti)=>`
+        <div class="team-config-row">
+          <span class="team-tag team-${ti}">Équipe ${ti+1}</span>
+          <input type="text" style="max-width:220px;" value="${tn.replace(/"/g,'&quot;')}" oninput='renameTeam(${ti}, this.value)'>
+          ${host.teamNames.length>2 ? `<button class="btn btn-ghost btn-sm" onclick="removeTeamAt(${ti})">✕</button>` : ""}
+        </div>
+      `).join("")}
+      ${host.teamNames.length<4 ? `<button class="btn btn-ghost btn-sm" onclick="addTeam()">+ Ajouter une équipe</button>` : ""}
+    </div>
+    <div style="margin-bottom:22px;">
+      ${playerNames.length === 0 ? `<p class="status-banner" style="text-align:left;">Les joueurs pourront être assignés à une équipe une fois connectés.</p>` : ""}
+      ${playerNames.map(n => `
+        <div class="team-assign-row">
+          <span class="scribble" style="margin-right:6px;">${n} :</span>
+          ${host.teamNames.map((tn,ti)=>`
+            <button class="btn btn-sm ${host.playerTeams[n]===ti ? 'btn-gold' : 'btn-ghost'}" onclick='assignTeam(${JSON.stringify(n)}, ${ti})'>${tn}</button>
+          `).join("")}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+window.toggleTeamMode = function(){ host.teamMode = !host.teamMode; render(); };
+window.renameTeam = function(idx, value){ host.teamNames[idx] = value || ("Équipe " + (idx+1)); };
+window.addTeam = function(){ if(host.teamNames.length < 4){ host.teamNames.push("Équipe " + (host.teamNames.length+1)); render(); } };
+window.removeTeamAt = function(idx){
+  if(host.teamNames.length <= 2) return;
+  host.teamNames.splice(idx,1);
+  Object.keys(host.playerTeams).forEach(n=>{
+    if(host.playerTeams[n] === idx) delete host.playerTeams[n];
+    else if(host.playerTeams[n] > idx) host.playerTeams[n]--;
+  });
+  render();
+};
+window.assignTeam = function(name, idx){ host.playerTeams[name] = idx; render(); };
+
+function renderHandicapConfigHtml(){
+  const playerNames = Object.keys(host.players);
+  if(playerNames.length === 0){
+    return `<p class="status-banner" style="text-align:left;margin-bottom:22px;">Les handicaps des joueurs apparaîtront ici une fois qu'ils t'auront rejoint.</p>`;
+  }
+  return `
+    <div style="margin-bottom:22px;">
+      ${playerNames.map(n => `
+        <div class="team-assign-row">
+          <span class="scribble" style="margin-right:6px;">${n} :</span>
+          ${HANDICAP_LEVELS.map(s => `
+            <button class="btn btn-sm ${((host.playerHandicaps[n]||0)===s) ? 'btn-gold' : 'btn-ghost'}" onclick='setHandicap(${JSON.stringify(n)}, ${s})'>${s===0?"Aucun":s+"s"}</button>
+          `).join("")}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+window.setHandicap = function(name, seconds){ host.playerHandicaps[name] = seconds; render(); };
+window.setHostOwnHandicap = function(seconds){ host.hostHandicap = seconds; render(); };
+window.toggleEliminationMode = function(){ host.eliminationMode = !host.eliminationMode; render(); };
+
+window.toggleHostPlays = function(){
+  host.hostPlaysToo = !host.hostPlaysToo;
+  render();
+};
+const THEME_GROUPS = {
+  "Culture & savoirs": ["Culture générale piégeuse","Sciences & corps humain","Espace & astronomie","Histoire de France"],
+  "Pop culture & fandoms": ["Pop culture & écrans","Cinéma","Séries Netflix","Disney","Marvel & super-héros","Harry Potter","Dragon Ball Z","Jeux vidéo","L'Attaque des Titans"],
+  "Ambiance & détente": ["Blagues & absurde","Sport","Stars Instagram & réseaux sociaux"],
+  "Spécial": ["Pompiers & secours"]
+};
+function groupForCategory(cat){
+  if(categoryGroupOverrides[cat]) return categoryGroupOverrides[cat];
+  for(const [group, list] of Object.entries(THEME_GROUPS)){
+    if(list.includes(cat)) return group;
+  }
+  return "Autres";
+}
+function computeGroupOrder(){
+  const present = new Set(CATEGORIES.map(c => groupForCategory(c)));
+  const ordered = Object.keys(THEME_GROUPS).filter(g => present.has(g));
+  present.forEach(g => { if(!ordered.includes(g) && g !== "Autres") ordered.push(g); });
+  if(present.has("Autres")) ordered.push("Autres");
+  return ordered;
+}
+function renderHostThemeRow(){
+  if(host.selectedCats.length === 0) host.selectedCats = [...CATEGORIES];
+  const row = document.getElementById("themeRow");
+  const groupOrder = computeGroupOrder();
+  const byGroup = {};
+  CATEGORIES.forEach(c => {
+    const g = groupForCategory(c);
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(c);
+  });
+  let html = `<div class="btn-row" style="margin-bottom:14px;">
+    <button class="btn btn-gold btn-sm" onclick="selectAllThemes()">✅ Tout cocher</button>
+  </div>`;
+  groupOrder.forEach(g => {
+    if(!byGroup[g] || byGroup[g].length === 0) return;
+    const allChecked = byGroup[g].every(c => host.selectedCats.includes(c));
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
+          <button class="btn btn-ghost btn-sm" onclick='toggleGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+        </div>
+        <div class="btn-row">
+          ${byGroup[g].map(c => `
+            <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+              ${c}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  });
+  row.innerHTML = html;
+}
+window.toggleTheme = function(cat){
+  if(host.selectedCats.includes(cat)){
+    if(host.selectedCats.length > 1) host.selectedCats = host.selectedCats.filter(c => c !== cat);
+  } else {
+    host.selectedCats.push(cat);
+  }
+  renderHostThemeRow();
+};
+window.toggleGroup = function(group){
+  const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
+  const allChecked = inGroup.every(c => host.selectedCats.includes(c));
+  if(allChecked){
+    const remaining = host.selectedCats.filter(c => !inGroup.includes(c));
+    host.selectedCats = remaining.length > 0 ? remaining : host.selectedCats;
+  } else {
+    host.selectedCats = [...new Set([...host.selectedCats, ...inGroup])];
+  }
+  renderHostThemeRow();
+};
+window.selectAllThemes = function(){
+  host.selectedCats = [...CATEGORIES];
+  renderHostThemeRow();
+};
+window.copyJoinLink = function(){
+  const url = location.origin + location.pathname + "?join=" + roomCode;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn = document.getElementById("copyLinkBtn");
+    if(btn){ const old = btn.textContent; btn.textContent = "✅ Lien copié !"; setTimeout(()=>btn.textContent = old, 1800); }
+  }).catch(()=>{ prompt("Copie ce lien :", url); });
+};
+function renderHostFormatRow(){
+  const row = document.getElementById("formatRow");
+  row.innerHTML = FORMATS.map((f,i) => `
+    <button class="btn ${host.formatIndex===i ? 'btn-gold' : 'btn-ghost'}" onclick="selectHostFormat(${i})" style="flex:1;min-width:110px;">
+      ${f.label}<br><span style="font-size:12px;font-weight:400;opacity:0.8;">${f.total} questions · ${f.sub}</span>
+    </button>
+  `).join("");
+}
+window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow(); };
+
+const DURATION_OPTIONS = [10000, 15000, 20000, 30000, 45000, 60000, 0];
+function durationLabel(ms){ return ms === 0 ? "Sans chrono" : (ms/1000) + "s"; }
+function renderHostDurationRow(){
+  const row = document.getElementById("durationRow");
+  row.innerHTML = DURATION_OPTIONS.map(ms => `
+    <button class="btn ${host.questionDuration===ms ? 'btn-gold' : 'btn-ghost'}" onclick="selectHostDuration(${ms})" style="flex:1;min-width:90px;">
+      ${durationLabel(ms)}
+    </button>
+  `).join("");
+}
+window.selectHostDuration = function(ms){ host.questionDuration = ms; renderHostDurationRow(); };
+
+window.hostStartGame = function(){
+  if(host.hostPlaysToo && host.hostPlayerName.trim()){
+    host.players[host.hostPlayerName.trim()] = 0;
+    host.playerHandicaps[host.hostPlayerName.trim()] = host.hostHandicap || 0;
+  }
+  host.deck = buildDeck(FORMATS[host.formatIndex].total, host.selectedCats);
+  host.currentIndex = 0;
+  host.eliminated = [];
+  Object.keys(host.players).forEach(n => host.players[n] = 0);
+  if(host.teamMode){
+    let ti = 0;
+    Object.keys(host.players).forEach(n => {
+      if(host.playerTeams[n] === undefined){ host.playerTeams[n] = ti % host.teamNames.length; ti++; }
+    });
+    host.teamScores = {};
+    host.teamNames.forEach((tn,i) => host.teamScores[i] = 0);
+  }
+  hostSendQuestion();
+};
+
+function hostSendQuestion(){
+  host.answers = {};
+  host.ownChoiceIndex = null;
+  host.lastRoundResults = {};
+  host.phase = "question";
+  const q = host.deck[host.currentIndex];
+  host.questionStartTime = Date.now();
+  send("question", {
+    index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
+    q: q.q, opts: q.opts, duration: host.questionDuration, scores: {...host.players},
+    eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
+    teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
+  });
+  render();
+  if(host.questionDuration > 0) startTimer(host.questionStartTime, host.questionDuration);
+  if(host.hostPlaysToo && host.hostPlayerName.trim()){
+    const myHandicap = host.playerHandicaps[host.hostPlayerName.trim()] || 0;
+    if(myHandicap > 0) startHandicapCountdown(host.questionStartTime, myHandicap, ()=>render());
+  }
+  scrollTop();
+}
+
+window.hostAnswerSelf = function(i){
+  if(host.ownChoiceIndex !== null || host.phase !== "question") return;
+  if(host.eliminated.includes(host.hostPlayerName.trim())) return;
+  const myHandicap = host.playerHandicaps[host.hostPlayerName.trim()] || 0;
+  if(remainingHandicapMs(host.questionStartTime, myHandicap) > 0) return;
+  host.ownChoiceIndex = i;
+  const elapsed = Date.now() - host.questionStartTime;
+  host.answers[host.hostPlayerName.trim()] = { name: host.hostPlayerName.trim(), optionIndex: i, elapsed };
+  soundAnswer();
+  render();
+};
+
+function onHostReceiveAnswer(payload){
+  if(host.phase !== "question") return;
+  if(host.eliminated.includes(payload.name)) return;
+  if(host.answers[payload.name] !== undefined) return; // une seule réponse comptée
+  host.answers[payload.name] = payload;
+  updateAnsweredCounterDOM();
+}
+function updateAnsweredCounterDOM(){
+  const el = document.getElementById("answeredCounter");
+  if(!el){ render(); return; }
+  const activeNames = Object.keys(host.players).filter(n => !host.eliminated.includes(n));
+  const answeredCount = Object.keys(host.answers).length;
+  const totalActive = activeNames.length;
+  el.innerHTML = `<span class="pulse-dot"></span>${answeredCount} / ${totalActive} joueur${totalActive>1?'s':''} actif${totalActive>1?'s':''} ont répondu`;
+}
+
+function hostSendSync(){
+  if(host.phase === "lobby") return;
+  const base = { phase: host.phase };
+  if(host.phase === "question" || host.phase === "reveal"){
+    const q = host.deck[host.currentIndex];
+    base.question = {
+      index: host.currentIndex, total: host.deck.length, cat: q.cat, catName: q.cat,
+      q: q.q, opts: q.opts, duration: host.questionDuration, scores: {...host.players},
+      eliminated: [...host.eliminated], handicaps: {...host.playerHandicaps},
+      teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
+    };
+  }
+  if(host.phase === "reveal"){
+    const q = host.deck[host.currentIndex];
+    base.reveal = {
+      correct: q.correct, fact: q.fact, scores: {...host.players}, results: {...host.answers},
+      teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
+    };
+  }
+  if(host.phase === "end"){
+    base.end = {
+      scores: {...host.players},
+      teamMode: host.teamMode, teamNames: [...host.teamNames], teamScores: {...host.teamScores}
+    };
+  }
+  send("sync", base);
+}
+
+function renderHostGame(){
+  const q = host.deck[host.currentIndex];
+  const activeNames = Object.keys(host.players).filter(n => !host.eliminated.includes(n));
+  const answeredCount = Object.keys(host.answers).length;
+  const totalActive = activeNames.length;
+  const revealed = host.phase === "reveal";
+  const myHandicap = host.hostPlaysToo ? (host.playerHandicaps[host.hostPlayerName.trim()] || 0) : 0;
+  const hostHandicapRemaining = revealed ? 0 : remainingHandicapMs(host.questionStartTime, myHandicap);
+  const hostCanClick = host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex === null && !revealed && !host.eliminated.includes(host.hostPlayerName.trim()) && hostHandicapRemaining <= 0;
+  const hostIsEliminated = host.hostPlaysToo && host.eliminated.includes(host.hostPlayerName.trim());
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">🐼 <span>${q.cat}</span></div>
+      <div class="round-badge">Question ${host.currentIndex+1} / ${host.deck.length}</div>
+    </div>
+    <div class="stage">
+      <span class="category-tag">${q.cat}</span>
+      ${!revealed && host.questionDuration > 0 ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>` : ""}
+      ${hostHandicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
+      <p class="question-text">${q.q}</p>
+      <div class="answer-grid">
+        ${q.opts.map((opt,i)=>{
+          const isCorrectReveal = revealed && i===q.correct;
+          const isWrongReveal = revealed && i!==q.correct;
+          const isOwnChoice = host.ownChoiceIndex === i;
+          const isChosenWrong = revealed && isOwnChoice && i!==q.correct;
+          const cls = `${isCorrectReveal?'correctReveal':''} ${isWrongReveal?'wrongReveal':''} ${isChosenWrong?'chosenWrong':''}`;
+          if((hostCanClick || (host.hostPlaysToo && host.hostPlayerName.trim())) && !hostIsEliminated){
+            return `
+              <button class="answer-btn ${ANSWER_CLASSES[i]} ${isOwnChoice?'chosen':''} ${cls}"
+                ${hostCanClick ? '' : 'disabled'} onclick="hostAnswerSelf(${i})">
+                <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+              </button>
+            `;
+          }
+          return `
+            <div class="answer-btn ${ANSWER_CLASSES[i]} ${cls}" style="cursor:default;">
+              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      ${hostIsEliminated ? `<div class="status-banner">☠️ Tu es éliminé — tu continues en spectateur.</div>` : ""}
+      ${host.hostPlaysToo && host.hostPlayerName.trim() && host.ownChoiceIndex!==null && !revealed && !hostIsEliminated
+        ? `<div class="status-banner">✅ Ta réponse est enregistrée, ${host.hostPlayerName}</div>` : ""}
+      ${revealed ? `<div class="funfact">💡 ${q.fact}</div>` : `
+        <div class="status-banner" id="answeredCounter"><span class="pulse-dot"></span>${answeredCount} / ${totalActive} joueur${totalActive>1?'s':''} actif${totalActive>1?'s':''} ont répondu</div>
+      `}
+      <div class="stage-actions">
+        ${!revealed
+          ? `<button class="btn btn-gold" onclick="hostReveal()">Révéler la réponse 🔍</button>`
+          : `<button class="btn btn-primary" onclick="hostNext()">${host.currentIndex+1 >= host.deck.length ? "Voir le classement final 🏆" : "Question suivante ➜"}</button>`
+        }
+      </div>
+    </div>
+    ${revealed && host.eliminationMode && host.lastEliminatedName ? `
+      <div class="card" style="margin-top:16px;padding:20px;text-align:center;">
+        <div style="font-size:36px;">☠️</div>
+        <h3 style="margin:6px 0 0;">${host.lastEliminatedName} est éliminé(e) !</h3>
+      </div>
+    ` : ""}
+    ${revealed ? `
+      <div class="scoreboard">
+        <h3>Résultats de la question</h3>
+        <div class="player-cards">
+          ${Object.entries(host.players).sort((a,b)=>b[1]-a[1]).map(([name]) => {
+            const r = host.lastRoundResults[name];
+            const icon = host.eliminated.includes(name) ? "☠️" : (!r ? "😴" : r.correct ? "✅" : "❌");
+            const ptsLabel = r ? `+${r.points}` : "+0";
+            return `<div class="player-card ${host.eliminated.includes(name)?'eliminated':''}"><div class="name">${icon} ${name}</div><div class="score" style="font-size:18px;">${ptsLabel}</div></div>`;
+          }).join("")}
+        </div>
+      </div>
+    ` : ""}
+    ${host.teamMode ? `
+      <div class="scoreboard">
+        <h3>Scores par équipe</h3>
+        <div class="player-cards">
+          ${host.teamNames.map((tn,ti) => `
+            <div class="player-card"><div class="name"><span class="team-tag team-${ti}">${tn}</span></div><div class="score">${host.teamScores[ti]||0}</div></div>
+          `).join("")}
+        </div>
+      </div>
+    ` : ""}
+    <div class="scoreboard">
+      <h3>Scores individuels</h3>
+      <div class="player-cards">
+        ${Object.entries(host.players).sort((a,b)=>b[1]-a[1]).map(([name,score]) => `
+          <div class="player-card ${host.eliminated.includes(name)?'eliminated':''}">
+            <div class="name">${host.eliminated.includes(name)?'☠️ ':''}${name}${host.teamMode && host.playerTeams[name]!==undefined ? `<br><span class="team-tag team-${host.playerTeams[name]}">${host.teamNames[host.playerTeams[name]]}</span>` : ''}</div>
+            <div class="score">${score}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+window.hostReveal = function(){
+  const q = host.deck[host.currentIndex];
+  host.phase = "reveal";
+  stopTimer();
+  stopHandicapCountdown();
+  soundReveal();
+  host.lastRoundResults = {};
+  Object.entries(host.answers).forEach(([name, a]) => {
+    const isCorrect = a.optionIndex === q.correct;
+    const pts = isCorrect ? Math.round(1000 - Math.min(a.elapsed, 9000)/9000*500) : 0;
+    host.players[name] = (host.players[name]||0) + pts;
+    host.lastRoundResults[name] = { correct: isCorrect, points: pts, optionIndex: a.optionIndex };
+    if(host.teamMode && host.playerTeams[name] !== undefined){
+      const ti = host.playerTeams[name];
+      host.teamScores[ti] = (host.teamScores[ti]||0) + pts;
+    }
+  });
+  host.lastEliminatedName = null;
+  if(host.eliminationMode && host.currentIndex >= 1){
+    const active = Object.keys(host.players).filter(n => !host.eliminated.includes(n));
+    if(active.length > 1){
+      let minName = active[0];
+      active.forEach(n => { if((host.players[n]||0) < (host.players[minName]||0)) minName = n; });
+      host.eliminated.push(minName);
+      host.lastEliminatedName = minName;
+      soundEliminated();
+    }
+  }
+  send("reveal", {
+    correct: q.correct, fact: q.fact, scores: {...host.players}, results: {...host.answers},
+    eliminated: [...host.eliminated], justEliminated: host.lastEliminatedName,
+    teamMode: host.teamMode, teamNames: [...host.teamNames], playerTeams: {...host.playerTeams}, teamScores: {...host.teamScores}
+  });
+  render();
+};
+
+window.hostNext = function(){
+  if(host.currentIndex+1 >= host.deck.length){
+    host.phase = "end";
+    send("end", {
+      scores: {...host.players},
+      teamMode: host.teamMode, teamNames: [...host.teamNames], teamScores: {...host.teamScores}
+    });
+    render();
+    scrollTop();
+    setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
+    return;
+  }
+  host.currentIndex++;
+  hostSendQuestion();
+};
+
+function teamScoresAsMap(){
+  const m = {};
+  host.teamNames.forEach((tn,i) => m[tn] = host.teamScores[i] || 0);
+  return m;
+}
+function renderHostEnd(){
+  const scoresForPodium = host.teamMode ? teamScoresAsMap() : host.players;
+  renderPodiumScreen(scoresForPodium, "hostRestart()", "leaveToRoleSelect()");
+}
+window.hostRestart = function(){
+  host.phase = "lobby"; host.deck = []; host.currentIndex = 0; host.eliminated = [];
+  Object.keys(host.players).forEach(n => host.players[n] = 0);
+  if(host.teamMode) host.teamNames.forEach((tn,i) => host.teamScores[i] = 0);
+  render();
+};
+
+/* ================= PLAYER ================= */
+function renderPlayerScreen(){
+  if(player.phase === "join") renderPlayerJoin();
+  else if(player.phase === "waiting") renderPlayerWaiting();
+  else if(player.phase === "question") renderPlayerQuestion();
+  else if(player.phase === "reveal") renderPlayerReveal();
+  else if(player.phase === "end") renderPlayerEnd();
+}
+
+function renderPlayerJoin(){
+  const savedName = localStorage.getItem("quiz_player_name") || "";
+  const prefilledCode = pendingJoinCode || "";
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Rejoindre</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Ton prénom, ton code</h1>
+      <p class="setup-sub">Demande le code à 4 lettres affiché sur l'écran principal.</p>
+      <label class="field-label">Ton prénom</label>
+      <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
+      <label class="field-label">Code de la partie</label>
+      <input type="text" class="code-input" id="codeInput" maxlength="4" placeholder="ABCD" value="${prefilledCode}">
+      <label class="field-label">Ton handicap (optionnel)</label>
+      <p class="status-banner" style="text-align:left;margin:0 0 10px;">Un délai avant de pouvoir répondre — pratique pour handicaper les grands et donner un coup de pouce aux plus jeunes !</p>
+      <div class="btn-row" id="handicapSelectRow" style="margin-bottom:22px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" onclick="playerJoin()">Rejoindre 🚀</button>
+      </div>
+    </div>
+  `;
+  renderHandicapSelectRow();
+}
+let joinHandicapSeconds = 0;
+function renderHandicapSelectRow(){
+  const row = document.getElementById("handicapSelectRow");
+  if(!row) return;
+  row.innerHTML = HANDICAP_LEVELS.map(s => `
+    <button class="btn btn-sm ${joinHandicapSeconds===s ? 'btn-gold' : 'btn-ghost'}" onclick="selectJoinHandicap(${s})">${s===0 ? "Aucun" : s+"s"}</button>
+  `).join("");
+}
+window.selectJoinHandicap = function(s){ joinHandicapSeconds = s; renderHandicapSelectRow(); };
+window.playerJoin = function(){
+  const name = document.getElementById("nameInput").value.trim();
+  const code = document.getElementById("codeInput").value.trim().toUpperCase();
+  if(!name || code.length !== 4) return;
+  doPlayerJoin(name, code, joinHandicapSeconds);
+};
+function doPlayerJoin(name, code, handicap){
+  localStorage.setItem("quiz_player_name", name);
+  localStorage.setItem("quiz_active_session", JSON.stringify({ name, code, ts: Date.now() }));
+  player.name = name; player.roomCode = code; player.score = 0; player.myJoinHandicap = handicap || 0;
+  subscribeChannel(code, {
+    question: (payload) => onPlayerReceiveQuestion(payload),
+    reveal: (payload) => onPlayerReceiveReveal(payload),
+    end: (payload) => onPlayerReceiveEnd(payload),
+    sync: (payload) => onPlayerReceiveSync(payload)
+  });
+  setTimeout(() => send("join", { name, handicap: handicap || 0 }), 400); // laisse le temps à la souscription de se stabiliser
+  player.phase = "waiting";
+  render();
+}
+
+function renderPlayerWaiting(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${player.name}</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:50px;margin-bottom:10px;">⏳</div>
+      <h1 class="setup-title">En attente du lancement…</h1>
+      <p class="setup-sub">L'hôte va bientôt démarrer la partie. Garde ton téléphone sous les yeux !</p>
+    </div>
+  `;
+}
+
+function onPlayerReceiveQuestion(payload){
+  player.currentQuestion = payload;
+  player.chosenIndex = null;
+  player.lastKnownScores = payload.scores || {};
+  player.eliminated = (payload.eliminated || []).includes(player.name);
+  player.currentHandicap = payload.handicaps ? (payload.handicaps[player.name] || 0) : 0;
+  player.phase = "question";
+  player.questionReceivedAt = Date.now();
+  render();
+  if(!player.eliminated){
+    if(payload.duration > 0) startTimer(player.questionReceivedAt, payload.duration);
+    if(player.currentHandicap > 0) startHandicapCountdown(player.questionReceivedAt, player.currentHandicap, ()=>render());
+  }
+  scrollTop();
+}
+window.playerAnswer = function(i){
+  if(player.chosenIndex !== null || player.eliminated) return;
+  if(remainingHandicapMs(player.questionReceivedAt, player.currentHandicap) > 0) return;
+  player.chosenIndex = i;
+  soundAnswer();
+  const elapsed = Date.now() - player.questionReceivedAt;
+  send("answer", { name: player.name, optionIndex: i, elapsed });
+  render();
+};
+function renderPlayerQuestion(){
+  const q = player.currentQuestion;
+  const locked = player.chosenIndex !== null;
+  const rank = computeRank(player.lastKnownScores, player.name);
+  const myTeamIdx = q.teamMode && q.playerTeams ? q.playerTeams[player.name] : undefined;
+  const handicapRemaining = remainingHandicapMs(player.questionReceivedAt, player.currentHandicap);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${q.catName}</span></div>
+      <div class="round-badge">Q ${q.index+1}/${q.total}</div></div>
+    ${rank ? `<div class="rank-badge">📊 Tu es ${rank.rank}ᵉ / ${rank.total}</div>` : ""}
+    ${q.teamMode && myTeamIdx!==undefined ? `<div class="rank-badge team-${myTeamIdx}" style="border-color:transparent;">👥 ${q.teamNames[myTeamIdx]} — ${q.teamScores[myTeamIdx]||0} pts</div>` : ""}
+    ${player.eliminated ? `
+      <div class="card" style="text-align:center;">
+        <div style="font-size:50px;">☠️</div>
+        <h1 class="setup-title">Tu es éliminé(e)</h1>
+        <p class="setup-sub">Regarde la suite sur l'écran principal — merci d'avoir joué !</p>
+      </div>
+    ` : `
+      <div class="stage">
+        ${q.duration > 0 ? `<div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="status-banner" id="timerLabel" style="margin-bottom:14px;"></div>` : ""}
+        ${handicapRemaining > 0 ? `<div class="status-banner" id="handicapCountdown" style="margin-bottom:14px;"></div>` : ""}
+        <p class="question-text">${q.q}</p>
+        <div class="answer-grid">
+          ${q.opts.map((opt,i)=>`
+            <button class="answer-btn ${ANSWER_CLASSES[i]} ${player.chosenIndex===i?'chosen':''}" ${(locked||handicapRemaining>0)?'disabled':''} onclick="playerAnswer(${i})">
+              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            </button>
+          `).join("")}
+        </div>
+        ${locked ? `<div class="status-banner">✅ Réponse envoyée, en attente des autres joueurs…</div>` : ""}
+      </div>
+    `}
+  `;
+}
+
+function onPlayerReceiveReveal(payload){
+  stopTimer();
+  stopHandicapCountdown();
+  const mine = payload.results ? payload.results[player.name] : null;
+  const wasCorrect = mine ? mine.optionIndex === payload.correct : false;
+  const pointsThisRound = payload.scores[player.name] !== undefined
+    ? payload.scores[player.name] - player.score : 0;
+  player.score = payload.scores[player.name] !== undefined ? payload.scores[player.name] : player.score;
+  player.lastKnownScores = payload.scores || player.lastKnownScores;
+  const justGotEliminated = payload.justEliminated === player.name;
+  player.eliminated = (payload.eliminated || []).includes(player.name);
+  player.lastResult = {
+    wasCorrect, pointsThisRound, correctIndex: payload.correct, fact: payload.fact, answered: !!mine,
+    justEliminated: justGotEliminated,
+    teamMode: payload.teamMode, teamNames: payload.teamNames, teamScores: payload.teamScores,
+    myTeamIdx: payload.teamMode && payload.playerTeams ? payload.playerTeams[player.name] : undefined
+  };
+  player.phase = "reveal";
+  render();
+  if(justGotEliminated) soundEliminated();
+  scrollTop();
+}
+function renderPlayerReveal(){
+  const r = player.lastResult;
+  const q = player.currentQuestion;
+  const rank = computeRank(player.lastKnownScores, player.name);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${player.name}</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:56px;margin-bottom:6px;">${r.justEliminated ? "☠️" : !r.answered ? "😴" : r.wasCorrect ? "🎉" : "😬"}</div>
+      <h1 class="setup-title">${r.justEliminated ? "Tu es éliminé(e) !" : !r.answered ? "Pas de réponse envoyée" : r.wasCorrect ? "Bonne réponse !" : "Raté cette fois"}</h1>
+      <p class="setup-sub">${r.answered ? `+${r.pointsThisRound} points ce tour` : "0 point ce tour"} · Score total : <strong style="color:var(--gold);">${player.score}</strong></p>
+      ${rank ? `<div class="rank-badge">📊 Tu es ${rank.rank}ᵉ / ${rank.total}</div>` : ""}
+      ${r.teamMode && r.myTeamIdx!==undefined ? `<div class="rank-badge team-${r.myTeamIdx}" style="border-color:transparent;display:block;margin-top:8px;">👥 ${r.teamNames[r.myTeamIdx]} — ${r.teamScores[r.myTeamIdx]||0} pts</div>` : ""}
+    </div>
+    <div class="stage" style="margin-top:16px;">
+      <p class="question-text" style="font-size:18px;">${q ? q.q : ""}</p>
+      <div class="answer-grid">
+        ${q ? q.opts.map((opt,i)=>{
+          const isCorrectReveal = i===r.correctIndex;
+          const isWrongReveal = i!==r.correctIndex;
+          const isChosenWrong = player.chosenIndex===i && i!==r.correctIndex;
+          return `
+          <div class="answer-btn ${ANSWER_CLASSES[i]} ${isCorrectReveal?'correctReveal':''} ${isWrongReveal?'wrongReveal':''} ${isChosenWrong?'chosenWrong':''}" style="cursor:default;position:relative;">
+            <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            ${player.chosenIndex===i ? '<span style="position:absolute;right:12px;">👈 toi</span>' : ''}
+          </div>
+        `;
+        }).join("") : ""}
+      </div>
+      <div class="funfact">💡 ${r.fact}</div>
+    </div>
+    <p class="status-banner" style="margin-top:14px;">${player.eliminated ? "Tu peux suivre la suite en spectateur…" : "En attente de la question suivante…"}</p>
+  `;
+}
+
+function onPlayerReceiveEnd(payload){
+  player.finalScores = payload.scores;
+  player.finalTeamInfo = payload.teamMode ? { teamMode:true, teamNames:payload.teamNames, teamScores:payload.teamScores } : null;
+  player.phase = "end";
+  localStorage.removeItem("quiz_active_session");
+  render();
+  scrollTop();
+  setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
+}
+function renderPlayerEnd(){
+  let scoresForPodium = player.finalScores;
+  if(player.finalTeamInfo && player.finalTeamInfo.teamMode){
+    scoresForPodium = {};
+    player.finalTeamInfo.teamNames.forEach((tn,i)=> scoresForPodium[tn] = player.finalTeamInfo.teamScores[i] || 0);
+  }
+  renderPodiumScreen(scoresForPodium, null, "leaveToRoleSelect()", player.name);
+}
+
+function onPlayerReceiveSync(payload){
+  if(payload.phase === "lobby"){ player.phase = "waiting"; render(); return; }
+  if(payload.phase === "question"){ onPlayerReceiveQuestion(payload.question); return; }
+  if(payload.phase === "reveal"){ player.currentQuestion = payload.question; onPlayerReceiveReveal(payload.reveal); return; }
+  if(payload.phase === "end"){ onPlayerReceiveEnd(payload.end); return; }
+}
+
+/* ================= SOLO ================= */
+function renderSoloScreen(){
+  if(solo.phase === "setup") renderSoloSetup();
+  else if(solo.phase === "question") renderSoloQuestion();
+  else if(solo.phase === "end") renderSoloEnd();
+}
+
+function renderSoloSetup(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Mode Solo</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Entraîne-toi !</h1>
+      <p class="setup-sub">Réponds à ton rythme : la bonne réponse s'affiche tout de suite après chaque question.</p>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format</h3>
+      <div class="btn-row" id="soloFormatRow" style="margin-bottom:26px;"></div>
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
+      <div class="btn-row" id="soloThemeRow" style="margin-bottom:26px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="soloStart()">Démarrer 🎯</button>
+      </div>
+    </div>
+  `;
+  renderSoloFormatRow();
+  renderSoloThemeRow();
+}
+function renderSoloFormatRow(){
+  const row = document.getElementById("soloFormatRow");
+  row.innerHTML = FORMATS.map((f,i) => `
+    <button class="btn ${solo.formatIndex===i ? 'btn-gold' : 'btn-ghost'}" onclick="selectSoloFormat(${i})" style="flex:1;min-width:110px;">
+      ${f.label}<br><span style="font-size:12px;font-weight:400;opacity:0.8;">${f.total} questions · ${f.sub}</span>
+    </button>
+  `).join("");
+}
+window.selectSoloFormat = function(i){ solo.formatIndex = i; renderSoloFormatRow(); };
+function renderSoloThemeRow(){
+  if(solo.selectedCats.length === 0) solo.selectedCats = [...CATEGORIES];
+  const row = document.getElementById("soloThemeRow");
+  const groupOrder = computeGroupOrder();
+  const byGroup = {};
+  CATEGORIES.forEach(c => {
+    const g = groupForCategory(c);
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(c);
+  });
+  let html = `<div class="btn-row" style="margin-bottom:14px;">
+    <button class="btn btn-gold btn-sm" onclick="selectAllSoloThemes()">✅ Tout cocher</button>
+  </div>`;
+  groupOrder.forEach(g => {
+    if(!byGroup[g] || byGroup[g].length === 0) return;
+    const allChecked = byGroup[g].every(c => solo.selectedCats.includes(c));
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
+          <button class="btn btn-ghost btn-sm" onclick='toggleSoloGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+        </div>
+        <div class="btn-row">
+          ${byGroup[g].map(c => `
+            <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleSoloTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+              ${c}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  });
+  row.innerHTML = html;
+}
+window.toggleSoloTheme = function(cat){
+  if(solo.selectedCats.includes(cat)){
+    if(solo.selectedCats.length > 1) solo.selectedCats = solo.selectedCats.filter(c => c !== cat);
+  } else {
+    solo.selectedCats.push(cat);
+  }
+  renderSoloThemeRow();
+};
+window.toggleSoloGroup = function(group){
+  const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
+  const allChecked = inGroup.every(c => solo.selectedCats.includes(c));
+  if(allChecked){
+    const remaining = solo.selectedCats.filter(c => !inGroup.includes(c));
+    solo.selectedCats = remaining.length > 0 ? remaining : solo.selectedCats;
+  } else {
+    solo.selectedCats = [...new Set([...solo.selectedCats, ...inGroup])];
+  }
+  renderSoloThemeRow();
+};
+window.selectAllSoloThemes = function(){
+  solo.selectedCats = [...CATEGORIES];
+  renderSoloThemeRow();
+};
+window.soloStart = function(){
+  solo.deck = buildDeck(FORMATS[solo.formatIndex].total, solo.selectedCats);
+  solo.currentIndex = 0; solo.correctCount = 0; solo.history = [];
+  solo.chosenIndex = null; solo.revealed = false;
+  solo.phase = "question";
+  render();
+  scrollTop();
+};
+
+function renderSoloQuestion(){
+  const q = solo.deck[solo.currentIndex];
+  const answeredSoFar = solo.currentIndex + (solo.revealed ? 1 : 0);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>${q.cat}</span></div>
+      <div class="round-badge">Question ${solo.currentIndex+1} / ${solo.deck.length}</div></div>
+    <div class="stage">
+      <span class="category-tag">${q.cat}</span>
+      <p class="question-text">${q.q}</p>
+      <div class="answer-grid">
+        ${q.opts.map((opt,i)=>{
+          const isCorrectReveal = solo.revealed && i===q.correct;
+          const isWrongReveal = solo.revealed && i!==q.correct;
+          const isChosenWrong = solo.revealed && solo.chosenIndex===i && i!==q.correct;
+          const cls = `${isCorrectReveal?'correctReveal':''} ${isWrongReveal?'wrongReveal':''} ${isChosenWrong?'chosenWrong':''}`;
+          if(!solo.revealed){
+            return `
+              <button class="answer-btn ${ANSWER_CLASSES[i]} ${cls}" onclick="soloAnswer(${i})">
+                <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+              </button>
+            `;
+          }
+          return `
+            <div class="answer-btn ${ANSWER_CLASSES[i]} ${solo.chosenIndex===i?'chosen':''} ${cls}" style="cursor:default;">
+              <span class="letter">${String.fromCharCode(65+i)}</span> ${opt}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      ${solo.revealed ? `<div class="funfact">💡 ${q.fact}</div>` : ""}
+      <div class="stage-actions">
+        <div class="status-banner">Score : ${solo.correctCount} / ${answeredSoFar} bonne${solo.correctCount>1?'s':''} réponse${solo.correctCount>1?'s':''}</div>
+        ${solo.revealed ? `<button class="btn btn-primary" onclick="soloNext()">${solo.currentIndex+1 >= solo.deck.length ? "Voir mon bilan 🏁" : "Question suivante ➜"}</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+window.soloAnswer = function(i){
+  if(solo.revealed) return;
+  const q = solo.deck[solo.currentIndex];
+  solo.chosenIndex = i;
+  solo.revealed = true;
+  const isCorrect = i === q.correct;
+  if(isCorrect) solo.correctCount++;
+  solo.history.push({ q: q.q, opts: q.opts, correct: q.correct, chosen: i, wasCorrect: isCorrect, fact: q.fact });
+  soundReveal();
+  render();
+  scrollTop();
+};
+window.soloNext = function(){
+  if(solo.currentIndex+1 >= solo.deck.length){
+    solo.phase = "end";
+    render();
+    scrollTop();
+    if(solo.deck.length > 0 && solo.correctCount / solo.deck.length >= 0.5){
+      setTimeout(()=>{ soundFanfare(); burstConfetti(120); }, 200);
+    }
+    return;
+  }
+  solo.currentIndex++;
+  solo.chosenIndex = null;
+  solo.revealed = false;
+  render();
+  scrollTop();
+};
+
+function renderSoloEnd(){
+  const total = solo.deck.length;
+  const pct = total > 0 ? Math.round(100 * solo.correctCount / total) : 0;
+  const missed = solo.history.filter(h => !h.wasCorrect);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Bilan</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">${pct>=80 ? "Excellent ! 🌟" : pct>=50 ? "Pas mal du tout !" : "Encore un effort !"}</h1>
+      <p class="setup-sub">${solo.correctCount} / ${total} bonnes réponses (${pct}%)</p>
+    </div>
+    ${missed.length>0 ? `
+      <div class="scoreboard">
+        <h3>À revoir (${missed.length})</h3>
+        ${missed.map(h => `
+          <div class="card" style="padding:18px;margin-top:12px;">
+            <p style="margin:0 0 8px;font-weight:700;">${h.q}</p>
+            <p style="margin:0;color:var(--teal);">✅ ${h.opts[h.correct]}</p>
+            <p style="margin:6px 0 0;color:var(--muted);font-size:13px;">💡 ${h.fact}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : `<div class="card" style="text-align:center;"><p class="setup-sub" style="margin:0;">Sans fautes ! 🎉</p></div>`}
+    <div class="btn-row" style="justify-content:center;margin-top:26px;">
+      <button class="btn btn-primary" onclick="soloRestart()">Rejouer 🔁</button>
+      <button class="btn btn-ghost" onclick="leaveToRoleSelect()">Retour à l'accueil 🏠</button>
+    </div>
+  `;
+}
+window.soloRestart = function(){ solo.phase = "setup"; render(); scrollTop(); };
+
+/* ============ ÉCRAN PODIUM PARTAGÉ ============ */
+function podiumItem(name, rankIndex, cls, score){
+  const medals = ["🥇","🥈","🥉"];
+  return `
+    <div class="podium-item ${cls}">
+      <div class="rank">${medals[rankIndex]}</div>
+      <div class="pname">${name}</div>
+      <div class="pscore">${score} pts</div>
+      <div class="ptitle">${TITLES[rankIndex]}</div>
+    </div>
+  `;
+}
+function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
+  const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const podium = ranked.slice(0,3);
+  const [first, second, third] = podium;
+  const podiumHtml = `
+    ${second ? podiumItem(second[0], 1, "second", second[1]) : ""}
+    ${first ? podiumItem(first[0], 0, "first", first[1]) : ""}
+    ${third ? podiumItem(third[0], 2, "third", third[1]) : ""}
+  `;
+  const restHtml = ranked.slice(3).map(([name,score]) => `
+    <div class="player-card" style="min-width:auto;">
+      <div class="name">${name}${name===highlightName?' (toi)':''}</div>
+      <div class="score" style="font-size:18px;">${score} pts</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">${TITLES[3]}</div>
+    </div>
+  `).join("");
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Résultats</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">C'est plié !</h1>
+      <p class="setup-sub">Merci d'avoir joué — la revanche est déjà réclamée par les perdants.</p>
+      <div class="podium">${podiumHtml}</div>
+      ${restHtml ? `<div class="player-cards" style="justify-content:center;">${restHtml}</div>` : ""}
+      <div class="btn-row" style="justify-content:center;margin-top:26px;">
+        ${restartFn ? `<button class="btn btn-primary" onclick="${restartFn}">Nouvelle partie (même salon) 🔁</button>` : ""}
+        <button class="btn btn-ghost" onclick="${leaveFn}">Retour à l'accueil 🏠</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ NAVIGATION ============ */
+window.leaveToRoleSelect = function(){
+  stopTimer();
+  stopHandicapCountdown();
+  if(channel){ supabaseClient.removeChannel(channel); channel = null; }
+  localStorage.removeItem("quiz_active_session");
+  role = null; roomCode = "";
+  host = freshHostState();
+  player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
+    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
+  solo = freshSoloState();
+  render();
+  scrollTop();
+};
+
+function renderLoading(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card" style="text-align:center;"><p class="setup-sub">Chargement des questions…</p></div>
+  `;
+}
+function renderReconnecting(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Reconnexion…</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:50px;margin-bottom:10px;">🔄</div>
+      <p class="setup-sub">On te reconnecte à ta partie en cours…</p>
+    </div>
+  `;
+}
+function renderLoadError(err){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Impossible de charger les questions</h1>
+      <p class="setup-sub">Le fichier <code>questions.json</code> doit se trouver dans le même dossier que <code>index.html</code>, à la racine du site déployé.</p>
+      <div class="config-warning">Détail technique : ${err.message}</div>
+    </div>
+  `;
+}
+(async function bootstrap(){
+  renderLoading();
+  try{
+    await loadQuestions();
+    const params = new URLSearchParams(location.search);
+    const joinCode = params.get("join");
+    if(joinCode){
+      pendingJoinCode = joinCode.toUpperCase().slice(0,4);
+      role = "player";
+      render();
+      return;
+    }
+    let stored = null;
+    try{ stored = JSON.parse(localStorage.getItem("quiz_active_session") || "null"); }catch(e){ stored = null; }
+    if(stored && stored.name && stored.code && (Date.now() - stored.ts) < RECONNECT_WINDOW_MS){
+      role = "player";
+      renderReconnecting();
+      doPlayerJoin(stored.name, stored.code);
+      return;
+    }
+    render();
+  }catch(err){
+    renderLoadError(err);
+  }
+})();
+</script>
+<script>
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
