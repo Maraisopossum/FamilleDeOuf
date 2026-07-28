@@ -417,9 +417,9 @@ function renderList(){
 
     const isExpanded = expandedCats.has(cat) || !!search;
     html += `
-      <div class="cat-header" onclick='toggleCat(${JSON.stringify(cat)})'>
+      <div class="cat-header" data-action="toggle-cat" data-cat="${escAttr(cat)}">
         <div><span class="title">${isExpanded?'▾':'▸'} ${cat}</span><span class="count">${catCounts[cat]} question(s)${search ? `, ${itemsInCat.length} affichée(s)` : ""}</span></div>
-        <button class="btn-danger btn-sm" onclick='event.stopPropagation(); deleteCategory(${JSON.stringify(cat)})'>🗑️ Supprimer la catégorie</button>
+        <button class="btn-danger btn-sm" data-action="delete-cat" data-cat="${escAttr(cat)}">🗑️ Supprimer la catégorie</button>
       </div>
     `;
     if(isExpanded){
@@ -462,6 +462,19 @@ function renderList(){
 function escAttr(str){
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
+
+document.getElementById("listArea").addEventListener("click", function(e){
+  const delBtn = e.target.closest('[data-action="delete-cat"]');
+  if(delBtn){
+    e.stopPropagation();
+    deleteCategory(delBtn.dataset.cat);
+    return;
+  }
+  const toggleHeader = e.target.closest('[data-action="toggle-cat"]');
+  if(toggleHeader){
+    toggleCat(toggleHeader.dataset.cat);
+  }
+});
 </script>
 </body>
 </html>
