@@ -169,9 +169,22 @@ let CATEGORIES = [];
 let categoryGroupOverrides = {};
 
 async function loadQuestions(){
-  const res = await fetch('./questions.json?v=' + Date.now(), { cache: "no-store" });
-  if(!res.ok) throw new Error('questions.json introuvable');
-  QUESTIONS = await res.json();
+  if(!CONFIG_OK) throw new Error("Configuration Supabase manquante (voir en haut du fichier).");
+  let all = [];
+  let from = 0;
+  const pageSize = 1000;
+  while(true){
+    const { data, error } = await supabaseClient.from("questions").select("*").range(from, from + pageSize - 1).order("id");
+    if(error) throw new Error("Impossible de charger les questions depuis Supabase : " + error.message);
+    all = all.concat(data);
+    if(!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+  if(all.length === 0) throw new Error("Aucune question trouvée dans Supabase (table « questions » vide ou inexistante).");
+  QUESTIONS = all.map(r => ({
+    id: r.id, cat: r.cat, q: r.q, opts: r.opts, correct: r.correct, fact: r.fact || "",
+    group: r.group_name || ""
+  }));
   CATEGORIES = [...new Set(QUESTIONS.map(q => q.cat))];
   categoryGroupOverrides = {};
   QUESTIONS.forEach(q => {
@@ -949,6 +962,7 @@ function renderHostGame(){
           ? `<button class="btn btn-gold" onclick="hostReveal()">Révéler la réponse 🔍</button>`
           : `<button class="btn btn-primary" onclick="hostNext()">${host.currentIndex+1 >= host.deck.length ? "Voir le classement final 🏆" : "Question suivante ➜"}</button>`
         }
+        <button class="btn btn-ghost btn-sm" id="flagBtn" onclick="flagCurrentHostQuestion()" ${q.flaggedThisSession ? 'disabled' : ''}>${q.flaggedThisSession ? '✅ Signalée' : '🚩 Signaler une erreur'}</button>
       </div>
     </div>
     ${revealed && host.eliminationMode && host.lastEliminatedName ? `
@@ -994,6 +1008,16 @@ function renderHostGame(){
   `;
 }
 
+window.flagCurrentHostQuestion = async function(){
+  const q = host.deck[host.currentIndex];
+  if(!q.id || q.flaggedThisSession) return;
+  q.flaggedThisSession = true;
+  const btn = document.getElementById("flagBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "✅ Signalée"; }
+  try{
+    await supabaseClient.from("questions").update({ flagged: true }).eq("id", q.id);
+  }catch(e){ /* si ça échoue, la question reste marquée localement pour cette session */ }
+};
 window.hostReveal = function(){
   const q = host.deck[host.currentIndex];
   host.phase = "reveal";
@@ -1545,10 +1569,21 @@ function renderSoloQuestion(){
       <div class="stage-actions">
         <div class="status-banner">Score : ${solo.correctCount} / ${answeredSoFar} bonne${solo.correctCount>1?'s':''} réponse${solo.correctCount>1?'s':''}</div>
         ${solo.revealed ? `<button class="btn btn-primary" onclick="soloNext()">${solo.currentIndex+1 >= solo.deck.length ? "Voir mon bilan 🏁" : "Question suivante ➜"}</button>` : ""}
+        <button class="btn btn-ghost btn-sm" id="soloFlagBtn" onclick="flagCurrentSoloQuestion()" ${q.flaggedThisSession ? 'disabled' : ''}>${q.flaggedThisSession ? '✅ Signalée' : '🚩 Signaler une erreur'}</button>
       </div>
     </div>
   `;
 }
+window.flagCurrentSoloQuestion = async function(){
+  const q = solo.deck[solo.currentIndex];
+  if(!q.id || q.flaggedThisSession) return;
+  q.flaggedThisSession = true;
+  const btn = document.getElementById("soloFlagBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "✅ Signalée"; }
+  try{
+    await supabaseClient.from("questions").update({ flagged: true }).eq("id", q.id);
+  }catch(e){ /* si ça échoue, la question reste marquée localement pour cette session */ }
+};
 window.soloAnswer = function(i){
   if(solo.revealed) return;
   const q = solo.deck[solo.currentIndex];
