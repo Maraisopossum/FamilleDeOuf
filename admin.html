@@ -149,26 +149,32 @@
 
 
     <div class="card">
-      <h2>2. Générer des questions avec l'IA (Gemini)</h2>
-      <p class="hint">Utilise ta propre clé API Google Gemini (gratuite avec quota — à récupérer sur <code>aistudio.google.com/apikey</code>). Elle reste uniquement sur cet appareil, jamais envoyée ailleurs qu'à Google.</p>
-      <label>Clé API Gemini</label>
-      <input type="password" id="geminiKeyInput" placeholder="AIza...">
+      <h2>2. Générer des questions avec l'IA</h2>
+      <p class="hint">Utilise ta propre clé API. Elle reste uniquement sur cet appareil, jamais envoyée ailleurs qu'au fournisseur choisi.</p>
+      <label>Fournisseur</label>
+      <select id="aiProviderSelect" onchange="onProviderChange()">
+        <option value="groq">Groq (Llama — gratuit, sans CB, rapide)</option>
+        <option value="gemini">Google Gemini</option>
+      </select>
+      <p class="hint" id="providerHint"></p>
+      <label>Clé API</label>
+      <input type="password" id="aiKeyInput" placeholder="gsk_...">
       <label>Modèle</label>
-      <input type="text" id="geminiModelInput" value="gemini-2.0-flash" placeholder="gemini-2.0-flash">
+      <input type="text" id="aiModelInput" placeholder="llama-3.3-70b-versatile">
       <div class="row" style="margin-top:6px;">
         <div>
           <label>Thème / catégorie</label>
-          <input type="text" id="geminiThemeInput" placeholder="Ex : Musique des années 80">
+          <input type="text" id="aiThemeInput" placeholder="Ex : Musique des années 80">
         </div>
         <div>
           <label>Nombre de questions</label>
-          <input type="text" id="geminiCountInput" value="20">
+          <input type="text" id="aiCountInput" value="20">
         </div>
       </div>
       <div class="row" style="margin-top:10px;">
-        <button class="btn-gold" onclick="generateWithGemini()" id="geminiGenerateBtn">✨ Générer</button>
+        <button class="btn-gold" onclick="generateWithAI()" id="aiGenerateBtn">✨ Générer</button>
       </div>
-      <div class="status" id="geminiStatus"></div>
+      <div class="status" id="aiStatus"></div>
     </div>
 
     <div class="card">
@@ -643,21 +649,49 @@ function runBulkImport(text){
   renderList();
 }
 
-/* ============ GÉNÉRATION VIA GEMINI ============ */
+/* ============ GÉNÉRATION VIA IA (Groq ou Gemini) ============ */
+const AI_PROVIDERS = {
+  groq: {
+    label: "Groq",
+    defaultModel: "llama-3.3-70b-versatile",
+    keyPlaceholder: "gsk_...",
+    keyStorageKey: "quiz_admin_groq_key",
+    modelStorageKey: "quiz_admin_groq_model",
+    hint: "Gratuit, sans carte bancaire. Crée ta clé sur console.groq.com/keys (compte Google/GitHub/email)."
+  },
+  gemini: {
+    label: "Gemini",
+    defaultModel: "gemini-2.0-flash",
+    keyPlaceholder: "AIza...",
+    keyStorageKey: "quiz_admin_gemini_key",
+    modelStorageKey: "quiz_admin_gemini_model",
+    hint: "Nécessite qu'un compte de facturation soit lié à ton projet Google Cloud pour débloquer le quota gratuit. Clé sur aistudio.google.com/apikey."
+  }
+};
+
+window.onProviderChange = function(){
+  const providerKey = document.getElementById("aiProviderSelect").value;
+  const p = AI_PROVIDERS[providerKey];
+  document.getElementById("providerHint").textContent = p.hint;
+  document.getElementById("aiKeyInput").placeholder = p.keyPlaceholder;
+  document.getElementById("aiKeyInput").value = localStorage.getItem(p.keyStorageKey) || "";
+  document.getElementById("aiModelInput").placeholder = p.defaultModel;
+  document.getElementById("aiModelInput").value = localStorage.getItem(p.modelStorageKey) || p.defaultModel;
+};
+
 window.addEventListener("DOMContentLoaded", () => {
-  const savedKey = localStorage.getItem("quiz_admin_gemini_key") || "";
-  const savedModel = localStorage.getItem("quiz_admin_gemini_model") || "";
-  if(savedKey) document.getElementById("geminiKeyInput").value = savedKey;
-  if(savedModel) document.getElementById("geminiModelInput").value = savedModel;
-  document.getElementById("geminiKeyInput").addEventListener("change", function(){
-    localStorage.setItem("quiz_admin_gemini_key", this.value.trim());
+  onProviderChange();
+  document.getElementById("aiKeyInput").addEventListener("change", function(){
+    const p = AI_PROVIDERS[document.getElementById("aiProviderSelect").value];
+    localStorage.setItem(p.keyStorageKey, this.value.trim());
   });
-  document.getElementById("geminiModelInput").addEventListener("change", function(){
-    localStorage.setItem("quiz_admin_gemini_model", this.value.trim());
+  document.getElementById("aiModelInput").addEventListener("change", function(){
+    const p = AI_PROVIDERS[document.getElementById("aiProviderSelect").value];
+    localStorage.setItem(p.modelStorageKey, this.value.trim());
   });
 });
 
-function buildGeminiPrompt(theme, count){
+function buildQuizPrompt(theme, count){
   return `Tu es un générateur de questions de quiz familial en français.
 
 Génère exactement ${count} questions de quiz à choix multiples sur le thème suivant : "${theme}".
@@ -679,49 +713,69 @@ Règles strictes :
 - Si tu n'es pas sûr d'un fait précis, choisis une question plus générale plutôt que d'inventer un détail`;
 }
 
-window.generateWithGemini = async function(){
-  const apiKey = document.getElementById("geminiKeyInput").value.trim();
-  const model = document.getElementById("geminiModelInput").value.trim() || "gemini-2.0-flash";
-  const theme = document.getElementById("geminiThemeInput").value.trim();
-  const count = Math.max(1, Math.min(100, parseInt(document.getElementById("geminiCountInput").value, 10) || 20));
+async function callGemini(apiKey, model, prompt){
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+  const text = data.candidates && data.candidates[0] && data.candidates[0].content &&
+    data.candidates[0].content.parts && data.candidates[0].content.parts[0]
+    ? data.candidates[0].content.parts[0].text : "";
+  if(!text.trim()) throw new Error("Réponse vide de la part de Gemini.");
+  return text;
+}
 
-  if(!apiKey){ showStatus("geminiStatus","err","❌ Renseigne ta clé API Gemini (aistudio.google.com/apikey)."); return; }
-  if(!theme){ showStatus("geminiStatus","err","❌ Indique un thème / une catégorie."); return; }
+async function callGroq(apiKey, model, prompt){
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }] })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+  const text = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "";
+  if(!text || !text.trim()) throw new Error("Réponse vide de la part de Groq.");
+  return text;
+}
 
-  localStorage.setItem("quiz_admin_gemini_key", apiKey);
-  localStorage.setItem("quiz_admin_gemini_model", model);
+window.generateWithAI = async function(){
+  const providerKey = document.getElementById("aiProviderSelect").value;
+  const provider = AI_PROVIDERS[providerKey];
+  const apiKey = document.getElementById("aiKeyInput").value.trim();
+  const model = document.getElementById("aiModelInput").value.trim() || provider.defaultModel;
+  const theme = document.getElementById("aiThemeInput").value.trim();
+  const count = Math.max(1, Math.min(100, parseInt(document.getElementById("aiCountInput").value, 10) || 20));
 
-  const btn = document.getElementById("geminiGenerateBtn");
+  if(!apiKey){ showStatus("aiStatus","err", `❌ Renseigne ta clé API ${provider.label}.`); return; }
+  if(!theme){ showStatus("aiStatus","err","❌ Indique un thème / une catégorie."); return; }
+
+  localStorage.setItem(provider.keyStorageKey, apiKey);
+  localStorage.setItem(provider.modelStorageKey, model);
+
+  const btn = document.getElementById("aiGenerateBtn");
   btn.disabled = true;
-  showStatus("geminiStatus","info", `Génération de ${count} question(s) en cours… (10 à 30 secondes)`);
+  showStatus("aiStatus","info", `Génération de ${count} question(s) via ${provider.label} en cours… (10 à 30 secondes)`);
 
   try{
-    const prompt = buildGeminiPrompt(theme, count);
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-    const data = await res.json();
-    if(!res.ok) throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
-    const text = data.candidates && data.candidates[0] && data.candidates[0].content &&
-      data.candidates[0].content.parts && data.candidates[0].content.parts[0]
-      ? data.candidates[0].content.parts[0].text : "";
-    if(!text.trim()) throw new Error("Réponse vide de la part de Gemini.");
+    const prompt = buildQuizPrompt(theme, count);
+    const text = providerKey === "groq" ? await callGroq(apiKey, model, prompt) : await callGemini(apiKey, model, prompt);
 
     const { parsed, errors } = parseBulkText(text);
     questions.push(...parsed);
-    let msg = `✅ ${parsed.length} question(s) générée(s) et ajoutée(s) sur « ${theme} ».`;
+    let msg = `✅ ${parsed.length} question(s) générée(s) et ajoutée(s) sur « ${theme} » (via ${provider.label}).`;
     if(errors.length){
       msg += ` ⚠️ ${errors.length} ligne(s) ignorée(s) (format inattendu) :\n` + errors.slice(0,5).join("\n");
       if(errors.length > 5) msg += `\n… et ${errors.length-5} de plus.`;
     }
     msg += `\n\nRelis les questions générées avant d'enregistrer : une IA peut se tromper sur des faits précis.`;
-    showStatus("geminiStatus", errors.length ? "err" : "ok", msg);
+    showStatus("aiStatus", errors.length ? "err" : "ok", msg);
     renderList();
   }catch(err){
-    showStatus("geminiStatus","err","❌ " + (err.message || "erreur lors de l'appel à Gemini"));
+    showStatus("aiStatus","err","❌ " + (err.message || `erreur lors de l'appel à ${provider.label}`));
   }finally{
     btn.disabled = false;
   }
