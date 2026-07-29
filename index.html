@@ -352,6 +352,14 @@ app.addEventListener("click", function(e){
   if(assignBtn){ assignTeam(assignBtn.dataset.name, parseInt(assignBtn.dataset.idx, 10)); return; }
   const handicapBtn = e.target.closest('[data-action="set-handicap"]');
   if(handicapBtn){ setHandicap(handicapBtn.dataset.name, parseInt(handicapBtn.dataset.sec, 10)); return; }
+  const pickRoomBtn = e.target.closest('[data-action="pick-room"]');
+  if(pickRoomBtn){
+    const codeInput = document.getElementById("codeInput");
+    if(codeInput) codeInput.value = pickRoomBtn.dataset.code;
+    const nameInput = document.getElementById("nameInput");
+    if(nameInput && !nameInput.value.trim()) nameInput.focus();
+    return;
+  }
 });
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
@@ -419,6 +427,61 @@ function send(event, payload){
   if(channel) channel.send({ type:"broadcast", event, payload });
 }
 
+/* ============ ANNUAIRE DES PARTIES OUVERTES (Presence) ============ */
+const DIRECTORY_CHANNEL_NAME = "quiz-lobby-directory";
+let directoryChannel = null;
+let openRoomsList = [];
+
+function ensureDirectoryChannel(presenceKey, onSync){
+  if(directoryChannel) return directoryChannel;
+  directoryChannel = supabaseClient.channel(DIRECTORY_CHANNEL_NAME, { config:{ presence:{ key: presenceKey } } });
+  if(onSync) directoryChannel.on("presence", { event: "sync" }, onSync);
+  directoryChannel.subscribe();
+  return directoryChannel;
+}
+function closeDirectoryChannel(){
+  if(directoryChannel){ supabaseClient.removeChannel(directoryChannel); directoryChannel = null; }
+}
+function hostTrackRoom(){
+  if(!roomCode) return;
+  ensureDirectoryChannel(roomCode);
+  directoryChannel.track({
+    code: roomCode,
+    format: FORMATS[host.formatIndex].label,
+    playerCount: Object.keys(host.players).length,
+    createdAt: Date.now()
+  });
+}
+function hostUntrackRoom(){
+  if(directoryChannel) directoryChannel.untrack();
+}
+function setupOpenRoomsListener(){
+  ensureDirectoryChannel("listener-" + Math.random().toString(36).slice(2), () => {
+    const state = directoryChannel.presenceState();
+    openRoomsList = [];
+    Object.values(state).forEach(arr => arr.forEach(e => { if(e.code) openRoomsList.push(e); }));
+    renderOpenRoomsArea();
+  });
+}
+function renderOpenRoomsArea(){
+  const el = document.getElementById("openRoomsArea");
+  if(!el) return;
+  if(openRoomsList.length === 0){
+    el.innerHTML = `<p class="status-banner" style="text-align:left;margin-bottom:14px;">Aucune partie en attente détectée pour l'instant — demande le code à l'hôte, ou attends qu'il en crée une.</p>`;
+    return;
+  }
+  el.innerHTML = `
+    <label class="field-label">Parties en attente de lancement</label>
+    <div class="btn-row" style="margin-bottom:18px;">
+      ${openRoomsList.map(r => `
+        <button class="btn btn-ghost" data-action="pick-room" data-code="${escAttr(r.code)}" style="flex:1;min-width:170px;text-align:left;">
+          🎮 ${r.code} — ${escAttr(r.format||'')} — ${r.playerCount||0} joueur${(r.playerCount||0)>1?'s':''}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
 /* ================= HOST ================= */
 function renderHostScreen(){
   if(host.phase === "lobby") renderHostLobby();
@@ -439,9 +502,11 @@ function renderHostLobby(){
         }
         render();
         hostSendSync();
+        hostTrackRoom();
       },
       answer: (payload) => onHostReceiveAnswer(payload)
     });
+    hostTrackRoom();
   }
   const playerNames = Object.keys(host.players);
   app.innerHTML = `
@@ -700,7 +765,7 @@ function renderHostFormatRow(){
     </button>
   `).join("");
 }
-window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow(); };
+window.selectHostFormat = function(i){ host.formatIndex = i; renderHostFormatRow(); hostTrackRoom(); };
 
 const DURATION_OPTIONS = [10000, 15000, 20000, 30000, 45000, 60000, 0];
 function durationLabel(ms){ return ms === 0 ? "Sans chrono" : (ms/1000) + "s"; }
@@ -731,6 +796,7 @@ window.hostStartGame = function(){
     host.teamScores = {};
     host.teamNames.forEach((tn,i) => host.teamScores[i] = 0);
   }
+  hostUntrackRoom();
   hostSendQuestion();
 };
 
@@ -977,6 +1043,7 @@ window.hostRestart = function(){
   Object.keys(host.players).forEach(n => host.players[n] = 0);
   if(host.teamMode) host.teamNames.forEach((tn,i) => host.teamScores[i] = 0);
   render();
+  hostTrackRoom();
 };
 
 /* ================= PLAYER ================= */
@@ -996,7 +1063,8 @@ function renderPlayerJoin(){
       <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
     <div class="card">
       <h1 class="setup-title">Ton prénom, ton code</h1>
-      <p class="setup-sub">Demande le code à 4 lettres affiché sur l'écran principal.</p>
+      <p class="setup-sub">Choisis une partie ci-dessous, ou demande le code à 4 lettres affiché sur l'écran principal.</p>
+      <div id="openRoomsArea"></div>
       <label class="field-label">Ton prénom</label>
       <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
       <label class="field-label">Code de la partie</label>
@@ -1010,6 +1078,8 @@ function renderPlayerJoin(){
     </div>
   `;
   renderHandicapSelectRow();
+  setupOpenRoomsListener();
+  renderOpenRoomsArea();
 }
 let joinHandicapSeconds = 0;
 function renderHandicapSelectRow(){
@@ -1027,6 +1097,7 @@ window.playerJoin = function(){
   doPlayerJoin(name, code, joinHandicapSeconds);
 };
 function doPlayerJoin(name, code, handicap){
+  closeDirectoryChannel();
   localStorage.setItem("quiz_player_name", name);
   localStorage.setItem("quiz_active_session", JSON.stringify({ name, code, ts: Date.now() }));
   player.name = name; player.roomCode = code; player.score = 0; player.myJoinHandicap = handicap || 0;
@@ -1458,6 +1529,7 @@ window.leaveToRoleSelect = function(){
   stopTimer();
   stopHandicapCountdown();
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
+  closeDirectoryChannel();
   localStorage.removeItem("quiz_active_session");
   role = null; roomCode = "";
   host = freshHostState();
