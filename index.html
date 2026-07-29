@@ -226,6 +226,9 @@ function makeRoomCode(){
 function scrollTop(){
   window.scrollTo({ top: 0, left: 0, behavior: "instant" in window ? "instant" : "auto" });
 }
+function escAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
 function computeRank(scoresObj, name){
   if(!scoresObj || !(name in scoresObj)) return null;
   const sorted = Object.entries(scoresObj).sort((a,b)=>b[1]-a[1]);
@@ -344,6 +347,12 @@ function freshSoloState(){
 let solo = freshSoloState();
 
 const app = document.getElementById("app");
+app.addEventListener("click", function(e){
+  const assignBtn = e.target.closest('[data-action="assign-team"]');
+  if(assignBtn){ assignTeam(assignBtn.dataset.name, parseInt(assignBtn.dataset.idx, 10)); return; }
+  const handicapBtn = e.target.closest('[data-action="set-handicap"]');
+  if(handicapBtn){ setHandicap(handicapBtn.dataset.name, parseInt(handicapBtn.dataset.sec, 10)); return; }
+});
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
   if(role === null){ renderRoleSelect(); return; }
@@ -525,7 +534,7 @@ function renderTeamConfigHtml(){
         <div class="team-assign-row">
           <span class="scribble" style="margin-right:6px;">${n} :</span>
           ${host.teamNames.map((tn,ti)=>`
-            <button class="btn btn-sm ${host.playerTeams[n]===ti ? 'btn-gold' : 'btn-ghost'}" onclick='assignTeam(${JSON.stringify(n)}, ${ti})'>${tn}</button>
+            <button class="btn btn-sm ${host.playerTeams[n]===ti ? 'btn-gold' : 'btn-ghost'}" data-action="assign-team" data-name="${escAttr(n)}" data-idx="${ti}">${tn}</button>
           `).join("")}
         </div>
       `).join("")}
@@ -557,7 +566,7 @@ function renderHandicapConfigHtml(){
         <div class="team-assign-row">
           <span class="scribble" style="margin-right:6px;">${n} :</span>
           ${HANDICAP_LEVELS.map(s => `
-            <button class="btn btn-sm ${((host.playerHandicaps[n]||0)===s) ? 'btn-gold' : 'btn-ghost'}" onclick='setHandicap(${JSON.stringify(n)}, ${s})'>${s===0?"Aucun":s+"s"}</button>
+            <button class="btn btn-sm ${((host.playerHandicaps[n]||0)===s) ? 'btn-gold' : 'btn-ghost'}" data-action="set-handicap" data-name="${escAttr(n)}" data-sec="${s}">${s===0?"Aucun":s+"s"}</button>
           `).join("")}
         </div>
       `).join("")}
@@ -603,8 +612,8 @@ function renderHostThemeRow(){
     byGroup[g].push(c);
   });
   let html = `<div class="btn-row" style="margin-bottom:14px;">
-    <button class="btn btn-gold btn-sm" onclick="selectAllThemes()">✅ Tout cocher</button>
-    <button class="btn btn-ghost btn-sm" onclick="deselectAllThemes()">⬜ Tout décocher</button>
+    <button class="btn btn-gold btn-sm" data-action="select-all-themes">✅ Tout cocher</button>
+    <button class="btn btn-ghost btn-sm" data-action="deselect-all-themes">⬜ Tout décocher</button>
   </div>`;
   groupOrder.forEach(g => {
     if(!byGroup[g] || byGroup[g].length === 0) return;
@@ -613,11 +622,11 @@ function renderHostThemeRow(){
       <div style="margin-bottom:14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
           <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
-          <button class="btn btn-ghost btn-sm" onclick='toggleGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+          <button class="btn btn-ghost btn-sm" data-action="toggle-group" data-group="${escAttr(g)}">${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
         </div>
         <div class="btn-row">
           ${byGroup[g].map(c => `
-            <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+            <button class="btn ${host.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" data-action="toggle-theme" data-cat="${escAttr(c)}" style="flex:1;min-width:140px;font-size:14px;">
               ${c}
             </button>
           `).join("")}
@@ -626,7 +635,21 @@ function renderHostThemeRow(){
     `;
   });
   row.innerHTML = html;
+  if(!row.dataset.delegated){
+    row.addEventListener("click", handleThemeRowClick);
+    row.dataset.delegated = "1";
+  }
   updateStartBtnState();
+}
+function handleThemeRowClick(e){
+  const themeBtn = e.target.closest('[data-action="toggle-theme"]');
+  if(themeBtn){ toggleTheme(themeBtn.dataset.cat); return; }
+  const groupBtn = e.target.closest('[data-action="toggle-group"]');
+  if(groupBtn){ toggleGroup(groupBtn.dataset.group); return; }
+  const selAll = e.target.closest('[data-action="select-all-themes"]');
+  if(selAll){ selectAllThemes(); return; }
+  const deselAll = e.target.closest('[data-action="deselect-all-themes"]');
+  if(deselAll){ deselectAllThemes(); return; }
 }
 function updateStartBtnState(){
   const btn = document.getElementById("startBtn");
@@ -1214,8 +1237,8 @@ function renderSoloThemeRow(){
     byGroup[g].push(c);
   });
   let html = `<div class="btn-row" style="margin-bottom:14px;">
-    <button class="btn btn-gold btn-sm" onclick="selectAllSoloThemes()">✅ Tout cocher</button>
-    <button class="btn btn-ghost btn-sm" onclick="deselectAllSoloThemes()">⬜ Tout décocher</button>
+    <button class="btn btn-gold btn-sm" data-action="select-all-themes">✅ Tout cocher</button>
+    <button class="btn btn-ghost btn-sm" data-action="deselect-all-themes">⬜ Tout décocher</button>
   </div>`;
   groupOrder.forEach(g => {
     if(!byGroup[g] || byGroup[g].length === 0) return;
@@ -1224,11 +1247,11 @@ function renderSoloThemeRow(){
       <div style="margin-bottom:14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
           <span style="font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${g}</span>
-          <button class="btn btn-ghost btn-sm" onclick='toggleSoloGroup(${JSON.stringify(g)})'>${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
+          <button class="btn btn-ghost btn-sm" data-action="toggle-group" data-group="${escAttr(g)}">${allChecked ? 'Décocher le groupe' : 'Cocher le groupe'}</button>
         </div>
         <div class="btn-row">
           ${byGroup[g].map(c => `
-            <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" onclick='toggleSoloTheme(${JSON.stringify(c)})' style="flex:1;min-width:140px;font-size:14px;">
+            <button class="btn ${solo.selectedCats.includes(c) ? 'btn-gold' : 'btn-ghost'}" data-action="toggle-theme" data-cat="${escAttr(c)}" style="flex:1;min-width:140px;font-size:14px;">
               ${c}
             </button>
           `).join("")}
@@ -1237,8 +1260,22 @@ function renderSoloThemeRow(){
     `;
   });
   row.innerHTML = html;
+  if(!row.dataset.delegated){
+    row.addEventListener("click", handleSoloThemeRowClick);
+    row.dataset.delegated = "1";
+  }
   const btn = document.getElementById("soloStartBtn");
   if(btn) btn.disabled = solo.selectedCats.length < 1;
+}
+function handleSoloThemeRowClick(e){
+  const themeBtn = e.target.closest('[data-action="toggle-theme"]');
+  if(themeBtn){ toggleSoloTheme(themeBtn.dataset.cat); return; }
+  const groupBtn = e.target.closest('[data-action="toggle-group"]');
+  if(groupBtn){ toggleSoloGroup(groupBtn.dataset.group); return; }
+  const selAll = e.target.closest('[data-action="select-all-themes"]');
+  if(selAll){ selectAllSoloThemes(); return; }
+  const deselAll = e.target.closest('[data-action="deselect-all-themes"]');
+  if(deselAll){ deselectAllSoloThemes(); return; }
 }
 window.toggleSoloTheme = function(cat){
   if(solo.selectedCats.includes(cat)){
