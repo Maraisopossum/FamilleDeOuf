@@ -45,9 +45,15 @@
   .cat-header{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:var(--panel-light);
     padding:12px 16px; border-radius:12px; margin-bottom:6px; cursor:pointer; }
   .cat-header > div:first-child{ flex:1 1 200px; min-width:200px; }
-  .cat-header > div:last-child{ flex:0 0 auto; }
+  .cat-header > div:last-child{ flex:1 1 auto; min-width:0; }
   .cat-header .title{ font-weight:700; }
   .cat-header .count{ color:var(--muted); font-size:13px; margin-left:8px; display:block; }
+  @media (max-width:520px){
+    .cat-header{ flex-direction:column; align-items:stretch; }
+    .cat-header > div:last-child{ width:100%; }
+    .cat-header > div:last-child > select,
+    .cat-header > div:last-child > button{ width:100% !important; min-width:0 !important; }
+  }
   .cat-body{ padding:6px 6px 14px; }
   .q-row{ background:var(--bg); border-radius:12px; padding:14px; margin:8px 0; border:1px solid var(--panel-light); }
   .q-row .opt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
@@ -77,11 +83,11 @@
     <div class="row">
       <div>
         <label>URL du projet Supabase</label>
-        <input type="text" id="supaUrlInput" placeholder="https://xxxxx.supabase.co">
+        <input type="text" id="supaUrlInput" placeholder="https://xxxxx.supabase.co" value="https://ffiowczdhwudkmailhtp.supabase.co">
       </div>
       <div>
         <label>Clé "anon public"</label>
-        <input type="password" id="supaKeyInput" placeholder="eyJhbGciOi...">
+        <input type="password" id="supaKeyInput" placeholder="eyJhbGciOi..." value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmaW93Y3pkaHd1ZGttYWlsaHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTM4ODcsImV4cCI6MjA5NzAyOTg4N30.Y0KYSPDTqZis2wmzOp2dyfYbYQAwIECxKdVNTNdDq4E">
       </div>
     </div>
     <div class="row" style="margin-top:6px;">
