@@ -181,6 +181,15 @@ async function loadQuestions(){
   });
 }
 
+let PROFILES = [];
+async function loadProfiles(){
+  if(!CONFIG_OK) return;
+  try{
+    const { data, error } = await supabaseClient.from("profiles").select("name").order("name");
+    if(!error && data) PROFILES = data.map(r => r.name).filter(Boolean);
+  }catch(e){ /* table pas encore créée : on ignore silencieusement */ }
+}
+
 const FORMATS = [
   { label:"Rapide", total:12, sub:"~10 min" },
   { label:"Classique", total:20, sub:"~20 min" },
@@ -339,7 +348,7 @@ function freshHostState(){
 }
 let host = freshHostState();
 let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
-  eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
+  eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
 
 function freshSoloState(){
   return { phase:"setup", formatIndex:1, selectedCats:[], catsInitialized:false, deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
@@ -360,6 +369,14 @@ app.addEventListener("click", function(e){
     if(nameInput && !nameInput.value.trim()) nameInput.focus();
     return;
   }
+  const pickProfileBtn = e.target.closest('[data-action="pick-profile"]');
+  if(pickProfileBtn){ joinIdentity = { type:"profile", name: pickProfileBtn.dataset.name }; render(); return; }
+  const pickGuestBtn = e.target.closest('[data-action="pick-guest"]');
+  if(pickGuestBtn){ joinIdentity = { type:"guest", name:"" }; render(); return; }
+  const createProfileBtn = e.target.closest('[data-action="create-profile"]');
+  if(createProfileBtn){ createLocalProfile(); return; }
+  const historyBtn = e.target.closest('[data-action="show-history"]');
+  if(historyBtn){ showMyHistory(historyBtn.dataset.name); return; }
 });
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
@@ -1055,18 +1072,62 @@ function renderPlayerScreen(){
   else if(player.phase === "end") renderPlayerEnd();
 }
 
+let joinIdentity = null; // { type:'profile'|'guest', name:'' }
+
+function allDisplayProfiles(){
+  return [...PROFILES];
+}
 function renderPlayerJoin(){
+  if(!joinIdentity){
+    renderIdentityPicker();
+  } else {
+    renderJoinForm();
+  }
+}
+function renderIdentityPicker(){
+  const profiles = allDisplayProfiles();
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Qui es-tu ?</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card">
+      <h1 class="setup-title">Choisis ton profil</h1>
+      <p class="setup-sub">Les profils enregistrés gardent un historique de leurs parties. En invité, tu joues normalement mais sans historique.</p>
+      <div class="role-grid" style="margin-bottom:6px;">
+        ${profiles.map(p => `
+          <div class="role-card" data-action="pick-profile" data-name="${escAttr(p)}">
+            <div class="emoji">👤</div><h3>${p}</h3>
+          </div>
+        `).join("")}
+        <div class="role-card" data-action="create-profile">
+          <div class="emoji">➕</div><h3>Créer mon profil</h3><p>Reste enregistré sur cet appareil</p>
+        </div>
+        <div class="role-card" data-action="pick-guest">
+          <div class="emoji">🕵️</div><h3>Invité</h3><p>Sans historique</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function renderJoinForm(){
+  const isGuest = joinIdentity.type === "guest";
   const savedName = localStorage.getItem("quiz_player_name") || "";
   const prefilledCode = pendingJoinCode || "";
   app.innerHTML = `
     <div class="topbar"><div class="brand">🐼 <span>Rejoindre</span></div>
-      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+      <button class="back-link" onclick="backToIdentityPicker()">‹ changer de profil</button></div>
     <div class="card">
-      <h1 class="setup-title">Ton prénom, ton code</h1>
-      <p class="setup-sub">Choisis une partie ci-dessous, ou demande le code à 4 lettres affiché sur l'écran principal.</p>
+      <h1 class="setup-title">${isGuest ? "Rejoindre en invité" : "Salut " + joinIdentity.name + " !"}</h1>
       <div id="openRoomsArea"></div>
-      <label class="field-label">Ton prénom</label>
-      <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
+      ${isGuest ? `
+        <label class="field-label">Ton prénom</label>
+        <input type="text" id="nameInput" placeholder="Ex : Benoît" value="${savedName.replace(/"/g,'&quot;')}">
+      ` : `
+        <input type="hidden" id="nameInput" value="${escAttr(joinIdentity.name)}">
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn btn-ghost btn-sm" data-action="show-history" data-name="${escAttr(joinIdentity.name)}">📊 Voir mon historique</button>
+        </div>
+        <div id="historyArea"></div>
+      `}
       <label class="field-label">Code de la partie</label>
       <input type="text" class="code-input" id="codeInput" maxlength="4" placeholder="ABCD" value="${prefilledCode}">
       <label class="field-label">Ton handicap (optionnel)</label>
@@ -1081,6 +1142,25 @@ function renderPlayerJoin(){
   setupOpenRoomsListener();
   renderOpenRoomsArea();
 }
+window.backToIdentityPicker = function(){
+  joinIdentity = null;
+  render();
+};
+window.createLocalProfile = async function(){
+  const name = prompt("Quel est ton prénom ?");
+  if(!name || !name.trim()) return;
+  const trimmed = name.trim();
+  try{
+    const { error } = await supabaseClient.from("profiles").upsert({ name: trimmed }, { onConflict: "name" });
+    if(error) throw error;
+    if(!PROFILES.includes(trimmed)) PROFILES.push(trimmed);
+  }catch(e){
+    alert("Impossible d'enregistrer ce profil dans Supabase (" + (e.message||"erreur") + "). As-tu bien créé la table « profiles » ?");
+    return;
+  }
+  joinIdentity = { type:"profile", name: trimmed };
+  render();
+};
 let joinHandicapSeconds = 0;
 function renderHandicapSelectRow(){
   const row = document.getElementById("handicapSelectRow");
@@ -1094,7 +1174,42 @@ window.playerJoin = function(){
   const name = document.getElementById("nameInput").value.trim();
   const code = document.getElementById("codeInput").value.trim().toUpperCase();
   if(!name || code.length !== 4) return;
+  player.isRegistered = !!(joinIdentity && joinIdentity.type === "profile");
   doPlayerJoin(name, code, joinHandicapSeconds);
+};
+window.showMyHistory = async function(name){
+  const el = document.getElementById("historyArea");
+  if(!el) return;
+  el.innerHTML = `<p class="status-banner">Chargement de l'historique…</p>`;
+  try{
+    const { data, error } = await supabaseClient
+      .from("game_history")
+      .select("*")
+      .eq("profile_name", name)
+      .order("played_at", { ascending: false })
+      .limit(10);
+    if(error) throw error;
+    if(!data || data.length === 0){
+      el.innerHTML = `<p class="status-banner">Aucune partie enregistrée pour l'instant.</p>`;
+      return;
+    }
+    el.innerHTML = `
+      <div class="scoreboard" style="margin-top:0;margin-bottom:18px;">
+        <h3>Tes ${data.length} dernières parties</h3>
+        <div class="player-cards">
+          ${data.map(row => `
+            <div class="player-card">
+              <div class="name">${new Date(row.played_at).toLocaleDateString('fr-FR')}</div>
+              <div class="score">${row.score} pts</div>
+              <div style="font-size:12px;color:var(--muted);">${row.rank ? row.rank+'ᵉ/'+row.total_players : ''}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }catch(err){
+    el.innerHTML = `<p class="status-banner">Impossible de charger l'historique (${(err && err.message) || 'erreur'}). As-tu bien créé la table <code>game_history</code> dans Supabase ?</p>`;
+  }
 };
 function doPlayerJoin(name, code, handicap){
   closeDirectoryChannel();
@@ -1244,9 +1359,21 @@ function onPlayerReceiveEnd(payload){
   player.finalTeamInfo = payload.teamMode ? { teamMode:true, teamNames:payload.teamNames, teamScores:payload.teamScores } : null;
   player.phase = "end";
   localStorage.removeItem("quiz_active_session");
+  saveHistoryIfRegistered(payload.scores);
   render();
   scrollTop();
   setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
+}
+function saveHistoryIfRegistered(finalScores){
+  if(!player.isRegistered) return;
+  const rankInfo = computeRank(finalScores, player.name);
+  supabaseClient.from("game_history").insert({
+    profile_name: player.name,
+    score: finalScores[player.name] !== undefined ? finalScores[player.name] : player.score,
+    rank: rankInfo ? rankInfo.rank : null,
+    total_players: rankInfo ? rankInfo.total : null,
+    room_code: player.roomCode
+  }).then(({error}) => { if(error) console.warn("Historique non enregistré :", error.message); });
 }
 function renderPlayerEnd(){
   let scoresForPodium = player.finalScores;
@@ -1531,10 +1658,10 @@ window.leaveToRoleSelect = function(){
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
   closeDirectoryChannel();
   localStorage.removeItem("quiz_active_session");
-  role = null; roomCode = "";
+  role = null; roomCode = ""; joinIdentity = null;
   host = freshHostState();
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
-    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
+    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
   solo = freshSoloState();
   render();
   scrollTop();
@@ -1569,6 +1696,7 @@ function renderLoadError(err){
   renderLoading();
   try{
     await loadQuestions();
+    await loadProfiles();
     const params = new URLSearchParams(location.search);
     const joinCode = params.get("join");
     if(joinCode){
