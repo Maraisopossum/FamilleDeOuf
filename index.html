@@ -328,7 +328,7 @@ let roomCode = "";
 
 function freshHostState(){
   return {
-    formatIndex:1, selectedCats:[], players:{}, deck:[], currentIndex:0, phase:"lobby",
+    formatIndex:1, selectedCats:[], catsInitialized:false, players:{}, deck:[], currentIndex:0, phase:"lobby",
     answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null,
     lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
     eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000
@@ -339,7 +339,7 @@ let player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null
   eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0 };
 
 function freshSoloState(){
-  return { phase:"setup", formatIndex:1, selectedCats:[], deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
+  return { phase:"setup", formatIndex:1, selectedCats:[], catsInitialized:false, deck:[], currentIndex:0, chosenIndex:null, revealed:false, correctCount:0, history:[] };
 }
 let solo = freshSoloState();
 
@@ -496,7 +496,7 @@ function renderHostLobby(){
         </div>
       ` : ""}
       <div class="btn-row">
-        <button class="btn btn-primary" id="startBtn" onclick="hostStartGame()" ${(playerNames.length<1 && !(host.hostPlaysToo && host.hostPlayerName.trim())) ? 'disabled':''}>Lancer la partie 🚀</button>
+        <button class="btn btn-primary" id="startBtn" onclick="hostStartGame()" ${(host.selectedCats.length<1 || (playerNames.length<1 && !(host.hostPlaysToo && host.hostPlayerName.trim()))) ? 'disabled':''}>Lancer la partie 🚀</button>
       </div>
     </div>
     <footer>Astuce : idéalement au moins 2 joueurs pour que ce soit marrant.</footer>
@@ -593,7 +593,7 @@ function computeGroupOrder(){
   return ordered;
 }
 function renderHostThemeRow(){
-  if(host.selectedCats.length === 0) host.selectedCats = [...CATEGORIES];
+  if(!host.catsInitialized){ host.selectedCats = [...CATEGORIES]; host.catsInitialized = true; }
   const row = document.getElementById("themeRow");
   const groupOrder = computeGroupOrder();
   const byGroup = {};
@@ -604,6 +604,7 @@ function renderHostThemeRow(){
   });
   let html = `<div class="btn-row" style="margin-bottom:14px;">
     <button class="btn btn-gold btn-sm" onclick="selectAllThemes()">✅ Tout cocher</button>
+    <button class="btn btn-ghost btn-sm" onclick="deselectAllThemes()">⬜ Tout décocher</button>
   </div>`;
   groupOrder.forEach(g => {
     if(!byGroup[g] || byGroup[g].length === 0) return;
@@ -625,10 +626,17 @@ function renderHostThemeRow(){
     `;
   });
   row.innerHTML = html;
+  updateStartBtnState();
+}
+function updateStartBtnState(){
+  const btn = document.getElementById("startBtn");
+  if(!btn) return;
+  const playerNames = Object.keys(host.players);
+  btn.disabled = host.selectedCats.length < 1 || (playerNames.length < 1 && !(host.hostPlaysToo && host.hostPlayerName.trim()));
 }
 window.toggleTheme = function(cat){
   if(host.selectedCats.includes(cat)){
-    if(host.selectedCats.length > 1) host.selectedCats = host.selectedCats.filter(c => c !== cat);
+    host.selectedCats = host.selectedCats.filter(c => c !== cat);
   } else {
     host.selectedCats.push(cat);
   }
@@ -638,11 +646,14 @@ window.toggleGroup = function(group){
   const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
   const allChecked = inGroup.every(c => host.selectedCats.includes(c));
   if(allChecked){
-    const remaining = host.selectedCats.filter(c => !inGroup.includes(c));
-    host.selectedCats = remaining.length > 0 ? remaining : host.selectedCats;
+    host.selectedCats = host.selectedCats.filter(c => !inGroup.includes(c));
   } else {
     host.selectedCats = [...new Set([...host.selectedCats, ...inGroup])];
   }
+  renderHostThemeRow();
+};
+window.deselectAllThemes = function(){
+  host.selectedCats = [];
   renderHostThemeRow();
 };
 window.selectAllThemes = function(){
@@ -1176,7 +1187,7 @@ function renderSoloSetup(){
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
       <div class="btn-row" id="soloThemeRow" style="margin-bottom:26px;"></div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="soloStart()">Démarrer 🎯</button>
+        <button class="btn btn-primary" id="soloStartBtn" onclick="soloStart()">Démarrer 🎯</button>
       </div>
     </div>
   `;
@@ -1193,7 +1204,7 @@ function renderSoloFormatRow(){
 }
 window.selectSoloFormat = function(i){ solo.formatIndex = i; renderSoloFormatRow(); };
 function renderSoloThemeRow(){
-  if(solo.selectedCats.length === 0) solo.selectedCats = [...CATEGORIES];
+  if(!solo.catsInitialized){ solo.selectedCats = [...CATEGORIES]; solo.catsInitialized = true; }
   const row = document.getElementById("soloThemeRow");
   const groupOrder = computeGroupOrder();
   const byGroup = {};
@@ -1204,6 +1215,7 @@ function renderSoloThemeRow(){
   });
   let html = `<div class="btn-row" style="margin-bottom:14px;">
     <button class="btn btn-gold btn-sm" onclick="selectAllSoloThemes()">✅ Tout cocher</button>
+    <button class="btn btn-ghost btn-sm" onclick="deselectAllSoloThemes()">⬜ Tout décocher</button>
   </div>`;
   groupOrder.forEach(g => {
     if(!byGroup[g] || byGroup[g].length === 0) return;
@@ -1225,10 +1237,12 @@ function renderSoloThemeRow(){
     `;
   });
   row.innerHTML = html;
+  const btn = document.getElementById("soloStartBtn");
+  if(btn) btn.disabled = solo.selectedCats.length < 1;
 }
 window.toggleSoloTheme = function(cat){
   if(solo.selectedCats.includes(cat)){
-    if(solo.selectedCats.length > 1) solo.selectedCats = solo.selectedCats.filter(c => c !== cat);
+    solo.selectedCats = solo.selectedCats.filter(c => c !== cat);
   } else {
     solo.selectedCats.push(cat);
   }
@@ -1238,11 +1252,14 @@ window.toggleSoloGroup = function(group){
   const inGroup = CATEGORIES.filter(c => groupForCategory(c) === group);
   const allChecked = inGroup.every(c => solo.selectedCats.includes(c));
   if(allChecked){
-    const remaining = solo.selectedCats.filter(c => !inGroup.includes(c));
-    solo.selectedCats = remaining.length > 0 ? remaining : solo.selectedCats;
+    solo.selectedCats = solo.selectedCats.filter(c => !inGroup.includes(c));
   } else {
     solo.selectedCats = [...new Set([...solo.selectedCats, ...inGroup])];
   }
+  renderSoloThemeRow();
+};
+window.deselectAllSoloThemes = function(){
+  solo.selectedCats = [];
   renderSoloThemeRow();
 };
 window.selectAllSoloThemes = function(){
