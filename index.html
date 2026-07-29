@@ -64,6 +64,15 @@
   .role-card h3{ margin: 0 0 6px; font-size:22px; }
   .role-card p{ color: var(--muted); font-size:14px; margin:0; }
 
+  .profile-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); gap:10px; margin-bottom:14px; }
+  .profile-card{ background: var(--panel); border: 2px solid var(--panel-light); border-radius: 14px; padding: 12px 8px;
+    text-align:center; cursor:pointer; transition: all .15s ease; }
+  .profile-card:hover{ border-color: var(--gold); }
+  .profile-card .avatar-letter{ width:38px; height:38px; margin:0 auto 6px; border-radius:50%; background: var(--panel-light);
+    color: var(--gold); font-family:'Baloo 2'; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; }
+  .profile-card .pname{ font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .profile-card.special .avatar-letter{ font-size:18px; background: var(--panel-light); }
+
   .code-display{ font-family:'Baloo 2'; font-weight:800; font-size: clamp(38px,10vw,64px); letter-spacing: 10px;
     color: var(--gold); text-align:center; background: var(--bg); border-radius:20px; padding: 18px; margin: 18px 0; }
   .player-chip{ display:inline-flex; align-items:center; gap:8px; background: var(--panel-light); border-radius: 999px; padding: 8px 14px;
@@ -1165,23 +1174,26 @@ function renderIdentityPicker(){
     <div class="topbar"><div class="brand">🐼 <span>Qui es-tu ?</span></div>
       <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
     <div class="card">
-      <h1 class="setup-title">Choisis ton profil</h1>
+      <div id="openRoomsArea"></div>
+      <h1 class="setup-title" style="font-size:22px;">Choisis ton profil</h1>
       <p class="setup-sub">Les profils enregistrés gardent un historique de leurs parties. En invité, tu joues normalement mais sans historique.</p>
-      <div class="role-grid" style="margin-bottom:6px;">
+      <div class="profile-grid">
         ${profiles.map(p => `
-          <div class="role-card" data-action="pick-profile" data-name="${escAttr(p)}">
-            <div class="emoji">👤</div><h3>${p}</h3>
+          <div class="profile-card" data-action="pick-profile" data-name="${escAttr(p)}">
+            <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
           </div>
         `).join("")}
-        <div class="role-card" data-action="create-profile">
-          <div class="emoji">➕</div><h3>Créer mon profil</h3><p>Reste enregistré sur cet appareil</p>
+        <div class="profile-card special" data-action="create-profile">
+          <div class="avatar-letter">➕</div><div class="pname">Créer mon profil</div>
         </div>
-        <div class="role-card" data-action="pick-guest">
-          <div class="emoji">🕵️</div><h3>Invité</h3><p>Sans historique</p>
+        <div class="profile-card special" data-action="pick-guest">
+          <div class="avatar-letter">🕵️</div><div class="pname">Invité</div>
         </div>
       </div>
     </div>
   `;
+  setupOpenRoomsListener();
+  renderOpenRoomsArea();
 }
 function renderJoinForm(){
   const isGuest = joinIdentity.type === "guest";
@@ -1488,19 +1500,19 @@ function renderSoloIdentityPicker(){
     <div class="topbar"><div class="brand">🐼 <span>Mode Solo</span></div>
       <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
     <div class="card">
-      <h1 class="setup-title">Qui s'entraîne ?</h1>
+      <h1 class="setup-title" style="font-size:22px;">Qui s'entraîne ?</h1>
       <p class="setup-sub">Choisis un profil pour garder ton historique de scores, ou entraîne-toi en invité.</p>
-      <div class="role-grid" style="margin-bottom:6px;">
+      <div class="profile-grid">
         ${profiles.map(p => `
-          <div class="role-card" data-action="pick-solo-profile" data-name="${escAttr(p)}">
-            <div class="emoji">👤</div><h3>${p}</h3>
+          <div class="profile-card" data-action="pick-solo-profile" data-name="${escAttr(p)}">
+            <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
           </div>
         `).join("")}
-        <div class="role-card" data-action="create-solo-profile">
-          <div class="emoji">➕</div><h3>Créer mon profil</h3><p>Reste enregistré sur cet appareil</p>
+        <div class="profile-card special" data-action="create-solo-profile">
+          <div class="avatar-letter">➕</div><div class="pname">Créer mon profil</div>
         </div>
-        <div class="role-card" data-action="pick-solo-guest">
-          <div class="emoji">🕵️</div><h3>Invité</h3><p>Sans historique</p>
+        <div class="profile-card special" data-action="pick-solo-guest">
+          <div class="avatar-letter">🕵️</div><div class="pname">Invité</div>
         </div>
       </div>
     </div>
