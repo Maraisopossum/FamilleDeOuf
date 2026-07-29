@@ -354,7 +354,7 @@ let roomCode = "";
 function freshHostState(){
   return {
     formatIndex:1, selectedCats:[], catsInitialized:false, players:{}, deck:[], currentIndex:0, phase:"lobby",
-    answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", ownChoiceIndex:null,
+    answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", hostIsRegistered:false, ownChoiceIndex:null,
     lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
     eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000
   };
@@ -389,7 +389,20 @@ app.addEventListener("click", function(e){
   const createProfileBtn = e.target.closest('[data-action="create-profile"]');
   if(createProfileBtn){ createLocalProfile(); return; }
   const historyBtn = e.target.closest('[data-action="show-history"]');
-  if(historyBtn){ showMyHistory(historyBtn.dataset.name); return; }
+  if(historyBtn){ showMyHistory(historyBtn.dataset.name, historyBtn.dataset.target); return; }
+  const pickSoloProfileBtn = e.target.closest('[data-action="pick-solo-profile"]');
+  if(pickSoloProfileBtn){ soloIdentity = { type:"profile", name: pickSoloProfileBtn.dataset.name }; solo.phase = "setup"; render(); return; }
+  const pickSoloGuestBtn = e.target.closest('[data-action="pick-solo-guest"]');
+  if(pickSoloGuestBtn){ soloIdentity = { type:"guest", name:"" }; solo.phase = "setup"; render(); return; }
+  const createSoloProfileBtn = e.target.closest('[data-action="create-solo-profile"]');
+  if(createSoloProfileBtn){ createSoloProfile(); return; }
+  const pickHostProfileBtn = e.target.closest('[data-action="pick-host-profile"]');
+  if(pickHostProfileBtn){
+    host.hostPlayerName = pickHostProfileBtn.dataset.name; host.hostIsRegistered = true;
+    render(); return;
+  }
+  const createHostProfileBtn = e.target.closest('[data-action="create-host-profile"]');
+  if(createHostProfileBtn){ createHostProfile(); return; }
 });
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
@@ -593,7 +606,15 @@ function renderHostLobby(){
       </div>
       ${host.hostPlaysToo ? `
         <p class="status-banner" style="text-align:left;margin-bottom:10px;">⚠️ Ta réponse s'affichera sur cet écran, donc les autres pourront la voir si tu ne fais pas attention. Idéal en petit comité ou en solo.</p>
-        <input type="text" id="hostPlayerNameInput" placeholder="Ton prénom" value="${host.hostPlayerName.replace(/"/g,'&quot;')}" oninput="host.hostPlayerName=this.value" style="margin-bottom:14px;">
+        <label class="field-label">Choisis un profil, ou tape un prénom d'invité</label>
+        <div class="btn-row" id="hostProfileRow" style="margin-bottom:10px;"></div>
+        <input type="text" id="hostPlayerNameInput" placeholder="Ton prénom" value="${host.hostPlayerName.replace(/"/g,'&quot;')}" oninput="host.hostPlayerName=this.value; host.hostIsRegistered=false;" style="margin-bottom:10px;">
+        ${host.hostIsRegistered && host.hostPlayerName.trim() ? `
+          <div class="btn-row" style="margin-bottom:10px;">
+            <button class="btn btn-ghost btn-sm" data-action="show-history" data-name="${escAttr(host.hostPlayerName.trim())}" data-target="hostHistoryArea">📊 Voir mon historique</button>
+          </div>
+          <div id="hostHistoryArea" style="margin-bottom:10px;"></div>
+        ` : ""}
         <label class="field-label">Ton handicap à toi</label>
         <div class="btn-row" style="margin-bottom:22px;">
           ${HANDICAP_LEVELS.map(s => `
@@ -610,7 +631,22 @@ function renderHostLobby(){
   renderHostFormatRow();
   renderHostDurationRow();
   renderHostThemeRow();
+  renderHostProfileRow();
 }
+function renderHostProfileRow(){
+  const row = document.getElementById("hostProfileRow");
+  if(!row) return;
+  row.innerHTML = PROFILES.map(p => `
+    <button class="btn btn-sm ${host.hostIsRegistered && host.hostPlayerName===p ? 'btn-gold' : 'btn-ghost'}" data-action="pick-host-profile" data-name="${escAttr(p)}">${p}</button>
+  `).join("") + `<button class="btn btn-sm btn-teal" data-action="create-host-profile">➕ Créer mon profil</button>`;
+}
+window.createHostProfile = async function(){
+  const trimmed = await promptCreateProfile();
+  if(!trimmed) return;
+  host.hostPlayerName = trimmed;
+  host.hostIsRegistered = true;
+  render();
+};
 
 function renderTeamConfigHtml(){
   const playerNames = Object.keys(host.players);
@@ -1061,6 +1097,7 @@ window.hostNext = function(){
       scores: {...host.players},
       teamMode: host.teamMode, teamNames: [...host.teamNames], teamScores: {...host.teamScores}
     });
+    saveHostHistoryIfRegistered();
     render();
     scrollTop();
     setTimeout(()=>{ soundFanfare(); burstConfetti(160); }, 200);
@@ -1069,6 +1106,20 @@ window.hostNext = function(){
   host.currentIndex++;
   hostSendQuestion();
 };
+function saveHostHistoryIfRegistered(){
+  if(!host.hostPlaysToo || !host.hostIsRegistered || !host.hostPlayerName.trim()) return;
+  const name = host.hostPlayerName.trim();
+  const scoresForRank = host.teamMode ? teamScoresAsMap() : host.players;
+  const rankInfo = computeRank(scoresForRank, host.teamMode ? (host.teamNames[host.playerTeams[name]] || name) : name);
+  supabaseClient.from("game_history").insert({
+    profile_name: name,
+    score: host.players[name] || 0,
+    rank: rankInfo ? rankInfo.rank : null,
+    total_players: rankInfo ? rankInfo.total : null,
+    room_code: roomCode,
+    mode: "multi"
+  }).then(({error}) => { if(error) console.warn("Historique hôte non enregistré :", error.message); });
+}
 
 function teamScoresAsMap(){
   const m = {};
@@ -1170,18 +1221,23 @@ window.backToIdentityPicker = function(){
   joinIdentity = null;
   render();
 };
-window.createLocalProfile = async function(){
+async function promptCreateProfile(){
   const name = prompt("Quel est ton prénom ?");
-  if(!name || !name.trim()) return;
+  if(!name || !name.trim()) return null;
   const trimmed = name.trim();
   try{
     const { error } = await supabaseClient.from("profiles").upsert({ name: trimmed }, { onConflict: "name" });
     if(error) throw error;
     if(!PROFILES.includes(trimmed)) PROFILES.push(trimmed);
+    return trimmed;
   }catch(e){
     alert("Impossible d'enregistrer ce profil dans Supabase (" + (e.message||"erreur") + "). As-tu bien créé la table « profiles » ?");
-    return;
+    return null;
   }
+}
+window.createLocalProfile = async function(){
+  const trimmed = await promptCreateProfile();
+  if(!trimmed) return;
   joinIdentity = { type:"profile", name: trimmed };
   render();
 };
@@ -1201,8 +1257,8 @@ window.playerJoin = function(){
   player.isRegistered = !!(joinIdentity && joinIdentity.type === "profile");
   doPlayerJoin(name, code, joinHandicapSeconds);
 };
-window.showMyHistory = async function(name){
-  const el = document.getElementById("historyArea");
+window.showMyHistory = async function(name, targetElId){
+  const el = document.getElementById(targetElId || "historyArea");
   if(!el) return;
   el.innerHTML = `<p class="status-banner">Chargement de l'historique…</p>`;
   try{
@@ -1223,9 +1279,9 @@ window.showMyHistory = async function(name){
         <div class="player-cards">
           ${data.map(row => `
             <div class="player-card">
-              <div class="name">${new Date(row.played_at).toLocaleDateString('fr-FR')}</div>
-              <div class="score">${row.score} pts</div>
-              <div style="font-size:12px;color:var(--muted);">${row.rank ? row.rank+'ᵉ/'+row.total_players : ''}</div>
+              <div class="name">${new Date(row.played_at).toLocaleDateString('fr-FR')}${row.mode === 'solo' ? ' · Solo' : ''}</div>
+              <div class="score">${row.mode === 'solo' ? row.score + (row.total_questions ? ('/'+row.total_questions) : '') : row.score + ' pts'}</div>
+              <div style="font-size:12px;color:var(--muted);">${row.mode === 'solo' ? 'bonnes réponses' : (row.rank ? row.rank+'ᵉ/'+row.total_players : '')}</div>
             </div>
           `).join("")}
         </div>
@@ -1396,7 +1452,8 @@ function saveHistoryIfRegistered(finalScores){
     score: finalScores[player.name] !== undefined ? finalScores[player.name] : player.score,
     rank: rankInfo ? rankInfo.rank : null,
     total_players: rankInfo ? rankInfo.total : null,
-    room_code: player.roomCode
+    room_code: player.roomCode,
+    mode: "multi"
   }).then(({error}) => { if(error) console.warn("Historique non enregistré :", error.message); });
 }
 function renderPlayerEnd(){
@@ -1416,19 +1473,61 @@ function onPlayerReceiveSync(payload){
 }
 
 /* ================= SOLO ================= */
+let soloIdentity = null; // { type:'profile'|'guest', name:'' }
+
 function renderSoloScreen(){
-  if(solo.phase === "setup") renderSoloSetup();
+  if(!soloIdentity) renderSoloIdentityPicker();
+  else if(solo.phase === "setup") renderSoloSetup();
   else if(solo.phase === "question") renderSoloQuestion();
   else if(solo.phase === "end") renderSoloEnd();
 }
 
-function renderSoloSetup(){
+function renderSoloIdentityPicker(){
+  const profiles = [...PROFILES];
   app.innerHTML = `
     <div class="topbar"><div class="brand">🐼 <span>Mode Solo</span></div>
       <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
     <div class="card">
-      <h1 class="setup-title">Entraîne-toi !</h1>
+      <h1 class="setup-title">Qui s'entraîne ?</h1>
+      <p class="setup-sub">Choisis un profil pour garder ton historique de scores, ou entraîne-toi en invité.</p>
+      <div class="role-grid" style="margin-bottom:6px;">
+        ${profiles.map(p => `
+          <div class="role-card" data-action="pick-solo-profile" data-name="${escAttr(p)}">
+            <div class="emoji">👤</div><h3>${p}</h3>
+          </div>
+        `).join("")}
+        <div class="role-card" data-action="create-solo-profile">
+          <div class="emoji">➕</div><h3>Créer mon profil</h3><p>Reste enregistré sur cet appareil</p>
+        </div>
+        <div class="role-card" data-action="pick-solo-guest">
+          <div class="emoji">🕵️</div><h3>Invité</h3><p>Sans historique</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+window.createSoloProfile = async function(){
+  const trimmed = await promptCreateProfile();
+  if(!trimmed) return;
+  soloIdentity = { type:"profile", name: trimmed };
+  solo.phase = "setup";
+  render();
+};
+
+function renderSoloSetup(){
+  const isGuest = soloIdentity.type === "guest";
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Mode Solo</span></div>
+      <button class="back-link" onclick="soloIdentity=null; render();">‹ changer de profil</button></div>
+    <div class="card">
+      <h1 class="setup-title">${isGuest ? "Entraîne-toi !" : "Salut " + soloIdentity.name + " !"}</h1>
       <p class="setup-sub">Réponds à ton rythme : la bonne réponse s'affiche tout de suite après chaque question.</p>
+      ${!isGuest ? `
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn btn-ghost btn-sm" data-action="show-history" data-name="${escAttr(soloIdentity.name)}" data-target="soloHistoryArea">📊 Voir mon historique</button>
+        </div>
+        <div id="soloHistoryArea"></div>
+      ` : ""}
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Format</h3>
       <div class="btn-row" id="soloFormatRow" style="margin-bottom:26px;"></div>
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Thèmes à inclure</h3>
@@ -1599,6 +1698,7 @@ window.soloAnswer = function(i){
 window.soloNext = function(){
   if(solo.currentIndex+1 >= solo.deck.length){
     solo.phase = "end";
+    saveSoloHistoryIfRegistered();
     render();
     scrollTop();
     if(solo.deck.length > 0 && solo.correctCount / solo.deck.length >= 0.5){
@@ -1612,6 +1712,15 @@ window.soloNext = function(){
   render();
   scrollTop();
 };
+function saveSoloHistoryIfRegistered(){
+  if(!soloIdentity || soloIdentity.type !== "profile") return;
+  supabaseClient.from("game_history").insert({
+    profile_name: soloIdentity.name,
+    score: solo.correctCount,
+    total_questions: solo.deck.length,
+    mode: "solo"
+  }).then(({error}) => { if(error) console.warn("Historique solo non enregistré :", error.message); });
+}
 
 function renderSoloEnd(){
   const total = solo.deck.length;
@@ -1693,7 +1802,7 @@ window.leaveToRoleSelect = function(){
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
   closeDirectoryChannel();
   localStorage.removeItem("quiz_active_session");
-  role = null; roomCode = ""; joinIdentity = null;
+  role = null; roomCode = ""; joinIdentity = null; soloIdentity = null;
   host = freshHostState();
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
     eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
