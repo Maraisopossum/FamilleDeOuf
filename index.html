@@ -55,11 +55,11 @@
   .btn-block{ width:100%; text-align:center; }
 
   .role-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
-  .role-grid-3{ grid-template-columns:1fr 1fr 1fr; }
+  .role-grid-3{ grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); }
   @media (max-width:600px){ .role-grid{ grid-template-columns:1fr; } }
-  .role-card{ background: var(--panel); border: 2px solid var(--panel-light); border-radius: 22px; padding: 28px 22px;
+  .role-card{ background: var(--panel); border: 2px solid rgba(255,200,87,0.4); border-radius: 22px; padding: 28px 22px;
     text-align:center; cursor:pointer; transition: all .15s ease; }
-  .role-card:hover{ border-color: var(--gold); transform: translateY(-2px); }
+  .role-card:hover{ border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
   .role-card .emoji{ font-size: 46px; margin-bottom:10px; }
   .role-card h3{ margin: 0 0 6px; font-size:22px; }
   .role-card p{ color: var(--muted); font-size:14px; margin:0; }
@@ -399,6 +399,8 @@ app.addEventListener("click", function(e){
   if(createProfileBtn){ createLocalProfile(); return; }
   const historyBtn = e.target.closest('[data-action="show-history"]');
   if(historyBtn){ showMyHistory(historyBtn.dataset.name, historyBtn.dataset.target); return; }
+  const pickHistoryProfileBtn = e.target.closest('[data-action="pick-history-profile"]');
+  if(pickHistoryProfileBtn){ historySelectedProfile = pickHistoryProfileBtn.dataset.name; render(); return; }
   const pickSoloProfileBtn = e.target.closest('[data-action="pick-solo-profile"]');
   if(pickSoloProfileBtn){ soloIdentity = { type:"profile", name: pickSoloProfileBtn.dataset.name }; solo.phase = "setup"; render(); return; }
   const pickSoloGuestBtn = e.target.closest('[data-action="pick-solo-guest"]');
@@ -415,6 +417,7 @@ app.addEventListener("click", function(e){
 });
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
+  if(role === "history"){ renderHistoryScreen(); return; }
   if(role === null){ renderRoleSelect(); return; }
   if(!CONFIG_OK){ renderConfigWarning(); return; }
   if(role === "host") renderHostScreen();
@@ -457,6 +460,9 @@ function renderRoleSelect(){
         <div class="role-card" onclick="chooseRole('solo')">
           <div class="emoji">🎯</div><h3>Mode Solo</h3><p>Je m'entraîne tout seul, à mon rythme</p>
         </div>
+        <div class="role-card" onclick="chooseRole('history')">
+          <div class="emoji">📊</div><h3>Historique</h3><p>Voir mes scores passés</p>
+        </div>
       </div>
       ${!CONFIG_OK ? `<div class="config-warning">⚠️ Les modes "Créer la partie" et "Rejoindre" nécessitent la configuration Supabase (voir en haut du fichier). Le Mode Solo fonctionne sans configuration.</div>` : ""}
     </div>
@@ -464,6 +470,37 @@ function renderRoleSelect(){
   `;
 }
 window.chooseRole = function(r){ role = r; render(); };
+
+let historySelectedProfile = null;
+function renderHistoryScreen(){
+  if(!historySelectedProfile){
+    app.innerHTML = `
+      <div class="topbar"><div class="brand">🐼 <span>Historique</span></div>
+        <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+      <div class="card">
+        <h1 class="setup-title" style="font-size:22px;">Choisis un profil</h1>
+        <p class="setup-sub">Consulte l'historique des parties d'un profil enregistré (solo et multijoueur).</p>
+        <div class="profile-grid">
+          ${PROFILES.map(p => `
+            <div class="profile-card" data-action="pick-history-profile" data-name="${escAttr(p)}">
+              <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
+            </div>
+          `).join("")}
+        </div>
+        ${PROFILES.length === 0 ? `<p class="status-banner" style="text-align:left;">Aucun profil enregistré pour l'instant — crée-en un depuis "Rejoindre" ou "Mode Solo".</p>` : ""}
+      </div>
+    `;
+  } else {
+    app.innerHTML = `
+      <div class="topbar"><div class="brand">🐼 <span>${historySelectedProfile}</span></div>
+        <button class="back-link" onclick="historySelectedProfile=null; render();">‹ autre profil</button></div>
+      <div class="card">
+        <div id="historyScreenArea"></div>
+      </div>
+    `;
+    showMyHistory(historySelectedProfile, "historyScreenArea");
+  }
+}
 
 /* ============ CANAL REALTIME ============ */
 function subscribeChannel(code, handlers){
@@ -1814,7 +1851,7 @@ window.leaveToRoleSelect = function(){
   if(channel){ supabaseClient.removeChannel(channel); channel = null; }
   closeDirectoryChannel();
   localStorage.removeItem("quiz_active_session");
-  role = null; roomCode = ""; joinIdentity = null; soloIdentity = null;
+  role = null; roomCode = ""; joinIdentity = null; soloIdentity = null; historySelectedProfile = null;
   host = freshHostState();
   player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
     eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
