@@ -72,48 +72,8 @@
   </div>
 
   <div class="card">
-    <h2>1. Connexion au dépôt GitHub</h2>
-    <p class="hint">Renseigné une fois, c'est sauvegardé sur cet appareil. Le token n'est envoyé qu'à GitHub, jamais ailleurs.</p>
-    <div class="row">
-      <div>
-        <label>Propriétaire / Dépôt (ex : tonpseudo/quiz-famille)</label>
-        <input type="text" id="repoInput" placeholder="tonpseudo/quiz-famille">
-      </div>
-      <div>
-        <label>Branche</label>
-        <input type="text" id="branchInput" placeholder="main" value="main">
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>Chemin du fichier</label>
-        <input type="text" id="pathInput" placeholder="questions.json" value="questions.json">
-      </div>
-      <div>
-        <label>Token GitHub (uniquement pour enregistrer)</label>
-        <input type="password" id="tokenInput" placeholder="ghp_...">
-      </div>
-    </div>
-    <details class="help">
-      <summary>Comment créer un token GitHub ?</summary>
-      <p class="hint">
-        1. Va sur <code>github.com/settings/tokens?type=beta</code><br>
-        2. « Generate new token » (fine-grained)<br>
-        3. Limite-le à ce seul dépôt, permission <code>Contents: Read and write</code><br>
-        4. Copie le token généré et colle-le ci-dessus (il ne sera montré qu'une seule fois par GitHub)
-      </p>
-    </details>
-    <div class="row" style="margin-top:6px;">
-      <button class="btn-gold" onclick="loadFromGitHub()">📥 Charger depuis GitHub</button>
-      <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">📂 Charger un fichier local</button>
-      <input type="file" id="fileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
-    </div>
-    <div class="status" id="loadStatus"></div>
-  </div>
-
-  <div class="card">
-    <h2>👤 Gestion des profils (Supabase)</h2>
-    <p class="hint">Les profils créés depuis le jeu sont stockés dans la table <code>profiles</code> de ton projet Supabase — pas dans un fichier du dépôt. Connecte-toi ici pour les modifier ou les supprimer.</p>
+    <h2>1. Connexion à Supabase</h2>
+    <p class="hint">Renseigné une fois, c'est sauvegardé sur cet appareil. Utilisée pour les questions ET les profils (même projet Supabase que ton jeu).</p>
     <div class="row">
       <div>
         <label>URL du projet Supabase</label>
@@ -124,6 +84,42 @@
         <input type="password" id="supaKeyInput" placeholder="eyJhbGciOi...">
       </div>
     </div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn-gold" onclick="loadFromSupabase()">📥 Charger les questions</button>
+      <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">📂 Charger un fichier JSON local</button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
+    </div>
+    <div class="status" id="loadStatus"></div>
+
+    <details class="help" style="margin-top:16px;">
+      <summary>Migration unique depuis GitHub (si tu utilisais l'ancien questions.json)</summary>
+      <p class="hint">Ceci ne sert qu'une seule fois, pour transférer tes questions existantes vers Supabase.</p>
+      <div class="row">
+        <div>
+          <label>Propriétaire / Dépôt</label>
+          <input type="text" id="repoInput" placeholder="tonpseudo/quiz-famille">
+        </div>
+        <div>
+          <label>Branche</label>
+          <input type="text" id="branchInput" placeholder="main" value="main">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Chemin du fichier</label>
+          <input type="text" id="pathInput" placeholder="questions.json" value="questions.json">
+        </div>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <button class="btn-ghost" onclick="loadFromGitHub()">📥 Charger depuis GitHub</button>
+        <button class="btn-teal" onclick="pushLoadedQuestionsToSupabase()">📤 Envoyer ces questions vers Supabase</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>👤 Gestion des profils (Supabase)</h2>
+    <p class="hint">Utilise la même connexion Supabase que ci-dessus.</p>
     <div class="row" style="margin-top:6px;">
       <button class="btn-gold" onclick="loadProfilesFromSupabase()">📥 Charger les profils</button>
     </div>
@@ -138,12 +134,13 @@
   <div id="workArea" style="display:none;">
     <div class="card top-actions">
       <div class="row">
-        <button class="btn-primary" onclick="saveToGitHub()" id="saveBtn">💾 Enregistrer sur GitHub</button>
-        <button class="btn-teal" onclick="downloadJson()">⬇️ Télécharger le fichier</button>
+        <button class="btn-primary" onclick="saveToSupabase()" id="saveBtn">💾 Enregistrer sur Supabase</button>
+        <button class="btn-teal" onclick="downloadJson()">⬇️ Télécharger une sauvegarde JSON</button>
       </div>
       <div class="status" id="saveStatus"></div>
       <p class="counter" id="totalCounter" style="margin-top:8px;"></p>
     </div>
+
 
     <div class="card">
       <h2>2. Générer des questions avec l'IA (Gemini)</h2>
@@ -179,6 +176,9 @@
           <code>Cinéma|Qui réalise Titanic ?|James Cameron|Steven Spielberg|Ridley Scott|Peter Jackson|0|Sorti en 1997.</code>
         </p>
       </details>
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn-ghost btn-sm" onclick="downloadFormatTemplate()">📄 Télécharger le format d'import (.md)</button>
+      </div>
       <textarea id="bulkText" rows="6" placeholder="Colle ici tes questions au format Catégorie|Question|A|B|C|D|IndexCorrect|Fait, une par ligne…"></textarea>
       <div class="row" style="margin-top:8px;">
         <button class="btn-gold" onclick="importBulkText()">📋 Analyser le texte collé</button>
@@ -211,6 +211,9 @@
         <input type="text" id="searchInput" placeholder="🔍 Rechercher dans les questions…" oninput="renderList()">
         <select id="catFilter" onchange="renderList()"></select>
       </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:10px;cursor:pointer;">
+        <input type="checkbox" id="flaggedOnlyFilter" onchange="renderList()" style="width:auto;"> Afficher uniquement les questions signalées 🚩
+      </label>
       <div id="listArea"></div>
     </div>
   </div>
@@ -218,7 +221,6 @@
 
 <script>
 let questions = [];
-let currentSha = null;
 let expandedCats = new Set();
 
 const PRESET_GROUPS = ["Culture & savoirs","Pop culture & fandoms","Ambiance & détente","Spécial","Autres"];
@@ -236,15 +238,12 @@ function getConfig(){
   return {
     owner_repo: document.getElementById("repoInput").value.trim(),
     branch: document.getElementById("branchInput").value.trim() || "main",
-    path: document.getElementById("pathInput").value.trim() || "questions.json",
-    token: document.getElementById("tokenInput").value.trim()
+    path: document.getElementById("pathInput").value.trim() || "questions.json"
   };
 }
 function saveConfigToStorage(){
   const c = getConfig();
-  localStorage.setItem("quiz_admin_config", JSON.stringify({
-    owner_repo: c.owner_repo, branch: c.branch, path: c.path, token: c.token
-  }));
+  localStorage.setItem("quiz_admin_config", JSON.stringify(c));
 }
 function loadConfigFromStorage(){
   try{
@@ -253,11 +252,10 @@ function loadConfigFromStorage(){
       document.getElementById("repoInput").value = saved.owner_repo || "";
       document.getElementById("branchInput").value = saved.branch || "main";
       document.getElementById("pathInput").value = saved.path || "questions.json";
-      document.getElementById("tokenInput").value = saved.token || "";
     }
   }catch(e){}
 }
-["repoInput","branchInput","pathInput","tokenInput"].forEach(id => {
+["repoInput","branchInput","pathInput"].forEach(id => {
   window.addEventListener("DOMContentLoaded", () => {
     document.getElementById(id).addEventListener("change", saveConfigToStorage);
   });
@@ -415,12 +413,12 @@ async function loadFromGitHub(){
   try{
     const url = `https://api.github.com/repos/${c.owner_repo}/contents/${encodeURIComponent(c.path)}?ref=${encodeURIComponent(c.branch)}`;
     const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
-    if(!res.ok) throw new Error("Réponse GitHub : " + res.status + " — vérifie propriétaire/dépôt/branche/chemin, et que le dépôt est public (ou que ton token a accès).");
+    if(!res.ok) throw new Error("Réponse GitHub : " + res.status + " — vérifie propriétaire/dépôt/branche/chemin, et que le dépôt est public.");
     const data = await res.json();
-    currentSha = data.sha;
     const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g,""))));
     questions = JSON.parse(decoded);
-    showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis GitHub.`);
+    originalQuestionIds = [];
+    showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis GitHub. Clique maintenant sur « Envoyer ces questions vers Supabase » ci-dessus.`);
     document.getElementById("workArea").style.display = "block";
     renderList();
   }catch(err){
@@ -435,8 +433,8 @@ function loadFromFile(event){
   reader.onload = (e) => {
     try{
       questions = JSON.parse(e.target.result);
-      currentSha = null;
-      showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis le fichier local. (L'enregistrement direct sur GitHub nécessite d'avoir chargé via GitHub, sinon utilise « Télécharger le fichier ».)`);
+      originalQuestionIds = [];
+      showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis le fichier local. Clique sur « Enregistrer sur Supabase » pour les y ajouter.`);
       document.getElementById("workArea").style.display = "block";
       renderList();
     }catch(err){
@@ -446,41 +444,93 @@ function loadFromFile(event){
   reader.readAsText(file);
 }
 
-async function saveToGitHub(){
-  const c = getConfig();
-  if(!c.token){ showStatus("saveStatus","err","❌ Renseigne un token GitHub pour pouvoir enregistrer."); return; }
-  if(!currentSha){ showStatus("saveStatus","err","❌ Charge d'abord les questions depuis GitHub (pas depuis un fichier local) pour pouvoir les réenregistrer directement."); return; }
+function chunkArray(arr, size){
+  const out = [];
+  for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i, i+size));
+  return out;
+}
+
+let originalQuestionIds = [];
+
+window.loadFromSupabase = async function(){
+  const client = ensureSupaClient();
+  if(!client){ showStatus("loadStatus","err","❌ Renseigne l'URL et la clé Supabase ci-dessus."); return; }
+  showStatus("loadStatus","info","Chargement des questions depuis Supabase…");
+  try{
+    let all = [];
+    let from = 0;
+    const pageSize = 1000;
+    while(true){
+      const { data, error } = await client.from("questions").select("*").range(from, from + pageSize - 1).order("id");
+      if(error) throw error;
+      all = all.concat(data);
+      if(!data || data.length < pageSize) break;
+      from += pageSize;
+    }
+    questions = all.map(r => ({
+      id: r.id, cat: r.cat, q: r.q, opts: r.opts, correct: r.correct, fact: r.fact || "",
+      group: r.group_name || "", flagged: !!r.flagged, flag_note: r.flag_note || ""
+    }));
+    originalQuestionIds = questions.map(q => q.id);
+    showStatus("loadStatus","ok", `✅ ${questions.length} questions chargées depuis Supabase.`);
+    document.getElementById("workArea").style.display = "block";
+    renderList();
+  }catch(err){
+    showStatus("loadStatus","err","❌ " + (err.message||"erreur") + " — as-tu bien créé la table « questions » (voir supabase-questions-setup.sql) ?");
+  }
+};
+
+window.pushLoadedQuestionsToSupabase = async function(){
+  const client = ensureSupaClient();
+  if(!client){ showStatus("loadStatus","err","❌ Renseigne l'URL et la clé Supabase ci-dessus."); return; }
+  if(!questions.length){ showStatus("loadStatus","err","❌ Charge d'abord des questions depuis GitHub ou un fichier local."); return; }
+  showStatus("loadStatus","info", `Envoi de ${questions.length} questions vers Supabase…`);
+  try{
+    const payload = questions.map(q => ({
+      cat: q.cat, q: q.q, opts: q.opts, correct: q.correct, fact: q.fact || null, group_name: q.group || null
+    }));
+    for(const chunk of chunkArray(payload, 300)){
+      const { error } = await client.from("questions").insert(chunk);
+      if(error) throw error;
+    }
+    showStatus("loadStatus","ok", `✅ ${questions.length} questions envoyées vers Supabase !`);
+    await loadFromSupabase();
+  }catch(err){
+    showStatus("loadStatus","err","❌ " + (err.message||"erreur lors de l'envoi vers Supabase"));
+  }
+};
+
+window.saveToSupabase = async function(){
+  const client = ensureSupaClient();
+  if(!client){ showStatus("saveStatus","err","❌ Renseigne l'URL et la clé Supabase en haut de la page."); return; }
   const btn = document.getElementById("saveBtn");
   btn.disabled = true;
-  showStatus("saveStatus","info","Enregistrement en cours…");
+  showStatus("saveStatus","info", `Enregistrement de ${questions.length} questions en cours…`);
   try{
-    const jsonStr = JSON.stringify(questions, null, 2);
-    const content = btoa(unescape(encodeURIComponent(jsonStr)));
-    const url = `https://api.github.com/repos/${c.owner_repo}/contents/${encodeURIComponent(c.path)}`;
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Authorization": "Bearer " + c.token,
-        "Accept": "application/vnd.github+json"
-      },
-      body: JSON.stringify({
-        message: "Mise à jour des questions via l'outil admin",
-        content, sha: currentSha, branch: c.branch
-      })
-    });
-    if(!res.ok){
-      const errBody = await res.json().catch(()=>({}));
-      throw new Error((errBody.message || ("HTTP " + res.status)));
+    const payload = questions.map(q => ({
+      cat: q.cat, q: q.q, opts: q.opts, correct: q.correct, fact: q.fact || null, group_name: q.group || null,
+      flagged: !!q.flagged, flag_note: q.flag_note || null
+    }));
+    const newIds = [];
+    for(const chunk of chunkArray(payload, 300)){
+      const { data, error } = await client.from("questions").insert(chunk).select("id");
+      if(error) throw error;
+      data.forEach(r => newIds.push(r.id));
     }
-    const data = await res.json();
-    currentSha = data.content.sha;
-    showStatus("saveStatus","ok","✅ Enregistré sur GitHub ! Le site se mettra à jour dans 1-2 minutes.");
+    // L'insertion de la nouvelle version a réussi : on peut supprimer l'ancienne génération sans risque.
+    const oldIds = originalQuestionIds.filter(id => id !== undefined && id !== null);
+    for(const idChunk of chunkArray(oldIds, 300)){
+      const { error } = await client.from("questions").delete().in("id", idChunk);
+      if(error) throw error;
+    }
+    showStatus("saveStatus","ok", `✅ ${questions.length} questions enregistrées sur Supabase !`);
+    await loadFromSupabase();
   }catch(err){
-    showStatus("saveStatus","err","❌ Échec de l'enregistrement : " + err.message);
+    showStatus("saveStatus","err","❌ Échec de l'enregistrement : " + (err.message||"erreur") + " — tes questions restent affichées ici, tu peux retenter.");
   }finally{
     btn.disabled = false;
   }
-}
+};
 
 function downloadJson(){
   const blob = new Blob([JSON.stringify(questions, null, 2)], { type: "application/json" });
@@ -490,6 +540,53 @@ function downloadJson(){
   a.click();
   URL.revokeObjectURL(url);
 }
+
+window.downloadFormatTemplate = function(){
+  const content = `# Format d'export pour le Quiz de la Tribu
+
+Génère des questions de quiz à choix multiples en français, au format suivant : **une question par ligne**, avec exactement **8 champs séparés par le caractère \`|\`** (pipe), dans cet ordre :
+
+\`\`\`
+Catégorie|Question|Réponse A|Réponse B|Réponse C|Réponse D|IndexBonneRéponse|Petit fait
+\`\`\`
+
+## Règles
+
+- **Catégorie** : le thème de la question (identique pour tout un lot si un seul thème est demandé)
+- **Question** : la question complète, avec point d'interrogation
+- **Réponse A/B/C/D** : les 4 réponses possibles, une seule est correcte
+- **IndexBonneRéponse** : un chiffre entre **0 et 3** indiquant quelle réponse est correcte (0 = Réponse A, 1 = B, 2 = C, 3 = D) — jamais la réponse elle-même, juste son index
+- **Petit fait** : une phrase courte (1-2 phrases) affichée après la révélation, qui complète ou explique la réponse
+
+## Contraintes strictes
+
+- Aucun champ ne doit contenir le caractère \`|\`
+- Une question par ligne, pas de retour à la ligne à l'intérieur d'un champ
+- Pas de guillemets, de markdown ou de numérotation en début de ligne
+- Public familial (11 à 40 ans), pas de contenu violent, sexuel ou offensant
+- Ne pas reproduire de paroles de chansons ni de texte protégé mot pour mot
+- Reste factuellement fiable ; en cas de doute sur un détail précis, choisis une question plus générale plutôt que d'inventer un fait
+
+## Exemple
+
+\`\`\`
+Cinéma|Qui réalise le film Titanic sorti en 1997 ?|James Cameron|Steven Spielberg|Ridley Scott|Peter Jackson|0|Le film a remporté 11 Oscars, dont celui du meilleur film.
+\`\`\`
+
+## Utilisation
+
+1. Colle ces instructions dans n'importe quel chat IA (ou utilise le générateur Gemini intégré à cet outil)
+2. Précise le thème souhaité et le nombre de questions (ex. « 200 questions sur le thème X, dans ce format »)
+3. Récupère le résultat dans un fichier \`.txt\`
+4. Importe-le directement dans cet outil via « 📂 Importer depuis un fichier .txt/.csv »
+`;
+  const blob = new Blob([content], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "format-import-questions.md";
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 function parseBulkText(text){
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
@@ -647,6 +744,11 @@ window.deleteQuestion = function(idx){
   questions.splice(idx, 1);
   renderList();
 };
+window.clearFlag = function(idx){
+  questions[idx].flagged = false;
+  questions[idx].flag_note = "";
+  renderList();
+};
 window.deleteCategory = function(cat){
   const count = questions.filter(q => q.cat === cat).length;
   if(!confirm(`Supprimer toute la catégorie « ${cat} » et ses ${count} question(s) ? Cette action est immédiate (pense à enregistrer pour la rendre définitive).`)) return;
@@ -682,6 +784,7 @@ function renderList(){
 
   const search = document.getElementById("searchInput").value.trim().toLowerCase();
   const catFilterVal = filterSelect.value;
+  const flaggedOnly = document.getElementById("flaggedOnlyFilter").checked;
 
   const listArea = document.getElementById("listArea");
   let html = "";
@@ -691,15 +794,17 @@ function renderList(){
     const itemsInCat = questions
       .map((q, idx) => ({ q, idx }))
       .filter(({q}) => q.cat === cat)
-      .filter(({q}) => !search || q.q.toLowerCase().includes(search) || q.opts.some(o=>o.toLowerCase().includes(search)));
+      .filter(({q}) => !search || q.q.toLowerCase().includes(search) || q.opts.some(o=>o.toLowerCase().includes(search)))
+      .filter(({q}) => !flaggedOnly || q.flagged);
 
-    if(search && itemsInCat.length === 0) return;
+    if((search || flaggedOnly) && itemsInCat.length === 0) return;
 
-    const isExpanded = expandedCats.has(cat) || !!search;
+    const isExpanded = expandedCats.has(cat) || !!search || flaggedOnly;
     const currentGroup = getGroupForCat(cat);
+    const flaggedCount = questions.filter(q => q.cat === cat && q.flagged).length;
     html += `
       <div class="cat-header" data-action="toggle-cat" data-cat="${escAttr(cat)}">
-        <div><span class="title">${isExpanded?'▾':'▸'} ${cat}</span><span class="count">${catCounts[cat]} question(s)${search ? `, ${itemsInCat.length} affichée(s)` : ""}</span></div>
+        <div><span class="title">${isExpanded?'▾':'▸'} ${cat}</span><span class="count">${catCounts[cat]} question(s)${flaggedCount ? ` · 🚩 ${flaggedCount} signalée(s)` : ""}${search ? `, ${itemsInCat.length} affichée(s)` : ""}</span></div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <select data-action="cat-group-select" data-cat="${escAttr(cat)}" style="width:auto;min-width:170px;">
             <option value="">Non classé (Autres)</option>
@@ -714,7 +819,8 @@ function renderList(){
       html += `<div class="cat-body">`;
       itemsInCat.forEach(({q, idx}) => {
         html += `
-          <div class="q-row">
+          <div class="q-row" style="${q.flagged ? 'border-color:var(--coral);' : ''}">
+            ${q.flagged ? `<p class="hint" style="color:var(--coral);margin:0 0 8px;">🚩 Signalée pendant une partie${q.flag_note ? ' : « ' + escAttr(q.flag_note) + ' »' : ''}</p>` : ""}
             <div class="row">
               <div style="flex:3;">
                 <label>Question</label>
@@ -736,6 +842,7 @@ function renderList(){
             <label>Petit fait</label>
             <input type="text" value="${escAttr(q.fact||'')}" oninput="updateField(${idx},'fact',this.value)">
             <div class="row" style="margin-top:8px;">
+              ${q.flagged ? `<button class="btn-teal btn-sm" onclick="clearFlag(${idx})">✅ Marquer comme corrigée</button>` : ""}
               <button class="btn-danger btn-sm" onclick="deleteQuestion(${idx})">🗑️ Supprimer cette question</button>
             </div>
           </div>
