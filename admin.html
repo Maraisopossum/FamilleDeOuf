@@ -50,6 +50,7 @@
   .cat-header .count{ color:var(--muted); font-size:13px; margin-left:8px; display:block; }
   @media (max-width:520px){
     .cat-header{ flex-direction:column; align-items:stretch; }
+    .cat-header > div:first-child{ flex:0 0 auto; min-width:0; }
     .cat-header > div:last-child{ width:100%; }
     .cat-header > div:last-child > select,
     .cat-header > div:last-child > button{ width:100% !important; min-width:0 !important; }
@@ -316,14 +317,16 @@ function ensureSupaClient(){
   return supaClient;
 }
 
+const AVATAR_CHOICES = ["😀","😎","🤓","🥳","🦁","🐼","🐵","🐸","🦊","🐯","🦄","🐙","🐷","🐨","🐻","🦉","🐧","🐳","🌟","🔥","⚡","🎯","🎮","🚒"];
+
 window.loadProfilesFromSupabase = async function(){
   const client = ensureSupaClient();
   if(!client) return;
   showStatus("profilesStatus","info","Chargement en cours…");
   try{
-    const { data, error } = await client.from("profiles").select("name").order("name");
+    const { data, error } = await client.from("profiles").select("name, avatar").order("name");
     if(error) throw error;
-    profilesData = data.map(r => r.name);
+    profilesData = data.map(r => ({ name: r.name, avatar: r.avatar || "" }));
     showStatus("profilesStatus","ok", `✅ ${profilesData.length} profil(s) chargé(s).`);
     renderProfilesList();
   }catch(err){
@@ -337,11 +340,20 @@ function renderProfilesList(){
     el.innerHTML = `<p class="hint">Aucun profil pour l'instant.</p>`;
     return;
   }
-  el.innerHTML = profilesData.map((name, idx) => `
-    <div class="q-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <input type="text" value="${escAttr(name)}" data-idx="${idx}" data-action="rename-input" style="flex:2;min-width:160px;">
-      <button class="btn-gold btn-sm" data-action="rename-profile" data-idx="${idx}">✏️ Renommer</button>
-      <button class="btn-danger btn-sm" data-action="delete-profile" data-name="${escAttr(name)}">🗑️ Supprimer</button>
+  el.innerHTML = profilesData.map((p, idx) => `
+    <div class="q-row">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:22px;">${p.avatar || "👤"}</span>
+        <input type="text" value="${escAttr(p.name)}" data-idx="${idx}" data-action="rename-input" style="flex:2;min-width:160px;">
+        <button class="btn-gold btn-sm" data-action="rename-profile" data-idx="${idx}">✏️ Renommer</button>
+        <button class="btn-danger btn-sm" data-action="delete-profile" data-name="${escAttr(p.name)}">🗑️ Supprimer</button>
+      </div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:4px;">
+        ${AVATAR_CHOICES.map(a => `
+          <button class="btn btn-sm" data-action="set-avatar" data-idx="${idx}" data-avatar="${a}"
+            style="padding:4px 8px;font-size:18px;background:${p.avatar===a?'var(--gold)':'var(--panel-light)'};">${a}</button>
+        `).join("")}
+      </div>
     </div>
   `).join("");
 }
@@ -350,7 +362,7 @@ document.getElementById("profilesListArea").addEventListener("click", async func
   const renameBtn = e.target.closest('[data-action="rename-profile"]');
   if(renameBtn){
     const idx = parseInt(renameBtn.dataset.idx, 10);
-    const oldName = profilesData[idx];
+    const oldName = profilesData[idx].name;
     const input = e.currentTarget.querySelector(`input[data-idx="${idx}"]`);
     const newName = input.value.trim();
     if(!newName || newName === oldName) return;
@@ -360,7 +372,7 @@ document.getElementById("profilesListArea").addEventListener("click", async func
     try{
       const { error } = await client.from("profiles").update({ name: newName }).eq("name", oldName);
       if(error) throw error;
-      profilesData[idx] = newName;
+      profilesData[idx].name = newName;
       showStatus("profilesStatus","ok", `✅ « ${oldName} » renommé en « ${newName} ». Les anciennes parties dans l'historique restent sous l'ancien nom.`);
       renderProfilesList();
     }catch(err){
@@ -378,11 +390,28 @@ document.getElementById("profilesListArea").addEventListener("click", async func
     try{
       const { error } = await client.from("profiles").delete().eq("name", name);
       if(error) throw error;
-      profilesData = profilesData.filter(n => n !== name);
+      profilesData = profilesData.filter(p => p.name !== name);
       showStatus("profilesStatus","ok", `✅ « ${name} » supprimé.`);
       renderProfilesList();
     }catch(err){
       showStatus("profilesStatus","err","❌ " + (err.message||"erreur") + " — as-tu bien exécuté supabase-profiles-delete-policy.sql ?");
+    }
+    return;
+  }
+  const avatarBtn = e.target.closest('[data-action="set-avatar"]');
+  if(avatarBtn){
+    const idx = parseInt(avatarBtn.dataset.idx, 10);
+    const avatar = avatarBtn.dataset.avatar;
+    const name = profilesData[idx].name;
+    const client = ensureSupaClient();
+    if(!client) return;
+    try{
+      const { error } = await client.from("profiles").update({ avatar }).eq("name", name);
+      if(error) throw error;
+      profilesData[idx].avatar = avatar;
+      renderProfilesList();
+    }catch(err){
+      showStatus("profilesStatus","err","❌ " + (err.message||"erreur") + " — as-tu bien exécuté supabase-profiles-add-avatar.sql ?");
     }
     return;
   }
@@ -398,8 +427,8 @@ window.addProfileFromAdmin = async function(){
   try{
     const { error } = await client.from("profiles").upsert({ name }, { onConflict: "name" });
     if(error) throw error;
-    if(!profilesData.includes(name)) profilesData.push(name);
-    profilesData.sort();
+    if(!profilesData.some(p => p.name === name)) profilesData.push({ name, avatar: "" });
+    profilesData.sort((a,b) => a.name.localeCompare(b.name));
     input.value = "";
     showStatus("profilesStatus","ok", `✅ Profil « ${name} » ajouté.`);
     renderProfilesList();
