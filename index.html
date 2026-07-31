@@ -154,6 +154,7 @@
 </head>
 <body>
 <canvas id="confetti"></canvas>
+<button id="muteBtn" onclick="toggleMute()" style="position:fixed;top:14px;right:14px;z-index:60;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,200,87,0.4);background:#2a1b4d;color:#f6f2ff;font-size:16px;cursor:pointer;">🔊</button>
 <div id="app"></div>
 
 <script>
@@ -177,23 +178,40 @@ let QUESTIONS = [];
 let CATEGORIES = [];
 let categoryGroupOverrides = {};
 
+let usingCachedQuestions = false;
 async function loadQuestions(){
   if(!CONFIG_OK) throw new Error("Configuration Supabase manquante (voir en haut du fichier).");
-  let all = [];
-  let from = 0;
-  const pageSize = 1000;
-  while(true){
-    const { data, error } = await supabaseClient.from("questions").select("*").range(from, from + pageSize - 1).order("id");
-    if(error) throw new Error("Impossible de charger les questions depuis Supabase : " + error.message);
-    all = all.concat(data);
-    if(!data || data.length < pageSize) break;
-    from += pageSize;
+  try{
+    let all = [];
+    let from = 0;
+    const pageSize = 1000;
+    while(true){
+      const { data, error } = await supabaseClient.from("questions").select("*").range(from, from + pageSize - 1).order("id");
+      if(error) throw new Error(error.message);
+      all = all.concat(data);
+      if(!data || data.length < pageSize) break;
+      from += pageSize;
+    }
+    if(all.length === 0) throw new Error("Aucune question trouvée dans Supabase (table « questions » vide ou inexistante).");
+    QUESTIONS = all.map(r => ({
+      id: r.id, cat: r.cat, q: r.q, opts: r.opts, correct: r.correct, fact: r.fact || "",
+      group: r.group_name || ""
+    }));
+    usingCachedQuestions = false;
+    try{
+      localStorage.setItem("quiz_questions_cache", JSON.stringify(QUESTIONS));
+      localStorage.setItem("quiz_questions_cache_ts", String(Date.now()));
+    }catch(e){ /* cache plein ou indisponible : tant pis, pas bloquant */ }
+  }catch(err){
+    let cached = null;
+    try{ cached = JSON.parse(localStorage.getItem("quiz_questions_cache") || "null"); }catch(e){}
+    if(cached && cached.length){
+      QUESTIONS = cached;
+      usingCachedQuestions = true;
+    } else {
+      throw new Error("Impossible de charger les questions (" + err.message + ") et aucune copie hors ligne n'est disponible.");
+    }
   }
-  if(all.length === 0) throw new Error("Aucune question trouvée dans Supabase (table « questions » vide ou inexistante).");
-  QUESTIONS = all.map(r => ({
-    id: r.id, cat: r.cat, q: r.q, opts: r.opts, correct: r.correct, fact: r.fact || "",
-    group: r.group_name || ""
-  }));
   CATEGORIES = [...new Set(QUESTIONS.map(q => q.cat))];
   categoryGroupOverrides = {};
   QUESTIONS.forEach(q => {
@@ -204,12 +222,20 @@ async function loadQuestions(){
 }
 
 let PROFILES = [];
+let PROFILE_AVATARS = {};
 async function loadProfiles(){
   if(!CONFIG_OK) return;
   try{
-    const { data, error } = await supabaseClient.from("profiles").select("name").order("name");
-    if(!error && data) PROFILES = data.map(r => r.name).filter(Boolean);
+    const { data, error } = await supabaseClient.from("profiles").select("name, avatar").order("name");
+    if(!error && data){
+      PROFILES = data.map(r => r.name).filter(Boolean);
+      PROFILE_AVATARS = {};
+      data.forEach(r => { if(r.avatar) PROFILE_AVATARS[r.name] = r.avatar; });
+    }
   }catch(e){ /* table pas encore créée : on ignore silencieusement */ }
+}
+function profileAvatar(name){
+  return PROFILE_AVATARS[name] || (name ? name.charAt(0).toUpperCase() : "?");
 }
 
 const FORMATS = [
@@ -307,7 +333,18 @@ function remainingHandicapMs(receivedAt, seconds){
 
 /* ============ SONS ============ */
 let audioCtx;
+let soundMuted = localStorage.getItem("quiz_sound_muted") === "1";
+function updateMuteBtn(){
+  const btn = document.getElementById("muteBtn");
+  if(btn) btn.textContent = soundMuted ? "🔇" : "🔊";
+}
+window.toggleMute = function(){
+  soundMuted = !soundMuted;
+  localStorage.setItem("quiz_sound_muted", soundMuted ? "1" : "0");
+  updateMuteBtn();
+};
 function beep(freq, dur, type="sine", vol=0.15){
+  if(soundMuted) return;
   try{
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
@@ -365,7 +402,8 @@ function freshHostState(){
     formatIndex:1, selectedCats:[], catsInitialized:false, players:{}, deck:[], currentIndex:0, phase:"lobby",
     answers:{}, questionStartTime:0, hostPlaysToo:false, hostPlayerName:"", hostIsRegistered:false, ownChoiceIndex:null,
     lastRoundResults:{}, teamMode:false, teamNames:["Équipe 1","Équipe 2"], playerTeams:{}, teamScores:{},
-    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000
+    eliminationMode:false, eliminated:[], playerHandicaps:{}, hostHandicap:0, questionDuration:20000,
+    tournamentMode:false, tournamentRounds:3, tournamentRound:1, jokerEnabled:true
   };
 }
 let host = freshHostState();
@@ -418,6 +456,7 @@ app.addEventListener("click", function(e){
 function render(){
   if(role === "solo"){ renderSoloScreen(); return; }
   if(role === "history"){ renderHistoryScreen(); return; }
+  if(role === "dashboard"){ renderDashboardScreen(); return; }
   if(role === null){ renderRoleSelect(); return; }
   if(!CONFIG_OK){ renderConfigWarning(); return; }
   if(role === "host") renderHostScreen();
@@ -466,7 +505,7 @@ function renderRoleSelect(){
       </div>
       ${!CONFIG_OK ? `<div class="config-warning">⚠️ Les modes "Créer la partie" et "Rejoindre" nécessitent la configuration Supabase (voir en haut du fichier). Le Mode Solo fonctionne sans configuration.</div>` : ""}
     </div>
-    <footer>${QUESTIONS.length} questions dans la base · le mode solo fonctionne même seul, sans les autres joueurs</footer>
+    <footer>${QUESTIONS.length} questions dans la base${usingCachedQuestions ? ' · 📡 copie hors ligne (peut-être un peu ancienne)' : ''} · le mode solo fonctionne même seul, sans les autres joueurs</footer>
   `;
 }
 window.chooseRole = function(r){ role = r; render(); };
@@ -478,12 +517,15 @@ function renderHistoryScreen(){
       <div class="topbar"><div class="brand">🐼 <span>Historique</span></div>
         <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
       <div class="card">
+        <div class="btn-row" style="margin-bottom:18px;">
+          <button class="btn btn-teal btn-block" onclick="chooseRole('dashboard')">📈 Statistiques générales de la famille</button>
+        </div>
         <h1 class="setup-title" style="font-size:22px;">Choisis un profil</h1>
         <p class="setup-sub">Consulte l'historique des parties d'un profil enregistré (solo et multijoueur).</p>
         <div class="profile-grid">
           ${PROFILES.map(p => `
             <div class="profile-card" data-action="pick-history-profile" data-name="${escAttr(p)}">
-              <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
+              <div class="avatar-letter">${escAttr(profileAvatar(p))}</div><div class="pname">${p}</div>
             </div>
           `).join("")}
         </div>
@@ -502,14 +544,114 @@ function renderHistoryScreen(){
   }
 }
 
+function renderDashboardScreen(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Tableau de bord</span></div>
+      <button class="back-link" onclick="leaveToRoleSelect()">‹ changer de rôle</button></div>
+    <div class="card"><div id="dashboardArea"><p class="status-banner">Chargement…</p></div></div>
+  `;
+  loadDashboardData();
+}
+async function loadDashboardData(){
+  const el = document.getElementById("dashboardArea");
+  try{
+    const { data, error } = await supabaseClient.from("game_history").select("*");
+    if(error) throw error;
+    if(!data || data.length === 0){
+      el.innerHTML = `<p class="status-banner">Aucune partie enregistrée pour l'instant.</p>`;
+      return;
+    }
+    const totalGames = data.length;
+    const byProfile = {};
+    data.forEach(r => {
+      if(!byProfile[r.profile_name]) byProfile[r.profile_name] = { games:0, totalScore:0, wins:0, multiGames:0 };
+      const s = byProfile[r.profile_name];
+      s.games++;
+      s.totalScore += r.score || 0;
+      if(r.mode === "multi"){ s.multiGames++; if(r.rank === 1) s.wins++; }
+    });
+    const profiles = Object.entries(byProfile).map(([name,s]) => ({ name, ...s }));
+    const champion = profiles.slice().sort((a,b)=>b.wins-a.wins)[0];
+    const mostActive = profiles.slice().sort((a,b)=>b.games-a.games)[0];
+    const ranked = profiles.slice().sort((a,b)=>b.totalScore-a.totalScore);
+    const medals = ["🥇","🥈","🥉"];
+    el.innerHTML = `
+      <div class="scoreboard" style="margin-top:0;">
+        <h3>En bref</h3>
+        <div class="player-cards">
+          <div class="player-card"><div class="name">🎮 Parties jouées</div><div class="score" style="font-size:22px;">${totalGames}</div></div>
+          ${champion && champion.wins>0 ? `<div class="player-card"><div class="name">🏆 Le plus de victoires</div><div class="score" style="font-size:18px;">${champion.name}</div><div style="font-size:12px;color:var(--muted);">${champion.wins} victoire(s)</div></div>` : ""}
+          ${mostActive ? `<div class="player-card"><div class="name">🔥 Le plus assidu</div><div class="score" style="font-size:18px;">${mostActive.name}</div><div style="font-size:12px;color:var(--muted);">${mostActive.games} partie(s)</div></div>` : ""}
+        </div>
+      </div>
+      <div class="scoreboard">
+        <h3>Classement général (score cumulé, toutes parties)</h3>
+        <div class="player-cards">
+          ${ranked.map((p,i) => `
+            <div class="player-card">
+              <div class="name">${medals[i] || ('#'+(i+1))} ${p.name}</div>
+              <div class="score">${p.totalScore}</div>
+              <div style="font-size:12px;color:var(--muted);">${p.games} partie(s)</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }catch(err){
+    el.innerHTML = `<p class="status-banner">Impossible de charger les statistiques (${err.message || "erreur"}).</p>`;
+  }
+}
+
 /* ============ CANAL REALTIME ============ */
+let lastChannelCode = null;
+let lastChannelHandlers = null;
+let reconnectTimer = null;
+let connectionStatus = "connected"; // 'connected' | 'reconnecting' | 'offline'
+
+function updateConnectionBanner(){
+  let el = document.getElementById("connBanner");
+  if(connectionStatus === "connected"){
+    if(el) el.remove();
+    return;
+  }
+  if(!el){
+    el = document.createElement("div");
+    el.id = "connBanner";
+    el.style.cssText = "position:fixed;top:0;left:0;right:0;background:var(--coral);color:#1b1030;text-align:center;padding:8px 44px 8px 8px;font-weight:700;font-size:13px;z-index:65;";
+    document.body.prepend(el);
+  }
+  el.textContent = connectionStatus === "offline" ? "📡 Pas de connexion internet…" : "🔄 Connexion perdue, reconnexion en cours…";
+}
+function scheduleReconnect(){
+  if(reconnectTimer || !lastChannelCode || !lastChannelHandlers) return;
+  connectionStatus = "reconnecting";
+  updateConnectionBanner();
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    if(role === "host" || role === "player"){
+      subscribeChannel(lastChannelCode, lastChannelHandlers);
+      if(role === "player") setTimeout(() => send("join", { name: player.name, handicap: player.currentHandicap || 0 }), 500);
+    }
+  }, 2500);
+}
+window.addEventListener("offline", () => { connectionStatus = "offline"; updateConnectionBanner(); });
+window.addEventListener("online", () => { if(lastChannelCode) scheduleReconnect(); });
+
 function subscribeChannel(code, handlers){
   if(channel) supabaseClient.removeChannel(channel);
+  lastChannelCode = code; lastChannelHandlers = handlers;
   channel = supabaseClient.channel("quiz-room-" + code, { config:{ broadcast:{ self:false } } });
   Object.entries(handlers).forEach(([event, fn]) => {
     channel.on("broadcast", { event }, ({payload}) => fn(payload));
   });
-  channel.subscribe();
+  channel.subscribe((status) => {
+    if(status === "SUBSCRIBED"){
+      connectionStatus = "connected";
+      updateConnectionBanner();
+    } else if(status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED"){
+      scheduleReconnect();
+    }
+  });
   return channel;
 }
 function send(event, payload){
@@ -575,7 +717,28 @@ function renderOpenRoomsArea(){
 function renderHostScreen(){
   if(host.phase === "lobby") renderHostLobby();
   else if(host.phase === "question" || host.phase === "reveal") renderHostGame();
+  else if(host.phase === "roundEnd") renderHostRoundEnd();
   else if(host.phase === "end") renderHostEnd();
+}
+
+function renderHostRoundEnd(){
+  const scoresForPodium = host.teamMode ? teamScoresAsMap() : host.players;
+  const ranked = Object.entries(scoresForPodium).sort((a,b)=>b[1]-a[1]);
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Manche ${host.tournamentRound-1}/${host.tournamentRounds} terminée</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">🏁 Fin de la manche ${host.tournamentRound-1} !</h1>
+      <p class="setup-sub">Score cumulé avant la manche ${host.tournamentRound}/${host.tournamentRounds} :</p>
+      <div class="player-cards" style="justify-content:center;">
+        ${ranked.map(([name,score],i) => `
+          <div class="player-card"><div class="name">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${name}</div><div class="score">${score}</div></div>
+        `).join("")}
+      </div>
+      <div class="btn-row" style="justify-content:center;margin-top:26px;">
+        <button class="btn btn-primary" onclick="hostStartNextRound()">Manche ${host.tournamentRound}/${host.tournamentRounds} ➜</button>
+      </div>
+    </div>
+  `;
 }
 
 function renderHostLobby(){
@@ -639,6 +802,27 @@ function renderHostLobby(){
         </button>
       </div>
       ${host.eliminationMode ? `<p class="status-banner" style="text-align:left;margin-bottom:22px;">À partir de la 2ᵉ question, le joueur le moins bien classé est éliminé à chaque révélation. Il continue de suivre la partie en spectateur.</p>` : ""}
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Mode Tournoi</h3>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn ${host.tournamentMode ? 'btn-gold' : 'btn-ghost'}" onclick="toggleTournamentMode()">
+          ${host.tournamentMode ? '✅ Tournoi activé' : 'Activer le Mode Tournoi'}
+        </button>
+      </div>
+      ${host.tournamentMode ? `
+        <p class="status-banner" style="text-align:left;margin-bottom:10px;">Le score se cumule sur plusieurs manches d'affilée dans la même soirée.</p>
+        <label class="field-label">Nombre de manches</label>
+        <div class="btn-row" style="margin-bottom:22px;">
+          ${[2,3,4,5].map(n => `<button class="btn btn-sm ${host.tournamentRounds===n?'btn-gold':'btn-ghost'}" onclick="setTournamentRounds(${n})">${n} manches</button>`).join("")}
+        </div>
+      ` : ""}
+
+      <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Joker 50/50</h3>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn ${host.jokerEnabled ? 'btn-gold' : 'btn-ghost'}" onclick="toggleJokerEnabled()">
+          ${host.jokerEnabled ? '✅ Joker 50/50 activé (1 par joueur et par partie)' : 'Joker 50/50 désactivé'}
+        </button>
+      </div>
 
       <h3 style="margin:22px 0 12px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Handicap par joueur</h3>
       <p class="status-banner" style="text-align:left;margin-bottom:14px;">Chacun choisit son handicap en te rejoignant, mais tu peux l'ajuster ici à tout moment avant de lancer.</p>
@@ -755,6 +939,9 @@ function renderHandicapConfigHtml(){
 window.setHandicap = function(name, seconds){ host.playerHandicaps[name] = seconds; render(); };
 window.setHostOwnHandicap = function(seconds){ host.hostHandicap = seconds; render(); };
 window.toggleEliminationMode = function(){ host.eliminationMode = !host.eliminationMode; render(); };
+window.toggleTournamentMode = function(){ host.tournamentMode = !host.tournamentMode; render(); };
+window.setTournamentRounds = function(n){ host.tournamentRounds = n; render(); };
+window.toggleJokerEnabled = function(){ host.jokerEnabled = !host.jokerEnabled; render(); };
 
 window.toggleHostPlays = function(){
   host.hostPlaysToo = !host.hostPlaysToo;
@@ -899,6 +1086,7 @@ window.hostStartGame = function(){
   host.deck = buildDeck(FORMATS[host.formatIndex].total, host.selectedCats);
   host.currentIndex = 0;
   host.eliminated = [];
+  host.tournamentRound = 1;
   Object.keys(host.players).forEach(n => host.players[n] = 0);
   if(host.teamMode){
     let ti = 0;
@@ -909,6 +1097,12 @@ window.hostStartGame = function(){
     host.teamNames.forEach((tn,i) => host.teamScores[i] = 0);
   }
   hostUntrackRoom();
+  hostSendQuestion();
+};
+window.hostStartNextRound = function(){
+  host.deck = buildDeck(FORMATS[host.formatIndex].total, host.selectedCats);
+  host.currentIndex = 0;
+  host.eliminated = [];
   hostSendQuestion();
 };
 
@@ -1138,6 +1332,17 @@ window.hostReveal = function(){
 
 window.hostNext = function(){
   if(host.currentIndex+1 >= host.deck.length){
+    if(host.tournamentMode && host.tournamentRound < host.tournamentRounds){
+      host.phase = "roundEnd";
+      send("roundEnd", {
+        scores: {...host.players}, round: host.tournamentRound, totalRounds: host.tournamentRounds,
+        teamMode: host.teamMode, teamNames: [...host.teamNames], teamScores: {...host.teamScores}
+      });
+      host.tournamentRound++;
+      render();
+      scrollTop();
+      return;
+    }
     host.phase = "end";
     send("end", {
       scores: {...host.players},
@@ -1163,7 +1368,8 @@ function saveHostHistoryIfRegistered(){
     rank: rankInfo ? rankInfo.rank : null,
     total_players: rankInfo ? rankInfo.total : null,
     room_code: roomCode,
-    mode: "multi"
+    mode: "multi",
+    game: "Quiz de la Tribu"
   }).then(({error}) => { if(error) console.warn("Historique hôte non enregistré :", error.message); });
 }
 
@@ -1217,7 +1423,7 @@ function renderIdentityPicker(){
       <div class="profile-grid">
         ${profiles.map(p => `
           <div class="profile-card" data-action="pick-profile" data-name="${escAttr(p)}">
-            <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
+            <div class="avatar-letter">${escAttr(profileAvatar(p))}</div><div class="pname">${p}</div>
           </div>
         `).join("")}
         <div class="profile-card special" data-action="create-profile">
@@ -1502,7 +1708,8 @@ function saveHistoryIfRegistered(finalScores){
     rank: rankInfo ? rankInfo.rank : null,
     total_players: rankInfo ? rankInfo.total : null,
     room_code: player.roomCode,
-    mode: "multi"
+    mode: "multi",
+    game: "Quiz de la Tribu"
   }).then(({error}) => { if(error) console.warn("Historique non enregistré :", error.message); });
 }
 function renderPlayerEnd(){
@@ -1542,7 +1749,7 @@ function renderSoloIdentityPicker(){
       <div class="profile-grid">
         ${profiles.map(p => `
           <div class="profile-card" data-action="pick-solo-profile" data-name="${escAttr(p)}">
-            <div class="avatar-letter">${escAttr(p.charAt(0).toUpperCase())}</div><div class="pname">${p}</div>
+            <div class="avatar-letter">${escAttr(profileAvatar(p))}</div><div class="pname">${p}</div>
           </div>
         `).join("")}
         <div class="profile-card special" data-action="create-solo-profile">
@@ -1767,7 +1974,8 @@ function saveSoloHistoryIfRegistered(){
     profile_name: soloIdentity.name,
     score: solo.correctCount,
     total_questions: solo.deck.length,
-    mode: "solo"
+    mode: "solo",
+    game: "Quiz de la Tribu"
   }).then(({error}) => { if(error) console.warn("Historique solo non enregistré :", error.message); });
 }
 
@@ -1781,143 +1989,3 @@ function renderSoloEnd(){
       <h1 class="end-title">${pct>=80 ? "Excellent ! 🌟" : pct>=50 ? "Pas mal du tout !" : "Encore un effort !"}</h1>
       <p class="setup-sub">${solo.correctCount} / ${total} bonnes réponses (${pct}%)</p>
     </div>
-    ${missed.length>0 ? `
-      <div class="scoreboard">
-        <h3>À revoir (${missed.length})</h3>
-        ${missed.map(h => `
-          <div class="card" style="padding:18px;margin-top:12px;">
-            <p style="margin:0 0 8px;font-weight:700;">${h.q}</p>
-            <p style="margin:0;color:var(--teal);">✅ ${h.opts[h.correct]}</p>
-            <p style="margin:6px 0 0;color:var(--muted);font-size:13px;">💡 ${h.fact}</p>
-          </div>
-        `).join("")}
-      </div>
-    ` : `<div class="card" style="text-align:center;"><p class="setup-sub" style="margin:0;">Sans fautes ! 🎉</p></div>`}
-    <div class="btn-row" style="justify-content:center;margin-top:26px;">
-      <button class="btn btn-primary" onclick="soloRestart()">Rejouer 🔁</button>
-      <button class="btn btn-ghost" onclick="leaveToRoleSelect()">Retour à l'accueil 🏠</button>
-    </div>
-  `;
-}
-window.soloRestart = function(){ solo.phase = "setup"; render(); scrollTop(); };
-
-/* ============ ÉCRAN PODIUM PARTAGÉ ============ */
-function podiumItem(name, rankIndex, cls, score){
-  const medals = ["🥇","🥈","🥉"];
-  return `
-    <div class="podium-item ${cls}">
-      <div class="rank">${medals[rankIndex]}</div>
-      <div class="pname">${name}</div>
-      <div class="pscore">${score} pts</div>
-      <div class="ptitle">${TITLES[rankIndex]}</div>
-    </div>
-  `;
-}
-function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
-  const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
-  const podium = ranked.slice(0,3);
-  const [first, second, third] = podium;
-  const podiumHtml = `
-    ${second ? podiumItem(second[0], 1, "second", second[1]) : ""}
-    ${first ? podiumItem(first[0], 0, "first", first[1]) : ""}
-    ${third ? podiumItem(third[0], 2, "third", third[1]) : ""}
-  `;
-  const restHtml = ranked.slice(3).map(([name,score]) => `
-    <div class="player-card" style="min-width:auto;">
-      <div class="name">${name}${name===highlightName?' (toi)':''}</div>
-      <div class="score" style="font-size:18px;">${score} pts</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;">${TITLES[3]}</div>
-    </div>
-  `).join("");
-  app.innerHTML = `
-    <div class="topbar"><div class="brand">🐼 <span>Résultats</span></div></div>
-    <div class="end-card">
-      <h1 class="end-title">C'est plié !</h1>
-      <p class="setup-sub">Merci d'avoir joué — la revanche est déjà réclamée par les perdants.</p>
-      <div class="podium">${podiumHtml}</div>
-      ${restHtml ? `<div class="player-cards" style="justify-content:center;">${restHtml}</div>` : ""}
-      <div class="btn-row" style="justify-content:center;margin-top:26px;">
-        ${restartFn ? `<button class="btn btn-primary" onclick="${restartFn}">Nouvelle partie (même salon) 🔁</button>` : ""}
-        <button class="btn btn-ghost" onclick="${leaveFn}">Retour à l'accueil 🏠</button>
-      </div>
-    </div>
-  `;
-}
-
-/* ============ NAVIGATION ============ */
-window.leaveToRoleSelect = function(){
-  stopTimer();
-  stopHandicapCountdown();
-  if(channel){ supabaseClient.removeChannel(channel); channel = null; }
-  closeDirectoryChannel();
-  localStorage.removeItem("quiz_active_session");
-  role = null; roomCode = ""; joinIdentity = null; soloIdentity = null; historySelectedProfile = null;
-  host = freshHostState();
-  player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
-    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
-  solo = freshSoloState();
-  render();
-  scrollTop();
-};
-
-function renderLoading(){
-  app.innerHTML = `
-    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
-    <div class="card" style="text-align:center;"><p class="setup-sub">Chargement des questions…</p></div>
-  `;
-}
-function renderReconnecting(){
-  app.innerHTML = `
-    <div class="topbar"><div class="brand">🐼 <span>Reconnexion…</span></div></div>
-    <div class="card" style="text-align:center;">
-      <div style="font-size:50px;margin-bottom:10px;">🔄</div>
-      <p class="setup-sub">On te reconnecte à ta partie en cours…</p>
-    </div>
-  `;
-}
-function renderLoadError(err){
-  app.innerHTML = `
-    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
-    <div class="card">
-      <h1 class="setup-title">Impossible de charger les questions</h1>
-      <p class="setup-sub">Le fichier <code>questions.json</code> doit se trouver dans le même dossier que <code>index.html</code>, à la racine du site déployé.</p>
-      <div class="config-warning">Détail technique : ${err.message}</div>
-    </div>
-  `;
-}
-(async function bootstrap(){
-  renderLoading();
-  try{
-    await loadQuestions();
-    await loadProfiles();
-    const params = new URLSearchParams(location.search);
-    const joinCode = params.get("join");
-    if(joinCode){
-      pendingJoinCode = joinCode.toUpperCase().slice(0,4);
-      role = "player";
-      render();
-      return;
-    }
-    let stored = null;
-    try{ stored = JSON.parse(localStorage.getItem("quiz_active_session") || "null"); }catch(e){ stored = null; }
-    if(stored && stored.name && stored.code && (Date.now() - stored.ts) < RECONNECT_WINDOW_MS){
-      role = "player";
-      renderReconnecting();
-      doPlayerJoin(stored.name, stored.code);
-      return;
-    }
-    render();
-  }catch(err){
-    renderLoadError(err);
-  }
-})();
-</script>
-<script>
-  if("serviceWorker" in navigator){
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
-</script>
-</body>
-</html>
