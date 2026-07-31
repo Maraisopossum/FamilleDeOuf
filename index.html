@@ -1989,3 +1989,147 @@ function renderSoloEnd(){
       <h1 class="end-title">${pct>=80 ? "Excellent ! 🌟" : pct>=50 ? "Pas mal du tout !" : "Encore un effort !"}</h1>
       <p class="setup-sub">${solo.correctCount} / ${total} bonnes réponses (${pct}%)</p>
     </div>
+    ${missed.length>0 ? `
+      <div class="scoreboard">
+        <h3>À revoir (${missed.length})</h3>
+        ${missed.map(h => `
+          <div class="card" style="padding:18px;margin-top:12px;">
+            <p style="margin:0 0 8px;font-weight:700;">${h.q}</p>
+            <p style="margin:0;color:var(--teal);">✅ ${h.opts[h.correct]}</p>
+            <p style="margin:6px 0 0;color:var(--muted);font-size:13px;">💡 ${h.fact}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : `<div class="card" style="text-align:center;"><p class="setup-sub" style="margin:0;">Sans fautes ! 🎉</p></div>`}
+    <div class="btn-row" style="justify-content:center;margin-top:26px;">
+      <button class="btn btn-primary" onclick="soloRestart()">Rejouer 🔁</button>
+      <button class="btn btn-ghost" onclick="leaveToRoleSelect()">Retour à l'accueil 🏠</button>
+    </div>
+  `;
+}
+window.soloRestart = function(){ solo.phase = "setup"; render(); scrollTop(); };
+
+/* ============ ÉCRAN PODIUM PARTAGÉ ============ */
+function podiumItem(name, rankIndex, cls, score){
+  const medals = ["🥇","🥈","🥉"];
+  return `
+    <div class="podium-item ${cls}">
+      <div class="rank">${medals[rankIndex]}</div>
+      <div class="pname">${name}</div>
+      <div class="pscore">${score} pts</div>
+      <div class="ptitle">${TITLES[rankIndex]}</div>
+    </div>
+  `;
+}
+function renderPodiumScreen(scores, restartFn, leaveFn, highlightName){
+  const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const podium = ranked.slice(0,3);
+  const [first, second, third] = podium;
+  const podiumHtml = `
+    ${second ? podiumItem(second[0], 1, "second", second[1]) : ""}
+    ${first ? podiumItem(first[0], 0, "first", first[1]) : ""}
+    ${third ? podiumItem(third[0], 2, "third", third[1]) : ""}
+  `;
+  const restHtml = ranked.slice(3).map(([name,score]) => `
+    <div class="player-card" style="min-width:auto;">
+      <div class="name">${name}${name===highlightName?' (toi)':''}</div>
+      <div class="score" style="font-size:18px;">${score} pts</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">${TITLES[3]}</div>
+    </div>
+  `).join("");
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Résultats</span></div></div>
+    <div class="end-card">
+      <h1 class="end-title">C'est plié !</h1>
+      <p class="setup-sub">Merci d'avoir joué — la revanche est déjà réclamée par les perdants.</p>
+      <div class="podium">${podiumHtml}</div>
+      ${restHtml ? `<div class="player-cards" style="justify-content:center;">${restHtml}</div>` : ""}
+      <div class="btn-row" style="justify-content:center;margin-top:26px;">
+        ${restartFn ? `<button class="btn btn-primary" onclick="${restartFn}">Nouvelle partie (même salon) 🔁</button>` : ""}
+        <button class="btn btn-ghost" onclick="${leaveFn}">Retour à l'accueil 🏠</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ NAVIGATION ============ */
+window.leaveToRoleSelect = function(){
+  stopTimer();
+  stopHandicapCountdown();
+  if(channel){ supabaseClient.removeChannel(channel); channel = null; }
+  closeDirectoryChannel();
+  if(reconnectTimer){ clearTimeout(reconnectTimer); reconnectTimer = null; }
+  lastChannelCode = null; lastChannelHandlers = null;
+  connectionStatus = "connected"; updateConnectionBanner();
+  localStorage.removeItem("quiz_active_session");
+  role = null; roomCode = ""; joinIdentity = null; soloIdentity = null; historySelectedProfile = null;
+  host = freshHostState();
+  player = { name:"", roomCode:"", score:0, phase:"join", currentQuestion:null, chosenIndex:null, lastResult:null,
+    eliminated:false, lastKnownScores:{}, finalTeamInfo:null, currentHandicap:0, myJoinHandicap:0, isRegistered:false };
+  solo = freshSoloState();
+  render();
+  scrollTop();
+};
+
+function renderLoading(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card" style="text-align:center;"><p class="setup-sub">Chargement des questions…</p></div>
+  `;
+}
+function renderReconnecting(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 <span>Reconnexion…</span></div></div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:50px;margin-bottom:10px;">🔄</div>
+      <p class="setup-sub">On te reconnecte à ta partie en cours…</p>
+    </div>
+  `;
+}
+function renderLoadError(err){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand">🐼 Le Grand Quiz <span>de la Tribu</span></div></div>
+    <div class="card">
+      <h1 class="setup-title">Impossible de charger les questions</h1>
+      <p class="setup-sub">Le fichier <code>questions.json</code> doit se trouver dans le même dossier que <code>index.html</code>, à la racine du site déployé.</p>
+      <div class="config-warning">Détail technique : ${err.message}</div>
+    </div>
+  `;
+}
+(async function bootstrap(){
+  updateMuteBtn();
+  renderLoading();
+  try{
+    await loadQuestions();
+    await loadProfiles();
+    const params = new URLSearchParams(location.search);
+    const joinCode = params.get("join");
+    if(joinCode){
+      pendingJoinCode = joinCode.toUpperCase().slice(0,4);
+      role = "player";
+      render();
+      return;
+    }
+    let stored = null;
+    try{ stored = JSON.parse(localStorage.getItem("quiz_active_session") || "null"); }catch(e){ stored = null; }
+    if(stored && stored.name && stored.code && (Date.now() - stored.ts) < RECONNECT_WINDOW_MS){
+      role = "player";
+      renderReconnecting();
+      doPlayerJoin(stored.name, stored.code);
+      return;
+    }
+    render();
+  }catch(err){
+    renderLoadError(err);
+  }
+})();
+</script>
+<script>
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
